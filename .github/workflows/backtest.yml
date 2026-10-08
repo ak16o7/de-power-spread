@@ -40,8 +40,8 @@ jobs:
       - run: python -m dps run
       - name: Commit
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "ak16o7"
+          git config user.email "akderekaan@hotmail.com"
           git add reports README.md
           if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
           git commit -m "backtest: $(date -u +%Y-%m-%d)"
