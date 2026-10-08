@@ -111,6 +111,20 @@ def run(start: date | None = None, end: date | None = None) -> dict:
             r = trading.pnl(g["side"], g["da"], g["id_aep"], slippage=slip)
             row[str(slip)] = round(float(r["net"].sum()), 0)
         out["slippage_sensitivity"][s] = row
+    def capped(g: pd.DataFrame, cap: float) -> pd.DataFrame:
+        net = trading.pnl(g["side"], g["da"], g["da"] + (g["id_aep"] - g["da"]).clip(-cap, cap))["net"]
+        return g.assign(net=net.to_numpy())
+    out["spike_sensitivity"] = {}
+    for s, g in by.items():
+        row = {"top10_qh_net_eur": round(float(g.reindex(g["net"].abs().sort_values(ascending=False).index)["net"].head(10).sum()), 0)}
+        for cap in config.SPIKE_CAPS:
+            gc = capped(g, cap)
+            row[str(int(cap))] = {"net_eur": round(float(gc["net"].sum()), 0),
+                                  "t_daily_hac": metrics._num(metrics.hac_t(metrics.daily(gc, test_days).to_numpy()), 2)}
+        out["spike_sensitivity"][s] = row
+    mid = config.SPIKE_CAPS[len(config.SPIKE_CAPS) // 2]
+    out["model_vs_capped"] = {"cap_eur_mwh": mid, **{b: metrics.compare(capped(by["model"], mid), capped(by[b], mid), test_days)
+                                                     for b in baselines.BASELINES}}
     mg = by["model"]
     for mon, g in mg.groupby(pd.to_datetime(mg["day"].astype(str)).dt.strftime("%Y-%m")):
         out["model_monthly"][mon] = {"net_eur": round(float(g["net"].sum()), 0), "mwh": round(float(g["mwh"].sum()), 1)}

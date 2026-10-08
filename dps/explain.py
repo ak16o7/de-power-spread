@@ -25,6 +25,7 @@ from .util import BERLIN, now
 
 LOG = logging.getLogger(__name__)
 REGRESSORS = ("err_solar", "err_wind_on", "err_wind_off", "err_load")
+CAP = 200.0   # robustness: the same regression with the spread capped at +-CAP EUR/MWh
 DAYPARTS = {"00-06": (0, 6), "06-10": (6, 10), "10-16": (10, 16), "16-20": (16, 20), "20-24": (20, 24)}
 
 
@@ -73,7 +74,8 @@ def run(start: date | None = None, end: date | None = None) -> dict:
     hours = pd.DatetimeIndex(df.index).tz_convert(BERLIN).hour
     out = {"generated_at": now().isoformat(), "period": {"from": str(start), "to": str(end)},
            "units": "EUR/MWh of spread (ID-AEP - day-ahead) per GW of forecast error (actual - TSO day-ahead)",
-           "all": fit(df), "dayparts": {}}
+           "all": fit(df), "dayparts": {},
+           "capped_eur_mwh": CAP, "all_capped": fit(df.assign(spread=df["spread"].clip(-CAP, CAP)))}
     for name, (a, b) in DAYPARTS.items():
         out["dayparts"][name] = fit(df[(hours >= a) & (hours < b)], lags=24)
     p = Path(config.REPORTS_DIR) / "explain.json"
@@ -88,8 +90,11 @@ def markdown(res: dict) -> str:
         return "_Noch keine Daten für die Erklär-Regression._\n"
     label = {"const": "Konstante", "err_solar": "Solar", "err_wind_on": "Wind an Land",
              "err_wind_off": "Wind auf See", "err_load": "Last"}
-    lines = ["| Fehler (Ist − ÜNB-DA), je GW | €/MWh Spread | t | " + " | ".join(res["dayparts"]) + " |",
-             "|---|---:|---:|" + "---:|" * len(res["dayparts"])]
+    capped = (res.get("all_capped") or {}).get("coef", {})
+    cap = res.get("capped_eur_mwh")
+    cap_head = f" gekappt ±{cap:.0f} | t |" if capped else ""
+    lines = ["| Fehler (Ist − ÜNB-DA), je GW | €/MWh Spread | t |" + cap_head + " " + " | ".join(res["dayparts"]) + " |",
+             "|---|---:|---:|" + ("---:|---:|" if capped else "") + "---:|" * len(res["dayparts"])]
     def num(x, fmt):
         return "–" if x is None or x != x else format(x, fmt)
     for k, v in res["all"]["coef"].items():
@@ -97,9 +102,14 @@ def markdown(res: dict) -> str:
         for part in res["dayparts"].values():
             c = (part or {}).get("coef", {}).get(k)
             cells.append(num(c["eur_mwh_per_gw"], "+.2f") if c else "–")
+        cc = capped.get(k)
+        cap_cells = (f"{num(cc['eur_mwh_per_gw'], '+.2f')} | {num(cc['t'], '.1f')} | " if cc else "– | – | ") if capped else ""
         lines.append(f"| {label.get(k, k)} | {num(v['eur_mwh_per_gw'], '+.2f')} | {num(v['t'], '.1f')} | "
-                     + " | ".join(cells) + " |")
+                     + cap_cells + " | ".join(cells) + " |")
     n = f"{res['all']['n']:,}".replace(",", "\u202f")
-    lines.append(f"\nn = {n} Viertelstunden, R² = {res['all']['r2']:.2f}. "
-                 "t mit Newey-West-Standardfehlern (96 Lags). Spalten rechts: getrennte Regressionen je Tageszeit.")
+    r2c = f", gekappt {res['all_capped']['r2']:.2f}" if capped else ""
+    lines.append(f"\nn = {n} Viertelstunden, R² = {res['all']['r2']:.2f}{r2c}. "
+                 "t mit Newey-West-Standardfehlern (96 Lags). „Gekappt\": Spread auf ±"
+                 f"{cap or 0:.0f} €/MWh begrenzt, damit wenige Preisspitzen die Schätzung nicht dominieren. "
+                 "Spalten rechts: getrennte Regressionen je Tageszeit (ungekappt).")
     return "\n".join(lines) + "\n"

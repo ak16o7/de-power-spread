@@ -32,6 +32,9 @@ FEE_EUR_MWH_PER_LEG = 0.25          # assumption, not an exchange fee schedule
 SLIPPAGE_EUR_MWH = 1.0              # charged against you on the ID-AEP exit
 MISSING_EXIT_PENALTY_EUR_MWH = 10.0 # ID-AEP undefined (< 500 MW traded): assumed loss
 SLIPPAGE_GRID = (0.0, 1.0, 2.0, 5.0)
+# Robustness: PnL if the spread were capped at +-cap EUR/MWh. A strategy whose profit
+# disappears under the cap lives off a few price spikes, not off a repeatable edge.
+SPIKE_CAPS = (500.0, 200.0, 100.0)
 
 # --------------------------------------------------------------------------- model
 THRESHOLD_GRID = (0.0, 2.0, 5.0, 10.0, 15.0, 20.0, 30.0)  # |predicted spread| in EUR/MWh

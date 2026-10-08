@@ -79,6 +79,46 @@ def parse_id_aep(text: str) -> pd.DataFrame:
     return df.drop_duplicates("ts", keep="last").sort_values("ts").reset_index(drop=True)
 
 
+PUBLIC_CSV = "https://www.netztransparenz.de/DesktopModules/LotesCharts/CsvDownloadHandler.ashx"
+PUBLIC_SETTINGS = {"DataType": 30, "ProduktId": 0, "CultureName": "de-DE", "Title": "Index Ausgleichsenergiepreis",
+                   "DiagramType": "line", "TimeInterval": 15, "DataUnit": " EUR/MWh", "CsvColumns": ["ID AEP"],
+                   "TsoIds": [], "NrvDirection": None, "WebApiRoute": "IdAep",
+                   "WebApiBaseUri": "https://lotes-UNB-svc-netzt.corp.transmission-it.de/StatistikApi/"}
+
+
+def configured() -> bool:
+    return bool(os.environ.get("NTP_CLIENT_ID", "").strip() and os.environ.get("NTP_CLIENT_SECRET", "").strip())
+
+
+def public_id_aep(start: date, end: date, session: requests.Session | None = None,
+                  chunk_days: int = 92) -> pd.DataFrame:
+    """Keyless fallback: the CSV download button of the ID-AEP page on netztransparenz.de.
+
+    Same data as the WebAPI, but not an official API: the page may change. Use the
+    WebAPI (NTP_CLIENT_ID/SECRET) for anything that runs unattended.
+    """
+    import base64
+    import json
+    s = session or requests.Session()
+    s.headers.setdefault("User-Agent", config.USER_AGENT)
+    frames, d = [], start
+    while d < end:
+        e = min(end, d + timedelta(days=chunk_days))
+        req = {"LocalFrom": str(d), "LocalTo": str(e), "ResultTimeZone": "utc", "Settings": PUBLIC_SETTINGS}
+        token = base64.b64encode(json.dumps(req, separators=(",", ":")).encode()).decode()
+        r = s.get(PUBLIC_CSV, params={"request": token}, timeout=120)
+        if r.status_code != 200 or "csv" not in r.headers.get("content-type", ""):
+            raise RuntimeError(f"netztransparenz public CSV: HTTP {r.status_code}")
+        frames.append(parse_id_aep(r.content.decode("utf-8-sig", "replace")))
+        time.sleep(1.0)
+        d = e
+    frames = [f for f in frames if not f.empty]
+    if not frames:
+        return pd.DataFrame(columns=["ts", "id_aep"])
+    df = pd.concat(frames, ignore_index=True).drop_duplicates("ts", keep="last")
+    return df[(df["ts"] >= local(start)) & (df["ts"] < local(end))].reset_index(drop=True)
+
+
 class Client:
     """OAuth2 client credentials; tries both documented date-range URL forms."""
 

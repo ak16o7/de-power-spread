@@ -59,7 +59,7 @@ def chart(results: pd.DataFrame, out: Path, title_note: str = "") -> None:
     ax.axhline(0, color=INK2, linewidth=0.8)
     ax.set_ylabel("Kumulierter Netto-PnL, Tsd. €", color=INK2, fontsize=9)
     ax.set_title(f"Day-Ahead → ID-AEP: Modell gegen Baselines{title_note}", loc="left", color=INK, fontsize=11)
-    leg = ax.legend(loc="upper left", frameon=False, fontsize=8.5)
+    leg = ax.legend(loc="best", frameon=False, fontsize=8.5)
     for t in leg.get_texts():
         t.set_color(INK)
     m = res[res["strategy"] == "model"]
@@ -93,10 +93,28 @@ def markdown(bt: dict, ex: dict | None, image: str = "reports/pnl.png") -> str:
         L.append(f"| {name} | {_fmt(v['net_eur'], 0, True)} | {_fmt(v['eur_per_mwh'], 2, True)} | {_fmt(v['mwh'])} | "
                  f"{_fmt(None if v['hit_rate'] is None else v['hit_rate'] * 100, 0)} % | {_fmt(v['sharpe_daily_ann'], 2)} | "
                  f"{_fmt(v['t_daily_hac'], 2)} | {_fmt(v['max_drawdown_eur'])} | {_fmt(v['worst_day_eur'])} | {v['missing_exit_qh']} |")
+    mc = bt.get("model_vs_capped", {})
+    cap = mc.get("cap_eur_mwh")
     L += ["", "**Modell minus Baseline**, Tages-PnL (t > 2: Vorsprung jenseits von Rauschen):", "",
-          "| gegen | Ø €/Tag | t (HAC) |", "|---|---:|---:|"]
+          "| gegen | Ø €/Tag | t (HAC) |" + (f" Ø €/Tag, Spread gekappt ±{cap:.0f} | t |" if mc else ""),
+          "|---|---:|---:|" + ("---:|---:|" if mc else "")]
     for b, v in bt["model_vs"].items():
-        L.append(f"| {LABEL[b]} | {_fmt(v['mean_eur_per_day'], 1, True)} | {_fmt(v['t_hac'], 2)} |")
+        extra = f" {_fmt(mc[b]['mean_eur_per_day'], 1, True)} | {_fmt(mc[b]['t_hac'], 2)} |" if b in mc else ""
+        L.append(f"| {LABEL[b]} | {_fmt(v['mean_eur_per_day'], 1, True)} | {_fmt(v['t_hac'], 2)} |" + extra)
+    sp = bt.get("spike_sensitivity")
+    if sp:
+        caps = [k for k in next(iter(sp.values())) if k != "top10_qh_net_eur"]
+        L += ["", "**Spike-Abhängigkeit**: Netto-PnL in €, wenn der Spread auf ±X €/MWh begrenzt wäre (t in Klammern). "
+              "Was unter der Kappung verschwindet, kam aus wenigen Preisspitzen.", "",
+              "| Strategie | ungekappt | davon 10 größte Viertelstunden | " + " | ".join(f"±{c}" for c in caps) + " |",
+              "|---|---:|---:|" + "---:|" * len(caps)]
+        for s in ORDER:
+            row = sp.get(s)
+            if not row:
+                continue
+            cells = " | ".join(f"{_fmt(row[c]['net_eur'], 0, True)} ({_fmt(row[c]['t_daily_hac'], 1)})" for c in caps)
+            L.append(f"| {LABEL[s]} | {_fmt(bt['strategies'][s]['net_eur'], 0, True)} | "
+                     f"{_fmt(row['top10_qh_net_eur'], 0, True)} | {cells} |")
     slips = list(next(iter(bt["slippage_sensitivity"].values())).keys())
     L += ["", "**Kostenempfindlichkeit**: Netto-PnL in € bei Slippage (€/MWh) von", "",
           "| Strategie | " + " | ".join(slips) + " |", "|---|" + "---:|" * len(slips)]
