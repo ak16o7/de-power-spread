@@ -1,15 +1,17 @@
 name: Live
 
-# Signal for tomorrow before the 12:00 day-ahead auction, settlement of earlier days.
-# GitHub cron runs in UTC and can be late, so there are several slots; `signal` only
-# writes inside 10:45-11:50 local and only once per day (CEST: first two slots,
-# CET: last two). The commit of signals/YYYY-MM-DD.* is the timestamped record.
+# Signal for tomorrow before the 12:00 day-ahead auction, and settlement of earlier days.
+# GitHub cron runs in UTC and is often late, so the signal job has a slot every ten
+# minutes across 10:45-11:50 local in both summer (UTC+2) and winter time (UTC+1).
+# `dps status` decides cheaply whether a signal is due; only the first slot inside the
+# window does the work. A signal finished after 11:50 is marked late and never counted.
+# The commit of signals/YYYY-MM-DD.* is the timestamped public record.
 on:
   schedule:
-    - cron: "50 8 * * *"    # 10:50 CEST | 09:50 CET (too early in winter)
-    - cron: "12 9 * * *"    # 11:12 CEST | 10:12 CET (too early in winter)
-    - cron: "48 9 * * *"    # 11:48 CEST | 10:48 CET
-    - cron: "12 10 * * *"   # 12:12 CEST (too late) | 11:12 CET
+    - cron: "45,55 8 * * *"              # 10:45-10:55 CEST
+    - cron: "5,15,25,35,45,55 9 * * *"   # 11:05-11:55 CEST | 10:05-10:55 CET
+    - cron: "5,15,25,35,45 10 * * *"     # 11:05-11:45 CET
+    - cron: "23 16 * * *"                # settlement only (yesterday's ID-AEP is out by then)
   workflow_dispatch:
 
 permissions:
@@ -30,7 +32,15 @@ jobs:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: requirements*.txt
+      - run: pip install -r requirements.txt
+      - name: Is a signal due?
+        id: gate
+        # a queued run was created before the previous run pushed: look at the newest state
+        run: |
+          git pull --ff-only origin "${GITHUB_REF_NAME}"
+          python -m dps status --github-output
       - name: Restore data cache
+        if: steps.gate.outputs.due == 'true' || github.event.schedule == '23 16 * * *'
         uses: actions/cache@v4
         with:
           path: |
@@ -38,18 +48,21 @@ jobs:
             ~/.cache/huggingface
           key: dps-data-${{ github.run_id }}
           restore-keys: dps-data-
-      - run: pip install -r requirements.txt
       - name: Fetch prices, load, ID-AEP
+        if: steps.gate.outputs.due == 'true' || github.event.schedule == '23 16 * * *'
         run: python -m dps fetch --recent-days 10
         env:
           ENTSOE_API_KEY: ${{ secrets.ENTSOE_API_KEY }}
           NTP_CLIENT_ID: ${{ secrets.NTP_CLIENT_ID }}
           NTP_CLIENT_SECRET: ${{ secrets.NTP_CLIENT_SECRET }}
       - name: Signal for tomorrow
+        if: steps.gate.outputs.due == 'true'
         run: python -m dps signal
       - name: Settle earlier signals
+        if: steps.gate.outputs.due == 'true' || github.event.schedule == '23 16 * * *'
         run: python -m dps settle
       - name: Commit
+        if: steps.gate.outputs.due == 'true' || github.event.schedule == '23 16 * * *'
         run: |
           git config user.name "ak16o7"
           git config user.email "akderekaan@hotmail.com"

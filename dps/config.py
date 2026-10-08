@@ -22,9 +22,12 @@ DA_KNOWN_HOURS_AFTER_PREV_MIDNIGHT = 13.5
 # ID-AEP of day d: published once a day. We count it as known from 00:00 on d+2,
 # i.e. at the 11:00 decision on D-1 the newest known spread is day D-3. Conservative.
 SPREAD_KNOWN_DAYS_AFTER = 2
-# Day-ahead load forecast (ENTSO-E A65/A01): by regulation published at the latest two
-# hours before day-ahead gate closure, i.e. 10:00 on D-1. Switch off to drop it.
-USE_LOAD_FORECAST = os.environ.get("DPS_USE_LOAD_FORECAST", "1") != "0"
+# Day-ahead load forecast (ENTSO-E A65/A01): by regulation due two hours before gate
+# closure (10:00 on D-1), but neither source says when a stored value was published or
+# whether it was revised later. A feature without a provable time stamp stays out of the
+# model. DPS_USE_LOAD_FORECAST=1 puts it back (the robustness table shows that variant).
+# It is still fetched: the ex-post explanation (part 1) uses the load forecast error.
+USE_LOAD_FORECAST = os.environ.get("DPS_USE_LOAD_FORECAST", "0") == "1"
 
 # --------------------------------------------------------------------------- trading
 SIZE_MW = 10.0                      # fixed position per traded quarter hour
@@ -42,15 +45,33 @@ MIN_TRAIN_DAYS = 60       # first test month needs this many labelled days befor
 VALIDATION_DAYS = 28      # newest labelled days of each training window pick the threshold
 TARGET_CLIP_QUANTILES = (0.01, 0.99)  # winsorise spikes in the training target only
 MODEL_PARAMS = dict(loss="squared_error", learning_rate=0.05, max_iter=300, max_leaf_nodes=31,
-                    min_samples_leaf=200, l2_regularization=1.0, random_state=0)
+                    min_samples_leaf=200, l2_regularization=1.0)
+# The model is the average of one gradient-boosting fit per seed. The seed only drives
+# the random early-stopping holdout inside each fit, yet in the October 2026 backtest a
+# single fit moved the result between +45k and +176k EUR depending on it (robustness
+# table: current numbers). Averaging five fits is plain variance reduction, decided
+# before its own result was known.
+MODEL_SEEDS = (0, 1, 2, 3, 4)
 
 # --------------------------------------------------------------------------- weather
 HF_DATASET = os.environ.get("DPS_HF_DATASET", "akderekaan/de-power-forecast-data")
+# Dataset revision (commit hash). Empty: the newest one. Every backtest records the
+# revision it read, so a result can be rebuilt from exactly the same data.
+HF_REVISION = os.environ.get("DPS_HF_REVISION", "").strip() or None
 WEATHER_MODELS = ("icon_eu", "ecmwf_ifs")
-# Only forecasts made at least this long before their valid time. The archive
-# (Open-Meteo previous runs) only has these; live runs are filtered the same way,
-# so backtest and live see the same kind of forecast.
+# Only forecasts made at least this long before their valid time. Two kinds of data:
+# - previous runs (Open-Meteo archive, whole history): the forecast made ~24 h and ~48 h
+#   before each valid time, available_at = valid - lead + 4.5 h (ICON) / 8.5 h (ECMWF)
+# - complete runs (recorded from 2026-06-10, live since 2026-09-29): every lead >= 24 h,
+#   available_at = measured publication or the same conservative bound
+# From mid-June 2026 the features therefore use fresher forecasts than before. That is
+# information that really existed at the decision time; the robustness table shows the
+# variant that cuts the complete runs down to what the archive has.
 MIN_LEAD_H = 24
+# What the previous-runs archive offers, used by that robustness variant: lead windows
+# (hours) and the publication bound per model.
+ARCHIVE_LEAD_WINDOWS = ((24, 30), (48, 54))
+ARCHIVE_DELAY_H = {"icon_eu": 4.5, "ecmwf_ifs": 8.5}
 DE_CENTER = (51.2, 10.4)
 POINTS = {  # name: (lat, lon, kind) -- same 16 points as de-power-forecast
     "SH": (54.3, 9.7, "onshore"), "NI_W": (52.9, 7.8, "onshore"), "NI_O": (52.6, 10.2, "onshore"),

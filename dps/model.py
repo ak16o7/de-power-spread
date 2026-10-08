@@ -1,6 +1,7 @@
 """The spread model: gradient-boosted trees on the features, fixed settings, no tuning
-on test data. The only choice made from data is the trading threshold, picked on the
-newest VALIDATION_DAYS of each training window by a model that did not train on them.
+on test data, averaged over config.MODEL_SEEDS. The only choice made from data is the
+trading threshold, picked on the newest VALIDATION_DAYS of each training window by a
+model that did not train on them.
 """
 from __future__ import annotations
 
@@ -12,24 +13,29 @@ from . import config, trading
 
 
 class SpreadModel:
-    def __init__(self, params: dict | None = None) -> None:
+    def __init__(self, params: dict | None = None, clip_quantiles: tuple[float, float] | None = None,
+                 seeds: tuple[int, ...] | None = None) -> None:
         self.params = dict(params or config.MODEL_PARAMS)
-        self.est: HistGradientBoostingRegressor | None = None
+        self.clip_quantiles = clip_quantiles or config.TARGET_CLIP_QUANTILES
+        self.seeds = tuple(config.MODEL_SEEDS if seeds is None else seeds)
+        self.ests: list[HistGradientBoostingRegressor] = []
         self.clip: tuple[float, float] | None = None
         self.columns: list[str] = []
 
     def fit(self, X: pd.DataFrame, y: pd.Series) -> "SpreadModel":
         ok = y.notna().to_numpy()
-        lo, hi = np.quantile(y[ok], config.TARGET_CLIP_QUANTILES)
+        lo, hi = np.quantile(y[ok], self.clip_quantiles)
         self.clip = (float(lo), float(hi))
         self.columns = list(X.columns)
-        self.est = HistGradientBoostingRegressor(**self.params)
-        self.est.fit(X.loc[ok].to_numpy(dtype="float64"), y[ok].clip(lo, hi).to_numpy(dtype="float64"))
+        Xa = X.loc[ok].to_numpy(dtype="float64")
+        ya = y[ok].clip(lo, hi).to_numpy(dtype="float64")
+        self.ests = [HistGradientBoostingRegressor(**{**self.params, "random_state": s}).fit(Xa, ya) for s in self.seeds]
         return self
 
     def predict(self, X: pd.DataFrame) -> np.ndarray:
-        assert self.est is not None, "fit first"
-        return self.est.predict(X[self.columns].to_numpy(dtype="float64"))
+        assert self.ests, "fit first"
+        Xa = X[self.columns].to_numpy(dtype="float64")
+        return np.mean([e.predict(Xa) for e in self.ests], axis=0)
 
 
 def decide(pred: np.ndarray, threshold: float) -> np.ndarray:

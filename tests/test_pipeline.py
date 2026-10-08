@@ -81,3 +81,60 @@ def test_live_signal_window_and_settlement(planted, monkeypatch):
     assert str(day) in (root / "README.md").read_text()
     meta = json.loads((root / "signals" / f"{day}.json").read_text())
     assert meta["gate_closure"] > meta["generated_at"]
+
+
+def test_live_uses_the_backtest_procedure(planted, monkeypatch):
+    """Same data, same day, decision at 11:00: the live signal must equal the backtest's positions."""
+    root, start, end = planted
+    backtest.run(start, end)
+    res = pd.read_parquet(root / "reports" / "backtest.parquet")
+    day = end - timedelta(days=9)
+    bt = res[(res["strategy"] == "model") & (res["day"] == str(day))].set_index("ts")["side"]
+    assert len(bt) and (bt != 0).any()
+    monkeypatch.setattr("dps.config.SIGNALS_DIR", str(root / "signals_proc"))
+    monkeypatch.setenv("DPS_NOW", issue_time(day).isoformat())
+    out = live.signal(day)
+    assert out["status"] == "written"
+    sig = pd.read_csv(root / "signals_proc" / f"{day}.csv")
+    live_side = pd.Series(sig["side"].to_numpy(dtype=float), index=pd.to_datetime(sig["ts_utc"], utc=True))
+    assert (live_side.to_numpy() == bt.reindex(live_side.index).to_numpy()).all()
+
+
+def test_signal_finished_after_the_window_is_not_counted(planted, monkeypatch):
+    root, start, end = planted
+    day = end - timedelta(days=6)
+    issue = issue_time(day)
+    monkeypatch.setattr("dps.config.SIGNALS_DIR", str(root / "signals_late"))
+    monkeypatch.setattr("dps.config.LIVE_DIR", str(root / "live_late"))
+    clock = iter([issue + pd.Timedelta(minutes=45)] * 2 + [issue + pd.Timedelta(minutes=55)] * 50)
+    monkeypatch.setattr("dps.live.now", lambda: next(clock))
+    out = live.signal(day)
+    assert out["status"] == "written" and out["late"]
+    monkeypatch.setattr("dps.live.now", lambda: pd.Timestamp(f"{day + timedelta(days=3)}T12:00:00", tz="UTC"))
+    (root / "README.md").write_text("x\n<!-- LIVE:START -->\n<!-- LIVE:END -->\n")
+    settled = live.settle()
+    assert settled["settled_days"] == 0 and settled["net_eur"] == 0.0
+    assert "nicht gezählt" in (root / "live_late" / "SUMMARY.md").read_text()
+
+
+def test_status_gate(planted, monkeypatch):
+    root, start, end = planted
+    day = end - timedelta(days=4)
+    issue = issue_time(day)
+    monkeypatch.setattr("dps.config.SIGNALS_DIR", str(root / "signals_status"))
+    for minutes, expect in ((-30, "too early"), (-10, "due"), (49, "due"), (51, "too late")):
+        monkeypatch.setenv("DPS_NOW", (issue + pd.Timedelta(minutes=minutes)).isoformat())
+        assert live.status(day)["status"] == expect, minutes
+
+
+def test_robustness_main_row_equals_backtest(planted):
+    from dps import robustness
+    root, start, end = planted
+    bt = backtest.run(start, end)
+    rob = robustness.run(start, end, only=["main", "fixed_2", "no_weather"])
+    rows = {r["key"]: r for r in rob["variants"]}
+    assert rows["main"]["net_eur"] == bt["strategies"]["model"]["net_eur"]
+    assert rows["main"]["t_daily_hac"] == bt["strategies"]["model"]["t_daily_hac"]
+    assert rows["no_weather"]["net_eur"] < rows["main"]["net_eur"]   # the planted signal lives in the weather
+    md = robustness.markdown(rob)
+    assert "Hauptmodell" in md and "ohne Wetter" in md and "nan" not in md.lower()

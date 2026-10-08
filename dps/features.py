@@ -8,8 +8,8 @@ the decision time leaves the features unchanged.
 Groups
 - weather (per model): wind capacity-factor proxy on- and offshore, irradiance, clear-sky
   index, temperature, clouds; their revision over the last 24 h; model disagreement
-- fundamentals proxy: wind and solar MW (proxy x installed capacity), residual load
-  (day-ahead load forecast minus that)
+- fundamentals proxy: wind and solar MW (proxy x installed capacity); with
+  config.USE_LOAD_FORECAST (off by default) also the load forecast and residual load
 - prices: day-ahead prices of D-1 (known since D-2 13:30)
 - spread history: ID-AEP minus day-ahead of days known at decision time (D-3 and older)
 - calendar: local quarter of the day, weekday, public holiday, sun elevation
@@ -159,24 +159,26 @@ def day_slot_matrix(panel: pd.DataFrame, col: str) -> pd.DataFrame:
 
 
 def _holidays(years: list[int]) -> set[date]:
-    try:
-        import holidays
-        return set(holidays.country_holidays("DE", years=years).keys())
-    except Exception:   # optional dependency: weekends still count
-        return set()
+    """Nationwide public holidays (regional ones such as Corpus Christi are not included)."""
+    import holidays   # required dependency: a silent fallback would change the features
+    return set(holidays.country_holidays("DE", years=years).keys())
 
 
 # --------------------------------------------------------------------------- builder
 def build(panel: pd.DataFrame, start: date, end: date, as_of: pd.Timestamp | None = None,
-          weather: dict[str, pd.DataFrame] | None = None) -> pd.DataFrame:
+          weather: dict[str, pd.DataFrame] | None = None, use_load_forecast: bool | None = None,
+          archive_only: bool = False) -> pd.DataFrame:
     """Feature rows for every quarter hour of delivery days [start, end).
 
     panel: output of panel.build covering at least 30 days before `start`.
     as_of: live use; the decision time is then min(as_of, 11:00 on D-1).
     weather: {model: hf.weather(...)} to reuse; loaded here if None.
+    use_load_forecast: default config.USE_LOAD_FORECAST.
+    archive_only: weather as the previous-runs archive has it (robustness variant).
     """
+    use_load = config.USE_LOAD_FORECAST if use_load_forecast is None else use_load_forecast
     if weather is None:
-        weather = {m: hf.weather(m, start - timedelta(days=2), end + timedelta(days=1))
+        weather = {m: hf.weather(m, start - timedelta(days=2), end + timedelta(days=1), archive_only)
                    for m in config.WEATHER_MODELS}
     wx = {m: prepare_weather(w) for m, w in weather.items()}
     vus = {m: (pd.DatetimeIndex(w["valid"]).as_unit("us").asi8 if not w.empty else None) for m, w in wx.items()}
@@ -220,7 +222,7 @@ def build(panel: pd.DataFrame, start: date, end: date, as_of: pd.Timestamp | Non
         f["wind_off_mw"] = off_cf * cap["wind_off"].to_numpy()
         f["solar_mw"] = ghi / 1000.0 * cap["solar"].to_numpy()
         f["ren_mw"] = f[["wind_on_mw", "wind_off_mw", "solar_mw"]].sum(axis=1, min_count=1)
-        if config.USE_LOAD_FORECAST:
+        if use_load:
             f["load_da"] = load_da.reindex(qh).to_numpy(dtype="float64") if len(load_da) else np.nan
             f["resload_mw"] = f["load_da"] - f["ren_mw"]
         # day-ahead prices of D-1

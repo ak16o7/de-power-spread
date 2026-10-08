@@ -75,13 +75,50 @@ def chart(results: pd.DataFrame, out: Path, title_note: str = "") -> None:
     plt.close(fig)
 
 
-def markdown(bt: dict, ex: dict | None, image: str = "reports/pnl.png") -> str:
+def verdict(bt: dict) -> list[str]:
+    """The pre-stated pass/fail check and the numbers that decide whether it matters."""
+    m = bt["strategies"]["model"]
+    vs = bt["model_vs"]
+    won = [f"{LABEL[b]} (t {_fmt(v['t_hac'], 2)})" for b, v in vs.items() if (v.get("t_hac") or 0) > 2]
+    lost = [f"{LABEL[b]} (t {_fmt(v['t_hac'], 2)})" for b, v in vs.items() if not (v.get("t_hac") or 0) > 2]
+    passed = bt.get("verdict", {}).get("passed", not lost)
+    L = ["**Urteil nach dem vorab festgelegten Kriterium** (das Modell zählt nur, wenn es jede Baseline "
+         "im Tages-PnL mit t > 2 schlägt): " + ("**erfüllt**." if passed else "**nicht erfüllt**.")]
+    if won:
+        L[-1] += f" Geschlagen: {', '.join(won)}."
+    if lost:
+        L[-1] += f" Nicht geschlagen: {', '.join(lost)}."
+    be = (bt.get("break_even_slippage_eur_mwh") or {}).get("model")
+    ls = (bt.get("long_short") or {}).get("model")
+    sp = (bt.get("spike_sensitivity") or {}).get("model", {})
+    wb = next((v for k, v in sp.items() if k.startswith("without_best_")), None)
+    nbest = next((k.split("_")[2] for k in sp if k.startswith("without_best_")), "10")
+    bullets = []
+    if be is not None:
+        bullets.append(f"- **Gewinnschwelle der Ausführung:** Das Modell verdient {_fmt(m['eur_per_mwh'], 2, True)} €/MWh "
+                       f"netto bei {bt['assumptions']['slippage_eur_mwh']} €/MWh Slippage. Kostet der Ausstieg mehr als "
+                       f"{_fmt(be, 1)} €/MWh gegenüber dem ID-AEP, ist der Gewinn weg. Ob echte Ausführung das schafft, "
+                       "kann dieser Backtest nicht zeigen: der ID-AEP ist ein Index, kein Preis, zu dem man handeln kann.")
+    if ls:
+        bullets.append(f"- **Long gegen Short:** long {_fmt(ls['long_net_eur'], 0, True)} € auf {_fmt(ls['long_mwh'])} MWh, "
+                       f"short {_fmt(ls['short_net_eur'], 0, True)} € auf {_fmt(ls['short_mwh'])} MWh.")
+    if wb is not None:
+        bullets.append(f"- **Spitzen:** ohne die {nbest} besten Tage bleiben {_fmt(wb, 0, True)} € "
+                       f"von {_fmt(m['net_eur'], 0, True)} €.")
+    return L + ([""] + bullets if bullets else [])
+
+
+def markdown(bt: dict, ex: dict | None, image: str = "reports/pnl.png", rob: dict | None = None,
+             chk: dict | None = None) -> str:
+    from . import checks, robustness
     a = bt["assumptions"]
     tp = bt["test_period"]
     L = [f"Testzeitraum {tp['from']} bis {tp['to']} ({tp['days']} Tage, walk-forward, jeder Monat out-of-sample). "
-         f"Position {a['size_mw']:.0f} MW je gehandelter Viertelstunde, Einstieg zum Day-Ahead-Preis, Ausstieg zum ID-AEP. "
+         f"Position {a['size_mw']:.0f} MW je gehandelter Viertelstunde, Einstieg zum Day-Ahead-Preis, Ausstieg bewertet "
+         f"zum ID-AEP (Benchmark, kein handelbarer Preis). "
          f"Kosten: {a['fee_eur_mwh_per_leg']} €/MWh je Seite, {a['slippage_eur_mwh']} €/MWh Slippage beim Ausstieg, "
          f"{a['missing_exit_penalty_eur_mwh']} €/MWh Strafe, wenn der ID-AEP fehlt.\n",
+         *verdict(bt), "",
          f"![PnL]({image})\n",
          "| Strategie | Netto € | €/MWh | MWh | Treffer | Sharpe (ann.) | t (HAC) | Max. Drawdown € | Schlechtester Tag € | ID-AEP fehlte |",
          "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|"]
@@ -103,32 +140,67 @@ def markdown(bt: dict, ex: dict | None, image: str = "reports/pnl.png") -> str:
         L.append(f"| {LABEL[b]} | {_fmt(v['mean_eur_per_day'], 1, True)} | {_fmt(v['t_hac'], 2)} |" + extra)
     sp = bt.get("spike_sensitivity")
     if sp:
-        caps = [k for k in next(iter(sp.values())) if k != "top10_qh_net_eur"]
+        first = next(iter(sp.values()))
+        caps = [k for k in first if k != "top10_qh_net_eur" and not k.startswith("without_best_")]
+        wb = next((k for k in first if k.startswith("without_best_")), None)
+        wb_head = f" ohne die {wb.split('_')[2]} besten Tage |" if wb else ""
         L += ["", "**Spike-Abhängigkeit**: Netto-PnL in €, wenn der Spread auf ±X €/MWh begrenzt wäre (t in Klammern). "
               "Was unter der Kappung verschwindet, kam aus wenigen Preisspitzen.", "",
-              "| Strategie | ungekappt | davon 10 größte Viertelstunden | " + " | ".join(f"±{c}" for c in caps) + " |",
-              "|---|---:|---:|" + "---:|" * len(caps)]
+              "| Strategie | ungekappt | davon 10 größte Viertelstunden |" + wb_head + " "
+              + " | ".join(f"±{c}" for c in caps) + " |",
+              "|---|---:|---:|" + ("---:|" if wb else "") + "---:|" * len(caps)]
         for s in ORDER:
             row = sp.get(s)
             if not row:
                 continue
             cells = " | ".join(f"{_fmt(row[c]['net_eur'], 0, True)} ({_fmt(row[c]['t_daily_hac'], 1)})" for c in caps)
+            wb_cell = f" {_fmt(row[wb], 0, True)} |" if wb else ""
             L.append(f"| {LABEL[s]} | {_fmt(bt['strategies'][s]['net_eur'], 0, True)} | "
-                     f"{_fmt(row['top10_qh_net_eur'], 0, True)} | {cells} |")
+                     f"{_fmt(row['top10_qh_net_eur'], 0, True)} |{wb_cell} {cells} |")
     slips = list(next(iter(bt["slippage_sensitivity"].values())).keys())
-    L += ["", "**Kostenempfindlichkeit**: Netto-PnL in € bei Slippage (€/MWh) von", "",
-          "| Strategie | " + " | ".join(slips) + " |", "|---|" + "---:|" * len(slips)]
+    be = bt.get("break_even_slippage_eur_mwh") or {}
+    L += ["", "**Kostenempfindlichkeit**: Netto-PnL in € bei Slippage (€/MWh gegenüber dem ID-AEP) von", "",
+          "| Strategie | " + " | ".join(slips) + " |" + (" Gewinnschwelle €/MWh |" if be else ""),
+          "|---|" + "---:|" * len(slips) + ("---:|" if be else "")]
     for s in ORDER:
         row = bt["slippage_sensitivity"].get(s)
         if row:
-            L.append(f"| {LABEL[s]} | " + " | ".join(_fmt(row[k], 0, True) for k in slips) + " |")
+            b = be.get(s)
+            L.append(f"| {LABEL[s]} | " + " | ".join(_fmt(row[k], 0, True) for k in slips) + " |"
+                     + (f" {_fmt(b, 1) if b is not None and b > 0 else '– (verliert schon ohne Slippage)'} |" if be else ""))
+    ls = bt.get("long_short")
+    if ls:
+        L += ["", "**Long- und Short-Seite** (netto €, in Klammern MWh)", "",
+              "| Strategie | long | short |", "|---|---:|---:|"]
+        for s in ORDER:
+            r = ls.get(s)
+            if r:
+                L.append(f"| {LABEL[s]} | {_fmt(r['long_net_eur'], 0, True)} ({_fmt(r['long_mwh'])}) | "
+                         f"{_fmt(r['short_net_eur'], 0, True)} ({_fmt(r['short_mwh'])}) |")
     L += ["", "**Modell je Monat**", "", "| Monat | Netto € | MWh | Schwelle €/MWh | Trainingstage |", "|---|---:|---:|---:|---:|"]
     th = {m["month"]: m for m in bt["months"]}
     for mon, v in bt["model_monthly"].items():
         mm = th.get(mon, {})
         L.append(f"| {mon} | {_fmt(v['net_eur'], 0, True)} | {_fmt(v['mwh'])} | {_fmt(mm.get('threshold'), 0)} | "
                  f"{mm.get('train_days', '–')} |")
-    L += ["", "### Was ein Prognosefehler kostet (ex post)", "", explain.markdown(ex) if ex else "_fehlt_"]
+    L += ["", "### Robustheit: alle getesteten Varianten", "",
+          "Gleicher Walk-forward, gleiche Kosten. Das Hauptmodell stand vor dem ersten echten Backtest fest; "
+          "die Varianten kamen danach. Alle stehen hier, auch die schlechten. Die beste Zeile als Strategie "
+          "zu nehmen wäre Anpassung an den Testzeitraum: Die Tabelle zeigt, wie unsicher die Hauptzahl ist.", "",
+          robustness.markdown(rob)]
+    L += ["### Was ein Prognosefehler kostet (ex post)", "", explain.markdown(ex) if ex else "_fehlt_"]
+    L += ["### Stimmen die Zeitstempel der Wetterdaten?", "",
+          "Der Lookahead-Test prüft, dass der Code jedes `available_at` respektiert. Ob die Stempel selbst stimmen, "
+          "lässt sich prüfen, wo das Dataset beide Arten von Prognosen hat: Archivwerte („Tag 1\" = mindestens "
+          "24 h alt, „Tag 2\" = 48 h) und vollständige Läufe (nachgeladen oder live mitgeschnitten).", "",
+          checks.markdown(chk)]
+    prov = bt.get("provenance") or {}
+    if prov:
+        rev = ", ".join(prov.get("hf_revisions") or []) or "–"
+        cc = str(prov.get("code_commit") or "–")
+        cc = cc[:7] + ("+dirty" if cc.endswith("+dirty") else "")
+        L += ["", f"<sub>Gerechnet am {bt['generated_at'][:16].replace('T', ' ')} UTC, Code {cc}, "
+                  f"Wetterdaten {prov.get('hf_dataset')} @ {rev[:12] if rev != '–' else rev}.</sub>"]
     return "\n".join(L) + "\n"
 
 
@@ -151,9 +223,13 @@ def run(readme: bool = True, title_note: str = "") -> str:
     bt = json.loads((rep / "backtest.json").read_text())
     ex_path = rep / "explain.json"
     ex = json.loads(ex_path.read_text()) if ex_path.is_file() else None
+    rob_path = rep / "robustness.json"
+    rob = json.loads(rob_path.read_text()) if rob_path.is_file() else None
+    chk_path = rep / "checks.json"
+    chk = json.loads(chk_path.read_text()) if chk_path.is_file() else None
     chart(pd.read_parquet(rep / "backtest.parquet"), rep / "pnl.png", title_note)
-    (rep / "REPORT.md").write_text("# Backtest-Report\n\n" + markdown(bt, ex, image="pnl.png"))
-    body = markdown(bt, ex, image=f"{rep.as_posix()}/pnl.png")
+    (rep / "REPORT.md").write_text("# Backtest-Report\n\n" + markdown(bt, ex, image="pnl.png", rob=rob, chk=chk))
+    body = markdown(bt, ex, image=f"{rep.as_posix()}/pnl.png", rob=rob, chk=chk)
     if readme:
         update_section(Path(config.README), "RESULTS", body)
     LOG.info("report written to %s", rep / "REPORT.md")

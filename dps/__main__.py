@@ -4,7 +4,10 @@
   explain    part 1: spread vs. TSO day-ahead forecast errors -> reports/explain.json
   backtest   part 2: walk-forward strategy vs. baselines -> reports/backtest.*
   report     chart, reports/REPORT.md and the RESULTS section of README.md
-  run        explain + backtest + report
+  robustness every variant tried, same walk-forward -> reports/robustness.json
+  checks     are the weather time stamps true? archive vs. recorded runs -> reports/checks.json
+  run        explain + backtest (+ robustness with --robustness) + report
+  status     live: is a signal due now? (exists / too early / too late / due)
   signal     live: tomorrow's positions -> signals/YYYY-MM-DD.csv (10:45-11:50 local)
   settle     live: book signals whose ID-AEP is out -> live/ledger.csv, README
   demo       the whole pipeline on synthetic data, no keys needed (numbers are made up)
@@ -57,11 +60,18 @@ def main(argv: list[str] | None = None) -> int:
     f.add_argument("--full", action="store_true", help="refetch everything since START")
     f.add_argument("--recent-days", type=int, default=7)
     f.add_argument("--only", nargs="*", choices=["da", "load", "id_aep"])
-    for name in ("explain", "backtest", "run"):
+    for name in ("explain", "backtest", "run", "robustness"):
         p = sub.add_parser(name)
         p.add_argument("--start")
         p.add_argument("--end", help="exclusive delivery day")
+        if name == "run":
+            p.add_argument("--robustness", action="store_true", help="also rerun every variant (~15 min)")
+        if name == "robustness":
+            p.add_argument("--only", nargs="*", help="variant keys")
     sub.add_parser("report")
+    sub.add_parser("checks")
+    st = sub.add_parser("status")
+    st.add_argument("--github-output", action="store_true", help="append due=true|false to $GITHUB_OUTPUT")
     s = sub.add_parser("signal")
     s.add_argument("--day", help="delivery day, default tomorrow")
     s.add_argument("--force", action="store_true", help="ignore the time window (late signals are never counted)")
@@ -82,9 +92,22 @@ def main(argv: list[str] | None = None) -> int:
     if a.cmd in ("backtest", "run"):
         from . import backtest
         backtest.run(_date(a.start), _date(a.end))
+    if a.cmd == "robustness" or (a.cmd == "run" and a.robustness):
+        from . import robustness
+        robustness.run(_date(a.start), _date(a.end), **({"only": a.only} if getattr(a, "only", None) else {}))
+    if a.cmd == "checks" or (a.cmd == "run" and a.robustness):
+        from . import checks
+        checks.run()
     if a.cmd in ("report", "run"):
         from . import report
         report.run()
+    if a.cmd == "status":
+        from . import live
+        st = live.status()
+        print(json.dumps(st, indent=1))
+        if a.github_output and os.environ.get("GITHUB_OUTPUT"):
+            with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+                fh.write(f"due={'true' if st['status'] == 'due' else 'false'}\n")
     if a.cmd == "signal":
         from . import live
         print(json.dumps(live.signal(_date(a.day), force=a.force), indent=1))

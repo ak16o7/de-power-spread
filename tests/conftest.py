@@ -11,6 +11,13 @@ from dps import config, hf, synthetic
 DAYS = 150
 
 
+@pytest.fixture(autouse=True)
+def one_seed(monkeypatch):
+    """The real model averages five fits; one keeps the synthetic tests fast. The
+    averaging itself is tested in test_trading_store_explain.py."""
+    monkeypatch.setattr(config, "MODEL_SEEDS", (0,))
+
+
 def _wire(mp: pytest.MonkeyPatch, root: Path) -> None:
     mp.setattr(config, "DATA_DIR", str(root / "data"))
     mp.setattr(config, "REPORTS_DIR", str(root / "reports"))

@@ -1,6 +1,7 @@
 name: Backtest
 
-# Weekly: refresh data, rerun explain + walk-forward backtest, commit reports and README.
+# Weekly: refresh data, rerun explain, the walk-forward backtest and every robustness
+# variant, commit reports and README.
 on:
   schedule:
     - cron: "41 5 * * 0"
@@ -16,7 +17,7 @@ concurrency:
 jobs:
   backtest:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -37,7 +38,7 @@ jobs:
           ENTSOE_API_KEY: ${{ secrets.ENTSOE_API_KEY }}
           NTP_CLIENT_ID: ${{ secrets.NTP_CLIENT_ID }}
           NTP_CLIENT_SECRET: ${{ secrets.NTP_CLIENT_SECRET }}
-      - run: python -m dps run
+      - run: python -m dps run --robustness
       - name: Commit
         run: |
           git config user.name "ak16o7"

@@ -52,3 +52,84 @@ def test_readme_section_update(tmp_path):
     assert update_section(p, "RESULTS", "new")
     assert p.read_text() == "a\n<!-- RESULTS:START -->\nnew\n<!-- RESULTS:END -->\nb\n"
     assert not update_section(p, "LIVE", "x")
+
+
+def test_max_drawdown_counts_from_zero():
+    from dps.metrics import max_drawdown
+    assert max_drawdown(pd.Series([-100.0, 50.0, -20.0])) == -100.0   # the start (0) is a peak
+    assert max_drawdown(pd.Series([100.0, -30.0, -50.0, 10.0])) == -80.0
+    assert max_drawdown(pd.Series([5.0, 5.0])) == 0.0
+
+
+def test_archive_like_keeps_only_archive_leads_and_bounds():
+    from dps import hf
+    run = pd.Timestamp("2026-07-01 00:00", tz="UTC")
+    valid = run + pd.to_timedelta([12, 24, 29, 30, 47, 48, 53, 54], unit="h")
+    runs = pd.DataFrame({"point": "SH", "valid": valid, "run": run,
+                         "available_at": run + pd.Timedelta(hours=3), "wind_speed_120m": 10.0})
+    out = hf.archive_like(runs, "icon_eu")
+    lead = ((out["valid"] - run) / pd.Timedelta(hours=1)).tolist()
+    assert lead == [24, 29, 48, 53]
+    assert out["lead_h"].tolist() == [24, 24, 48, 48]
+    expect = out["valid"] - pd.to_timedelta(out["lead_h"], unit="h") + pd.Timedelta(hours=4.5)
+    assert (out["available_at"] == expect.where(expect > run + pd.Timedelta(hours=3), run + pd.Timedelta(hours=3))).all()
+    assert (out["available_at"] >= run + pd.Timedelta(hours=3)).all()
+
+
+def test_capacity_uses_the_local_delivery_month(monkeypatch):
+    from dps import hf
+    months = pd.date_range("2025-09-01", "2026-02-01", freq="MS", tz="UTC")
+    cap = pd.DataFrame({"month": months, "type": "Solar AC", "gw": np.arange(len(months), dtype=float) + 100})
+    monkeypatch.setattr(hf, "capacity", lambda: cap)
+    # 00:00 local on 1 January is 23:00 UTC on 31 December: still January locally
+    idx = pd.DatetimeIndex([pd.Timestamp("2025-12-31 23:00", tz="UTC"), pd.Timestamp("2026-01-15 12:00", tz="UTC")])
+    out = hf.capacity_mw(idx)
+    assert out["solar"].tolist() == [102_000.0, 102_000.0]     # November 2025 = January - 2 months
+
+
+def test_holidays_are_a_hard_dependency():
+    from datetime import date
+    from dps.features import _holidays
+    h = _holidays([2025, 2026])
+    assert date(2025, 12, 25) in h and date(2026, 10, 3) in h
+
+
+def test_weather_vintage_check_identifies_the_run(tmp_path, monkeypatch):
+    from datetime import date
+    from dps import checks, hf
+    monkeypatch.setenv("DPS_HF_LOCAL", str(tmp_path))
+    valid = pd.date_range("2026-07-05", periods=6, freq="h", tz="UTC")
+    def frame(seed):
+        rng = np.random.default_rng(seed)
+        return {c: rng.normal(size=len(valid)).round(1) + 10 for c in
+                ("temperature_2m", "wind_speed_100m", "surface_pressure", "cloud_cover", "shortwave_radiation")}
+    early, late = frame(1), frame(2)
+    runs = pd.concat([
+        pd.DataFrame({"point": "SH", "valid": valid, "run": valid - pd.Timedelta(hours=26), **early, "source": "archive",
+                      "available_at": valid - pd.Timedelta(hours=26) + pd.Timedelta(hours=8.5)}),
+        pd.DataFrame({"point": "SH", "valid": valid, "run": valid - pd.Timedelta(hours=10), **late, "source": "live",
+                      "available_at": valid - pd.Timedelta(hours=10) + pd.Timedelta(hours=7)}),
+        pd.DataFrame({"point": "SH", "valid": valid - pd.Timedelta(days=4), "run": valid - pd.Timedelta(days=4, hours=2),
+                      **early, "source": "archive", "available_at": valid - pd.Timedelta(days=4)}),
+    ])
+    prev = pd.DataFrame({"point": "SH", "valid": valid, "lead_days": 1, "available_at": valid - pd.Timedelta(hours=15.5),
+                         **{c: np.where(np.arange(len(valid)) < 5, early[c], late[c]) for c in early}})
+    (tmp_path / "weather/runs/ecmwf_ifs/2026-07").mkdir(parents=True)
+    (tmp_path / "weather/previous_runs/ecmwf_ifs/2026").mkdir(parents=True)
+    runs.to_parquet(tmp_path / "weather/runs/ecmwf_ifs/2026-07/runs.parquet", index=False)
+    prev.to_parquet(tmp_path / "weather/previous_runs/ecmwf_ifs/2026/2026-07.parquet", index=False)
+    res = checks.weather_vintage("ecmwf_ifs", date(2026, 7, 1), date(2026, 7, 10))
+    v = res["lead_days"]["1"]
+    assert v["identified"] == 6 and v["lead_h"]["min"] == 10 and v["fresher_than_claimed"] == 1
+    assert res["live_publication_delay_h"]["max"] == 7.0
+
+
+def test_model_is_the_mean_of_its_seeds():
+    from dps.model import SpreadModel
+    rng = np.random.default_rng(0)
+    X = pd.DataFrame(rng.normal(size=(12_000, 3)), columns=["a", "b", "c"])   # > 10k rows: early stopping is on
+    y = pd.Series(2 * X["a"] - X["b"] + rng.normal(size=len(X)))
+    both = SpreadModel(seeds=(0, 1)).fit(X, y).predict(X)
+    one = [SpreadModel(seeds=(s,)).fit(X, y).predict(X) for s in (0, 1)]
+    assert np.allclose(both, (one[0] + one[1]) / 2)
+    assert not np.allclose(one[0], one[1])          # the seed matters for a single fit

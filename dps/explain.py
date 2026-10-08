@@ -8,7 +8,8 @@ intraday price down (b < 0), more demand than forecast pushes it up (b_load > 0)
 
 The TSO day-ahead forecast is published at 18:00 on D-1, after the auction. That is
 fine here: this part explains spreads, it never feeds a trading decision.
-Standard errors: Newey-West with one day of lags (quarter hours are autocorrelated).
+Standard errors: Newey-West with one day of lags (quarter hours are autocorrelated):
+96 for the whole day, the daypart's quarter hours per day for a daypart.
 """
 from __future__ import annotations
 
@@ -49,7 +50,7 @@ def ols_hac(y: np.ndarray, X: np.ndarray, lags: int) -> dict:
             "r2": r2, "n": n}
 
 
-MIN_STD_MW = 50.0   # a regressor that barely moves (solar at night) gives a meaningless slope
+MIN_STD_MW = 250.0  # a regressor that barely moves (solar at dusk/night) gives a meaningless slope
 
 
 def fit(df: pd.DataFrame, lags: int = 96) -> dict | None:
@@ -77,7 +78,8 @@ def run(start: date | None = None, end: date | None = None) -> dict:
            "all": fit(df), "dayparts": {},
            "capped_eur_mwh": CAP, "all_capped": fit(df.assign(spread=df["spread"].clip(-CAP, CAP)))}
     for name, (a, b) in DAYPARTS.items():
-        out["dayparts"][name] = fit(df[(hours >= a) & (hours < b)], lags=24)
+        # one day of lags: a daypart has (b - a) * 4 quarter hours per day
+        out["dayparts"][name] = fit(df[(hours >= a) & (hours < b)], lags=(b - a) * 4)
     p = Path(config.REPORTS_DIR) / "explain.json"
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(out, indent=1))
@@ -109,7 +111,8 @@ def markdown(res: dict) -> str:
     n = f"{res['all']['n']:,}".replace(",", "\u202f")
     r2c = f", gekappt {res['all_capped']['r2']:.2f}" if capped else ""
     lines.append(f"\nn = {n} Viertelstunden, R² = {res['all']['r2']:.2f}{r2c}. "
-                 "t mit Newey-West-Standardfehlern (96 Lags). „Gekappt\": Spread auf ±"
+                 "t mit Newey-West-Standardfehlern (Lags: ein Tag). „Gekappt\": Spread auf ±"
                  f"{cap or 0:.0f} €/MWh begrenzt, damit wenige Preisspitzen die Schätzung nicht dominieren. "
-                 "Spalten rechts: getrennte Regressionen je Tageszeit (ungekappt).")
+                 "Spalten rechts: getrennte Regressionen je Tageszeit (ungekappt); „–\": Fehler schwankt dort "
+                 f"zu wenig (Standardabweichung unter {MIN_STD_MW:.0f} MW) für eine sinnvolle Steigung.")
     return "\n".join(lines) + "\n"

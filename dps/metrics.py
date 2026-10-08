@@ -29,10 +29,18 @@ def daily(res: pd.DataFrame, all_days: list) -> pd.Series:
     return res.groupby("day")["net"].sum().reindex(all_days, fill_value=0.0)
 
 
+def max_drawdown(daily_pnl: pd.Series) -> float:
+    """Largest fall of cumulative PnL from its running peak; the start (0) counts as a peak."""
+    cum = daily_pnl.cumsum()
+    if cum.empty:
+        return 0.0
+    peak = cum.cummax().clip(lower=0.0)
+    return float(min((cum - peak).min(), 0.0))
+
+
 def summary(res: pd.DataFrame, all_days: list) -> dict:
     d = daily(res, all_days)
     traded = res[res["mwh"] > 0]
-    cum = d.cumsum()
     mwh = float(traded["mwh"].sum())
     std = float(d.std(ddof=1)) if len(d) > 1 else float("nan")
     return {
@@ -47,10 +55,12 @@ def summary(res: pd.DataFrame, all_days: list) -> dict:
         "hit_rate": round(float((traded["net"] > 0).mean()), 3) if len(traded) else None,
         "sharpe_daily_ann": round(float(d.mean()) / std * np.sqrt(365), 2) if std and std > 0 else None,
         "t_daily_hac": _num(hac_t(d.to_numpy()), 2),
-        "max_drawdown_eur": round(float((cum - cum.cummax()).min()), 0) if len(cum) else 0.0,
+        "max_drawdown_eur": round(max_drawdown(d), 0),
         "worst_day_eur": round(float(d.min()), 0) if len(d) else 0.0,
         "best_day_eur": round(float(d.max()), 0) if len(d) else 0.0,
         "missing_exit_qh": int(res["missing_exit"].sum()),
+        # a position without a day-ahead price could not have been opened: no trade, counted here
+        "missing_da_qh": int(((res["side"] != 0) & res["da"].isna()).sum()) if {"side", "da"} <= set(res) else 0,
     }
 
 
