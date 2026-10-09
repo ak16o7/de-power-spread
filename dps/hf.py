@@ -24,6 +24,7 @@ TECHS = ("solar", "wind_on", "wind_off")
 
 
 _USED: set[str] = set()   # snapshot folders read in this process (= dataset revisions)
+_PINNED: dict[str, str] = {}   # the revision the first download resolved to, kept for the process
 
 
 def _root(patterns: tuple[str, ...]) -> Path:
@@ -32,8 +33,11 @@ def _root(patterns: tuple[str, ...]) -> Path:
         _USED.add(f"local:{Path(local_dir).name}")
         return Path(local_dir)
     from huggingface_hub import snapshot_download
-    root = Path(snapshot_download(config.HF_DATASET, repo_type="dataset", revision=config.HF_REVISION,
+    # one run reads one revision: the first call resolves "newest", later calls reuse it
+    revision = config.HF_REVISION or _PINNED.get(config.HF_DATASET)
+    root = Path(snapshot_download(config.HF_DATASET, repo_type="dataset", revision=revision,
                                   allow_patterns=list(patterns)))
+    _PINNED.setdefault(config.HF_DATASET, root.name)
     _USED.add(root.name)
     return root
 
@@ -131,8 +135,8 @@ def capacity() -> pd.DataFrame:
 def capacity_mw(index: pd.DatetimeIndex) -> pd.DataFrame:
     """Installed MW per technology as usable at decision time: the value CAPACITY_LAG_MONTHS
     before the local delivery month. The dataset holds the newest revision of each month,
-    not the first publication; for a stock of ~100 GW the later corrections of a month two
-    back are small, but they are a known approximation (see README, Grenzen)."""
+    not the first publication; for a stock of ~110 GW solar and ~80 GW wind the later
+    corrections of a month two back are small, but they are a known approximation (README, Grenzen)."""
     cap = capacity()
     out = pd.DataFrame(index=index, columns=list(TECHS), dtype="float64")
     if cap.empty:

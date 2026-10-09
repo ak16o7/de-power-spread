@@ -5,7 +5,8 @@ name: Live
 # minutes across 10:45-11:50 local in both summer (UTC+2) and winter time (UTC+1).
 # `dps status` decides cheaply whether a signal is due; only the first slot inside the
 # window does the work. A signal finished after 11:50 is marked late and never counted.
-# The commit of signals/YYYY-MM-DD.* is the timestamped public record.
+# The push of signals/YYYY-MM-DD.* and this run's log are the timestamped public record
+# (a commit date alone can be set by whoever commits).
 on:
   schedule:
     - cron: "45,55 8 * * *"              # 10:45-10:55 CEST

@@ -65,7 +65,7 @@ def main(argv: list[str] | None = None) -> int:
         p.add_argument("--start")
         p.add_argument("--end", help="exclusive delivery day")
         if name == "run":
-            p.add_argument("--robustness", action="store_true", help="also rerun every variant (~15 min)")
+            p.add_argument("--robustness", action="store_true", help="also rerun every variant and the data checks (~1 h)")
         if name == "robustness":
             p.add_argument("--only", nargs="*", help="variant keys")
     sub.add_parser("report")

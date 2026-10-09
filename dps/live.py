@@ -4,9 +4,10 @@ signal: runs between 10:45 and 11:50 local (GitHub Actions, several cron slots; 
         one that lands writes the file). Same procedure as the backtest: the model of the
         delivery month (labels known at the decision time of the month's first day,
         threshold from the same validation rule), features from data available at
-        min(now, 11:00 D-1). A signal finished after 11:50 is marked late and never
-        counted. The commit time on GitHub is the public proof that it existed before
-        the 12:00 auction.
+        min(now, 11:00 D-1). No signal on a day the data guard blocks (model.data_problem,
+        same rule as the backtest). A signal finished after 11:50 is marked late and never
+        counted. The push to GitHub and the Actions run log are the public proof that it
+        existed before the 12:00 auction.
 settle: books every counted signal whose ID-AEP is known, with the same PnL function as
         the backtest, into live/ledger.csv and the README.
 """
@@ -22,7 +23,7 @@ import pandas as pd
 
 from . import config, hf, metrics, report, store, trading
 from .backtest import dataset, fit_for_day
-from .model import decide
+from .model import data_problem, decide
 from .util import BERLIN, gate_closure, issue_time, now, qh_index, spread_known_at
 
 LOG = logging.getLogger(__name__)
@@ -70,13 +71,10 @@ def signal(day: date | None = None, force: bool = False) -> dict:
     except ValueError as exc:
         return {"status": str(exc), "day": str(day)}
     target, _ = dataset(day, day + timedelta(days=1), as_of=as_of)
-    # no blind trades: without yesterday's auction prices or any weather forecast the data
-    # pipeline failed (the backtest never sees that). Write nothing; a later slot retries.
-    wx_cols = [c for c in cols if c.startswith(tuple(f"{m}_" for m in config.WEATHER_MODELS))]
-    if target["da_prev_slot"].isna().all():
-        return {"status": "no day-ahead prices of D-1 in the cache yet", "day": str(day)}
-    if target[wx_cols].isna().all().all():
-        return {"status": "no weather forecast available at the decision time", "day": str(day)}
+    # no blind trades (same rule as the backtest): write nothing, a later slot retries
+    why = data_problem(target)
+    if why:
+        return {"status": f"not traded: {why}", "day": str(day)}
     pred = model.predict(target[cols])
     side = decide(pred, threshold)
     wx_age = {m: float(target[f"diag_wx_age_h_{m}"].iloc[0]) if f"diag_wx_age_h_{m}" in target else None

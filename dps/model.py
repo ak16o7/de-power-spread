@@ -38,6 +38,36 @@ class SpreadModel:
         return np.mean([e.predict(Xa) for e in self.ests], axis=0)
 
 
+def data_problem(day: pd.DataFrame) -> str | None:
+    """Why a delivery day must not be traded, or None. Same rule in backtest and live: no
+    blind trades when an input the model always had in training is missing or stale."""
+    if "da_prev_slot" in day and day["da_prev_slot"].isna().all():
+        return "no day-ahead prices of D-1"
+    if "sp_slot_last" in day and day["sp_slot_last"].isna().all():
+        return "no known spread history (ID-AEP of D-3 missing)"
+    for m in config.WEATHER_MODELS:
+        cols = [c for c in day.columns if c.startswith(f"{m}_") and "_rev_" not in c]
+        if cols and day[cols].isna().all().all():
+            return f"no {m} forecast available"
+        age = day.get(f"diag_wx_age_h_{m}")
+        if age is not None and age.notna().any() and float(age.max()) > config.MAX_WEATHER_AGE_H:
+            return f"{m} forecast is {float(age.max()):.0f} h old"
+    return None
+
+
+def guard(side: np.ndarray, test: pd.DataFrame) -> tuple[np.ndarray, dict[str, str]]:
+    """Zero the positions of every test day with a data problem; returns (sides, {day: reason})."""
+    side = np.asarray(side, dtype="float64").copy()
+    blocked = {}
+    days = test["day"].to_numpy()
+    for d, g in test.groupby("day", sort=True):
+        why = data_problem(g)
+        if why:
+            side[days == d] = 0.0
+            blocked[str(d)] = why
+    return side, blocked
+
+
 def decide(pred: np.ndarray, threshold: float) -> np.ndarray:
     """Trade the sign of the predicted spread where its size beats the threshold."""
     pred = np.asarray(pred, dtype="float64")

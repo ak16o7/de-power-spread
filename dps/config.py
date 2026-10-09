@@ -14,7 +14,10 @@ START = date.fromisoformat(os.environ.get("DPS_START", "2025-10-01"))
 
 # --------------------------------------------------------------------------- decision
 ISSUE_HOUR = 11            # local time on D-1; the day-ahead auction closes at 12:00
-GATE_CLOSURE_HOUR = 12     # a live signal after this is marked late and never counted
+GATE_CLOSURE_HOUR = 12     # live: a signal finished after 11:50 (10 min before) is late, never counted
+# No trade on a day whose newest usable weather forecast is older than this (hours at the
+# decision time). In the backtest the oldest was ~3 h; this only catches a broken feed.
+MAX_WEATHER_AGE_H = 30.0
 
 # What is known when, as local times relative to the delivery day d of the value.
 # Day-ahead prices of day d: results ~12:45 on d-1. 13:30 leaves margin.

@@ -23,7 +23,7 @@ import numpy as np
 import pandas as pd
 
 from . import baselines, config, features, hf, metrics, panel, store, trading
-from .model import SpreadModel, decide, train_and_select
+from .model import SpreadModel, decide, guard, train_and_select
 from .util import BERLIN, issue_time, month_starts, now
 
 LOG = logging.getLogger(__name__)
@@ -192,11 +192,13 @@ def run(start: date | None = None, end: date | None = None) -> dict:
         raise RuntimeError(f"nothing to backtest: {start}..{end}")
     df, cols = dataset(start, end)
     LOG.info("dataset: %d quarter hours, %d features, %d with ID-AEP", len(df), len(cols), int(df["id_aep"].notna().sum()))
-    parts, months = [], []
+    parts, months, blocked = [], [], {}
     for sp in splits(df, start, end):
         model, threshold, table = train_and_select(sp.train, cols)
         pred = model.predict(sp.test[cols])
-        parts.append(results_frame(decide(pred, threshold), sp.test, "model", pred))
+        side, why = guard(decide(pred, threshold), sp.test)
+        blocked.update(why)
+        parts.append(results_frame(side, sp.test, "model", pred))
         for name, fn in baselines.BASELINES.items():
             parts.append(results_frame(fn(sp.test), sp.test, name))
         months.append({"month": f"{sp.month:%Y-%m}", "first_test_day": str(sp.first), "train_days": sp.train_days,
@@ -219,6 +221,7 @@ def run(start: date | None = None, end: date | None = None) -> dict:
                                     "exit benchmark ID-AEP"},
         "features": cols,
         "months": months,
+        "days_not_traded_for_data": blocked,
         **scorecard(by, test_days),
         "model_monthly": {},
         "provenance": provenance(),

@@ -39,12 +39,13 @@ def weather_vintage(model: str, start: date, end: date) -> dict:
         runs[c] = pd.to_datetime(runs[c], utc=True)
     runs["lead"] = ((runs["valid"] - runs["run"]) / pd.Timedelta(hours=1)).round().astype(int)
     num = [c for c in prev.columns if c in runs.columns and c not in SKIP and pd.api.types.is_numeric_dtype(prev[c])]
-    lo = runs["run"].min() + pd.Timedelta(days=3)          # the overlap where every lead exists
-    prev = prev[(prev["valid"] >= lo) & (prev["valid"] <= runs["valid"].max())]
+    # the overlap: valid times that both kinds cover, with every lead of the runs present
+    lo = max(runs["run"].min() + pd.Timedelta(days=3), prev["valid"].min())
+    hi = min(prev["valid"].max(), runs["valid"].max())
+    prev = prev[(prev["valid"] >= lo) & (prev["valid"] <= hi)]
     prev = prev.assign(point=prev["point"].astype(str))
     runs = runs.assign(point=runs["point"].astype(str))
-    out = {"model": model, "overlap": [str(lo.date()), str(runs["valid"].max().date())], "variables": len(num),
-           "lead_days": {}}
+    out = {"model": model, "overlap": [str(lo), str(hi)], "variables": len(num), "lead_days": {}}
     for ld in sorted(int(x) for x in prev["lead_days"].unique()):
         p = prev[prev["lead_days"] == ld][["point", "valid", *num]]
         mg = p.merge(runs[["point", "valid", "lead", *num]], on=["point", "valid"], suffixes=("_p", "_r"))
@@ -91,24 +92,28 @@ def run(start: date | None = None, end: date | None = None) -> dict:
 def markdown(res: dict | None) -> str:
     if not res:
         return "_Datenprüfung noch nicht gerechnet (`python -m dps checks`)._\n"
-    L = ["| Wettermodell | Archivwert | Werte geprüft | genau einem Lauf zuzuordnen | Vorlauf dieses Laufs (min / Median / max) | frischer als behauptet |",
-         "|---|---|---:|---:|---:|---:|"]
-    delays, overlap = [], None
+    from .report import _fmt
+    L = ["| Wettermodell | Gültigkeitszeiten | Archivwert | Werte geprüft | genau einem Lauf zuzuordnen | "
+         "Vorlauf dieses Laufs (min / Median / max) | frischer als behauptet |",
+         "|---|---|---|---:|---:|---:|---:|"]
+    delays = []
     for w in res.get("weather", []):
-        overlap = overlap or w.get("overlap")
+        ov = w.get("overlap") or ["", ""]
+        span = f"{str(ov[0])[:10]} bis {str(ov[1])[:10]}"
         for ld, v in (w.get("lead_days") or {}).items():
             lh = v.get("lead_h") or {}
-            L.append(f"| {w['model']} | Tag {ld} (behauptet ≥ {24 * int(ld)} h) | {v['pairs']:,} | {v['identified']:,} | "
-                     f"{lh.get('min', '–')} / {lh.get('median', '–')} / {lh.get('max', '–')} h | "
-                     f"{v['fresher_than_claimed']} |".replace(",", " "))
+            L.append(f"| {w['model']} | {span} | Tag {ld} (behauptet ≥ {24 * int(ld)} h) | {_fmt(v['pairs'])} | "
+                     f"{_fmt(v['identified'])} | {lh.get('min', '–')} / {lh.get('median', '–')} / {lh.get('max', '–')} h | "
+                     f"{v['fresher_than_claimed']} |")
         d = w.get("live_publication_delay_h")
         if d:
-            delays.append(f"{w['model']} {d['min']}–{d['max']} h nach Laufstart ({d['runs']} Läufe; "
-                          f"im Archiv angesetzt: {d['assumed_for_archive']} h)")
-    if overlap:
-        L.append(f"\nGültigkeitszeiten {overlap[0]} bis {overlap[1]}, wo es beide Datenarten gibt. Ein Archivwert gilt "
-                 "als zugeordnet, wenn er in allen Variablen, die beide haben, exakt einem einzigen vollständigen Lauf "
-                 "gleicht. „Frischer als behauptet\" zählt Werte aus einem Lauf mit kürzerem Vorlauf als angegeben.")
+            delays.append(f"{w['model']} {_fmt(d['min'], 1)} bis {_fmt(d['max'], 1)} h nach Laufstart ({d['runs']} Läufe; "
+                          f"das Archiv setzt {_fmt(d['assumed_for_archive'], 1)} h an)")
+    L.append("\nEin Archivwert gilt als zugeordnet, wenn er in allen Variablen, die beide Datenarten haben, exakt "
+             "einem einzigen vollständigen Lauf gleicht. „Frischer als behauptet“ zählt Werte aus einem Lauf mit "
+             "kürzerem Vorlauf als angegeben. Verglichen wird fast nur mit nachgeladenen Läufen, denn das Archiv "
+             "endet, kurz nachdem der Live-Mitschnitt beginnt. Die live mitgeschnittenen Läufe liefern dafür die "
+             "gemessene Veröffentlichungszeit.")
     if delays:
-        L.append("Gemessene Veröffentlichung live mitgeschnittener Läufe: " + "; ".join(delays) + ".")
+        L.append("Gemessen: " + "; ".join(delays) + ".")
     return "\n".join(L) + "\n"

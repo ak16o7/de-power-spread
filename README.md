@@ -3,24 +3,28 @@
 Ein Handelsexperiment am deutschen Strommarkt mit ehrlicher Buchführung. Um 11:00 am Vortag
 wird für jede Viertelstunde entschieden: Day-Ahead kaufen, verkaufen oder nichts tun. Kurz vor
 Lieferung wird glattgestellt, und dieser Ausstieg wird zum ID-AEP bewertet, dem Index der
-letzten 500 MW im Intraday-Handel. Gemessen wird in Euro nach Kosten, gegen dumme Baselines,
+letzten 500 MW im Intraday-Handel. Gemessen wird in Euro nach Kosten, gegen naive Baselines,
 walk-forward und live mit Zeitstempel.
 
 **Die Frage:** Enthalten Wetterprognosen, die um 11:00 am Vortag öffentlich verfügbar sind,
 Information über den Intraday-Preis, die der Day-Ahead-Preis noch nicht hat, und bleibt
 nach Kosten etwas übrig?
 
-**Die Antwort bisher** (Oktober 2026; die Zahlen darunter werden wöchentlich neu gerechnet):
+**Die Antwort bisher** (Stand 9. Oktober 2026, Testzeitraum bis 7. Oktober; die Tabellen
+darunter rechnet ein wöchentlicher Lauf neu, diese Zusammenfassung nicht):
 
 - **Ein wenig, ja.** Das Modell verdient im Test Geld, und das Geld kommt aus den
   Wetterdaten: Ohne sie ist es weg (Robustheitstabelle).
-- **Aber nicht genug für das eigene Kriterium.** Das Modell schlägt die einfachen Baselines
-  nicht signifikant. Ungekappt verdient sogar „Immer long" mehr, allerdings fast nur mit
-  Preisspitzen; mit gekappten Spitzen liegt das Modell vorn, aber auch dann nicht
-  signifikant vor „Vorzeichen je Viertelstunde".
-- **Der Gewinn ist einseitig und klumpig.** Er kommt fast nur aus der Long-Seite und zu
-  einem großen Teil aus wenigen Tagen mit Preisspitzen.
-- **Alles hängt an der Ausführung.** Der Ausstieg ist zum ID-AEP bewertet, einem Index, zu
+- **Aber nicht genug für das eigene Kriterium.** Signifikant schlägt das Modell nur „Immer
+  short“. Ungekappt verdient sogar „Immer long“ mehr, allerdings fast nur mit Preisspitzen.
+  Mit auf ±200 €/MWh gekappten Spitzen liegt das Modell vor allen Baselines, signifikant
+  aber nur vor „Immer short“ und „Letztes bekanntes Vorzeichen“.
+- **Die vorab festgelegte Version war schwächer.** Zwei Änderungen nach dem ersten Backtest
+  (Lastprognose raus, Mittel aus fünf Startwerten) haben den PnL erhöht. Die erste Version
+  steht als erste Zeile in der Robustheitstabelle.
+- **Der Gewinn ist einseitig und klumpig.** Er kommt ganz aus der Long-Seite (die
+  Short-Seite verliert) und zu einem großen Teil aus wenigen Tagen mit Preisspitzen.
+- **Alles hängt an der Ausführung.** Der Ausstieg wird zum ID-AEP bewertet, einem Index, zu
   dem niemand handeln kann. Die Gewinnschwelle im Ergebnisteil sagt, wie viel schlechter als
   der Index echte Ausführung sein darf.
 
@@ -28,19 +32,19 @@ Ein sauber gemessenes, schwaches Signal also, kein Geldautomat.
 
 ## Warum genau dieser Trade
 
-- **Der Einstieg ist echt handelbar.** Eine preisunabhängige Order in der Day-Ahead-Auktion
-  um 12:00 bekommt sicher den Clearingpreis. Dafür muss die Entscheidung vor 12:00 fallen.
-  Jede spätere Entscheidung bräuchte einen Intraday-Einstiegspreis; wer trotzdem zum
-  Day-Ahead-Preis einsteigt, hat Lookahead im Backtest.
-- **Der Ausstieg ist eine Benchmark, kein Preis.** In echt stellt man im kontinuierlichen
+- **Der Einstieg ist tatsächlich handelbar.** Eine preisunabhängige Order in der
+  Day-Ahead-Auktion um 12:00 bekommt sicher den Clearingpreis. Dafür muss die Entscheidung vor
+  12:00 fallen. Jede spätere Entscheidung bräuchte einen Intraday-Einstiegspreis; wer trotzdem
+  zum Day-Ahead-Preis einsteigt, hat Lookahead im Backtest.
+- **Der Ausstieg ist eine Benchmark, kein Preis.** In der Praxis stellt man im kontinuierlichen
   Intraday-Handel glatt. Bewertet wird das zum ID-AEP der Übertragungsnetzbetreiber: dem
   mengengewichteten Preis der letzten Geschäfte des Viertelstundenprodukts im deutschen
   Continuous-Handel, bis 500 MW erreicht sind. Reicht das Viertelstundenprodukt nicht,
-  zählen Geschäfte des Stundenprodukts dazu. Inhaltlich ist das der ID500; „AEP" im Namen
+  zählen Geschäfte des Stundenprodukts dazu. Inhaltlich ist das der ID500; „AEP“ im Namen
   steht dafür, dass der Ausgleichsenergiepreis an ihn gekoppelt ist. Zum Index selbst kann
   niemand handeln. Echte Fills liegen darüber oder darunter, je nach Zeitpunkt, Orderbuch
   und Geld-Brief-Spanne. Genau diesen Abstand soll die angenommene Slippage abdecken.
-  Freie Intraday-Tickdaten gibt es nicht (EPEX verkauft sie), der ID-AEP ist der einzige
+  Freie Intraday-Tickdaten gibt es nicht (EPEX verkauft sie); der ID-AEP ist der einzige
   freie Intraday-Preis nahe an der Lieferung.
 - **Kein Geld aus dem reBAP.** Die Position ist vor Lieferung immer flach. Wer den
   Bilanzkreis offen lässt, um Ausgleichsenergie zu kassieren, verletzt die Bilanzkreistreue.
@@ -198,15 +202,21 @@ Gemessene Veröffentlichung live mitgeschnittener Läufe: icon_eu 2.87–4.22 h 
 
 Jeden Tag schreibt eine GitHub Action zwischen 10:45 und 11:50 die Positionen für morgen nach
 `signals/` und committet sie. Das Verfahren ist dasselbe wie im Backtest: das Modell des
-Liefermonats, trainiert auf dem, was am ersten Tag des Monats bekannt war, dieselbe
-Schwellenregel und derselbe Verfügbarkeitsfilter für jedes Feature (ein Test prüft, dass
-Live und Backtest für denselben Tag dieselben Positionen liefern). Der Commit ist der
-Zeitstempel: Das Signal existierte vor der Auktion. Sobald der ID-AEP veröffentlicht ist,
-wird mit derselben PnL-Funktion abgerechnet (`live/ledger.csv`). Ein Signal, das erst nach
-11:50 fertig ist, wird markiert und nie gezählt.
+Liefermonats, trainiert auf allem, was bei der Entscheidung für den ersten Liefertag des Monats
+bekannt war (11:00 am Vortag), dieselbe Schwellenregel und derselbe Verfügbarkeitsfilter für
+jedes Feature. Ein Test prüft, dass Live und Backtest für denselben Tag dieselben Positionen
+liefern. Fehlt etwas, das das Modell im Training immer hatte (Day-Ahead-Preise von D-1,
+Spread-Historie, eine der beiden Wetterprognosen), oder ist die neueste Wetterprognose älter
+als 30 h, wird an dem Tag nicht gehandelt; dieselbe Regel gilt im Backtest. Sobald der ID-AEP
+veröffentlicht ist, wird mit derselben PnL-Funktion abgerechnet (`live/ledger.csv`). Ein
+Signal, das erst nach 11:50 fertig ist, wird markiert und nie gezählt.
 
-Der Live-Teil ist der einzige Test, den vorher niemand gesehen hat. Alles im Backtest wurde
-mindestens einmal angeschaut, auch wenn das Hauptmodell vorher feststand.
+Dass ein Signal vor der Auktion existierte, belegen der Push-Zeitpunkt auf GitHub und das
+Protokoll des Actions-Laufs (GitHub hält es standardmäßig 90 Tage). Das Commit-Datum allein
+kann der Committer frei setzen.
+
+Der Live-Teil ist der einzige Test auf Daten, die beim Festlegen des Modells noch niemand
+gesehen hatte. Alles im Backtest wurde mindestens einmal angeschaut.
 
 <!-- LIVE:START -->
 _Noch kein abgerechneter Tag._
@@ -221,17 +231,18 @@ _Noch kein abgerechneter Tag._
 | ENTSO-E A44, ohne Key: Energy-Charts (SMARD) | Day-Ahead-Preis DE-LU je Viertelstunde | 13:30 am Vortag der Lieferung (Ergebnis gegen 12:45) |
 | netztransparenz.de `IdAep`, ohne Zugang: CSV-Download der Webseite | ID-AEP je Viertelstunde (Ausstiegs-Benchmark, Label) | 00:00 zwei Tage nach Lieferung; konservativ, beobachtet wurde die Veröffentlichung am Folgetag |
 | [de-power-forecast-data](https://huggingface.co/datasets/akderekaan/de-power-forecast-data) | ICON-EU und ECMWF IFS an 16 Punkten, mit `available_at` | laut `available_at`, gegen die Daten geprüft (Ergebnisteil) |
-| dito | Installierte Leistung (Energy-Charts) | Wert von vor zwei Monaten |
-| dito | Ist-Erzeugung A75 und ÜNB-Prognose A69 | nur ex post: Teil 1 und Trainingsziel der zweistufigen Variante, nie ein Feature |
-| ENTSO-E A65, ohne Key: Energy-Charts | Last und Day-Ahead-Lastprognose | nur ex post (Teil 1). Nicht im Modell: Wann ein gespeicherter Wert veröffentlicht oder ob er später revidiert wurde, sagt keine der Quellen |
+| dito | Installierte Leistung (Energy-Charts) | Wert des Monats zwei Monate vor dem Liefermonat |
+| dito | Ist-Erzeugung A75 und ÜNB-Prognose A69 für Wind und Solar (erscheint um 18:00 am Vortag) | nur ex post: Teil 1 und Trainingsziel der zweistufigen Variante, nie ein Feature |
+| ENTSO-E A65, ohne Key: Energy-Charts | Last und Day-Ahead-Lastprognose | nur ex post (Teil 1). Nicht im Modell: Die Lastprognose ist zwar bis 10:00 am Vortag fällig, aber wann ein gespeicherter Wert veröffentlicht oder ob er später revidiert wurde, sagt keine der Quellen |
 
-**Wetter, zwei Arten von Daten.** Für die ganze Historie gibt es das Archiv der
-Previous Runs (Open-Meteo): für jede Gültigkeitszeit den Wert, der etwa 24 h und etwa 48 h
-vorher vorhergesagt wurde. Ab dem 10. Juni 2026 kommen vollständige Läufe dazu (bis zum
-28. September nachgeladen, seitdem live mitgeschnitten), mit jeder Vorlaufzeit ab 24 h. Ab
-Mitte Juni sind die Features deshalb frischer als davor. Das war echte, zur Entscheidung
-verfügbare Information. Die Robustheitstabelle zeigt die Variante, die die vollständigen
-Läufe auf das Archivformat zurückschneidet.
+**Wetter, zwei Arten von Daten.** Bis Ende September 2026 gibt es das Archiv der Previous Runs
+(Open-Meteo): für jede Gültigkeitszeit den Wert, der etwa 24 h und etwa 48 h vorher vorhergesagt
+wurde. Ab dem 10. Juni 2026 kommen vollständige Läufe dazu (bis Ende September nachgeladen, seit
+dem 29. September live mitgeschnitten), mit allen Vorlaufzeiten; genutzt werden die ab 24 h. Ab
+Mitte Juni sind die Features deshalb frischer als davor, und seit Oktober 2026 stammen sie nur
+noch aus vollständigen Läufen. Das war echte, zur Entscheidung verfügbare Information. Die
+Robustheitstabelle zeigt die Variante, die die vollständigen Läufe auf die Vorlaufzeiten des
+Archivs zurückschneidet.
 
 Zeitraum ab 1. Oktober 2025: Seitdem läuft Day-Ahead in Viertelstunden. Ein Regime.
 
@@ -239,9 +250,9 @@ Zeitraum ab 1. Oktober 2025: Seitdem läuft Day-Ahead in Viertelstunden. Ein Reg
 
 Regression je Viertelstunde: Spread (ID-AEP − Day-Ahead) auf die Fehler der ÜNB-Day-Ahead-Prognose
 (Ist − Prognose) für Solar, Wind an Land, Wind auf See und Last, in GW. Newey-West-Standardfehler
-mit einem Tag Lags, zusätzlich getrennt nach Tageszeit. Das übersetzt einen Prognosefehler in
-€/MWh. Die ÜNB-Prognose erscheint um 18:00, also nach der Auktion: Sie erklärt Spreads, sie
-handelt nie.
+mit Lags über einen Tag, zusätzlich getrennt nach Tageszeit. Das übersetzt einen Prognosefehler in
+€/MWh. Die Wind- und Solarprognose der ÜNB erscheint um 18:00, also nach der Auktion: Teil 1
+erklärt Spreads, er geht nie in eine Handelsentscheidung ein.
 
 ### Teil 2: Die Strategie (ex ante)
 
@@ -252,27 +263,34 @@ handelt nie.
   - Leistungs-Proxy: Wind- und Solar-MW (Proxy × installierte Leistung).
   - Preise: Day-Ahead-Preise von D-1.
   - Spread-Historie: nur Tage, deren ID-AEP um 11:00 bekannt war (D-3 und älter).
-  - Kalender: Viertelstunde, Wochentag, bundesweiter Feiertag, Sonnenstand.
+  - Kalender: Viertelstunde, Wochentag, Wochenende oder bundesweiter Feiertag, Sonnenstand.
 - **Modell**: Gradient Boosting (scikit-learn, feste Einstellungen) auf den Spread, Ausreißer im
-  Trainingsziel auf das 1.–99. Perzentil gekappt. Vorhersage ist das Mittel aus fünf Fits mit
-  verschiedenen Zufallsstartwerten.
+  Trainingsziel auf das 1.–99. Perzentil gekappt. Die Vorhersage ist das Mittel aus fünf Fits
+  mit verschiedenen Zufallsstartwerten.
 - **Handel**: Vorzeichen der Vorhersage, nur wenn ihr Betrag die Schwelle übersteigt. Die
-  Schwelle wählt ein Modell, das die letzten 28 Trainingstage nicht gesehen hat, auf genau diesen
-  Tagen. Danach wird auf dem ganzen Fenster neu trainiert.
-- **Walk-forward**: Monat M wird mit einem Modell gehandelt, das nur Labels kennt, die vor der
-  Entscheidung für M's ersten Tag bekannt waren. Der erste Testmonat braucht 60 gelabelte Tage.
+  Schwelle wird auf den letzten 28 Trainingstagen gewählt, mit Vorhersagen eines Modells, das
+  diese Tage nicht gesehen hat. Danach wird auf dem ganzen Fenster neu trainiert.
+- **Walk-forward**: Monat M wird mit einem Modell gehandelt, das nur Labels kennt, die bei der
+  Entscheidung für den ersten Tag von M bekannt waren. Der erste Testmonat braucht 60 gelabelte
+  Tage.
 
-Diese Einstellungen standen vor dem ersten Backtest auf echten Daten fest. Geändert wurde danach
-zweierlei, beides aus Gründen, die nicht am PnL hängen:
+**Was vorher feststand und was danach geändert wurde.** Vor dem ersten Backtest auf echten
+Daten standen Features, Modell und Einstellungen, Schwellenregel, Walk-forward, Kosten,
+Baselines und das Kriterium fest. Dazu gehörten damals die Lastprognose als Feature und ein
+einzelnes Modell mit Startwert 0. Nach dem ersten Backtest wurde geändert:
 
-1. Die Lastprognose flog aus den Features, weil ihr Veröffentlichungszeitpunkt nicht belegbar ist.
-2. Das Modell mittelt fünf Zufallsstartwerte statt einen. Der Startwert steuert nur die
-   zufällige Early-Stopping-Stichprobe im Gradient Boosting, hat das Ergebnis eines einzelnen
-   Modells aber stark verschoben. Mitteln ist reine Varianzreduktion und wurde beschlossen,
-   bevor sein eigenes Ergebnis feststand.
+1. Die Lastprognose wurde aus den Features entfernt, weil ihr Veröffentlichungszeitpunkt nicht
+   belegbar ist.
+2. Die Vorhersage ist das Mittel aus fünf Fits mit verschiedenen Startwerten statt nur einem.
+   Der Startwert steuert nur die zufällige Early-Stopping-Stichprobe im Gradient Boosting, hat
+   das Ergebnis eines einzelnen Modells aber stark verschoben. Ausgelöst hat das ein Blick auf
+   die Streuung des Test-PnL über die Startwerte. Mitteln ist trotzdem reine Varianzreduktion
+   und wurde beschlossen, bevor sein eigenes Ergebnis feststand.
+3. Ein Fehler wurde behoben: Die installierte Leistung wurde nach UTC-Monat statt nach lokalem
+   Liefermonat nachgeschlagen (betraf die ersten ein, zwei Stunden jedes Monats).
 
-Beides hat den PnL im Test verändert. Die alten Varianten (mit Lastprognose, einzelne Modelle je
-Startwert) stehen in der Robustheitstabelle.
+Die beiden ersten Änderungen haben den PnL im Test erhöht. Die erste Version steht als erste
+Zeile der Robustheitstabelle; wer nur der vorab festgelegten Version traut, nimmt diese Zeile.
 
 ### Die Latte: Baselines
 
@@ -283,27 +301,28 @@ Startwert) stehen in der Robustheitstabelle.
 | Letztes bekanntes Vorzeichen | Vorzeichen derselben Viertelstunde am neuesten bekannten Tag (D-3) |
 
 Verdient eine Baseline Geld, ist das eine Risikoprämie oder ein Kalendereffekt, kein Alpha aus
-der Prognose. **Vorab festgelegtes Kriterium:** Das Modell zählt nur, wenn es jede Baseline im
-Tages-PnL mit t > 2 (Newey-West) schlägt. Das Urteil steht automatisch über den Ergebnistabellen.
+der Prognose. **Vorab festgelegtes Kriterium** (seit dem ersten Commit): Das Modell zählt nur,
+wenn es jede Baseline im Tages-PnL mit t > 2 (Newey-West) schlägt. Das Urteil steht automatisch
+über den Ergebnistabellen.
 
 ### Kosten
 
 10 MW je gehandelter Viertelstunde, 0,25 €/MWh je Seite, 1 €/MWh Slippage gegenüber dem ID-AEP
 beim Ausstieg, alles in `dps/config.py`. Das sind Annahmen, keine Gebührenliste einer Börse; die
-Tabelle „Kostenempfindlichkeit" zeigt den PnL für 0 bis 5 €/MWh Slippage und die Gewinnschwelle.
+Tabelle „Kostenempfindlichkeit“ zeigt den PnL für 0 bis 5 €/MWh Slippage und die Gewinnschwelle.
 Fehlt der ID-AEP (unter 500 MW Umsatz), wird die Position mit 10 €/MWh Verlust gebucht statt
 still verworfen.
 
 ### Robustheit
 
-Nach dem ersten echten Backtest wurde geprüft, wie stark das Ergebnis an den vorab gewählten
+Nach dem ersten echten Backtest wurde geprüft, wie stark das Ergebnis an den gewählten
 Einstellungen hängt: andere Schwellenregeln, Größe nach Signalstärke, andere Verlustfunktion,
 stärkere Regularisierung, Bagging, ein zweistufiges Modell über die ÜNB-Prognosefehler,
 weggelassene Feature-Gruppen, anderer Datenstand, anderer Startmonat, einzelne Modelle statt des
-Mittels und andere Zufallsstartwerte.
-Alle Varianten stehen in der Tabelle im Ergebnisteil, auch die schlechten, und werden mit
-`python -m dps robustness` neu gerechnet. Die Tabelle ist kein Menü: Die beste Zeile als
-Strategie zu nehmen hieße, sich an den Testzeitraum anzupassen.
+Mittels und andere Zufallsstartwerte. Alle Varianten stehen in der Tabelle im Ergebnisteil, auch
+die schlechten, und `python -m dps robustness` rechnet sie neu (rund eine Stunde). Die Tabelle
+ist kein Menü: Die beste Zeile zur Strategie zu erklären hieße, sich an den Testzeitraum
+anzupassen.
 
 ## Ehrliche Grenzen
 
@@ -312,13 +331,14 @@ Strategie zu nehmen hieße, sich an den Testzeitraum anzupassen.
   beantworten.
 - **Kurze Historie.** Gut neun Monate Test, Training ab Oktober 2025. Saisonalität lernt das
   Modell nicht, die Schwelle stützt sich auf 28 Tage und springt von Monat zu Monat.
-- **Wenige Tage tragen viel.** Siehe Spike-Tabelle. Ein t um 2 auf neun Monaten mit dicken
-  Rändern ist dünn. Ein einzelnes Modell schwankt schon mit dem Zufallsstartwert stark; das Mittel
-  aus fünf schwankt weniger, aber nicht gar nicht (Robustheitstabelle).
-- **Wetter-Frische wechselt Mitte Juni 2026.** Siehe „Daten".
+- **Wenige Tage tragen viel.** Siehe Spike-Tabelle. Ein t um 2 über neun Monate ist bei so
+  dicken Verteilungsrändern wenig belastbar. Ein einzelnes Modell schwankt schon mit dem
+  Zufallsstartwert stark; das Mittel aus fünf schwankt weniger, aber immer noch deutlich
+  (Robustheitstabelle).
+- **Wetter-Frische wechselt Mitte Juni 2026.** Siehe „Daten“.
 - **Revisionen.** Day-Ahead-Preise und ID-AEP werden nicht revidiert. Die installierte Leistung
   ist der heutige Datenstand des Monats zwei Monate vor Lieferung, nicht die damals
-  veröffentlichte Zahl. Bei einem Bestand von rund 100 GW Solar und 65 GW Wind sind die
+  veröffentlichte Zahl. Bei einem Bestand von rund 110 GW Solar und 80 GW Wind sind die
   Nachmeldungen für einen Monat klein, null sind sie nicht.
 - **Feiertage.** Nur bundesweite; regionale wie Fronleichnam fehlen.
 - **Keine Marktwirkung.** Die eigene Order ändert weder den Day-Ahead-Preis noch den ID-AEP.
@@ -328,9 +348,11 @@ Strategie zu nehmen hieße, sich an den Testzeitraum anzupassen.
 - `tests/test_lookahead.py` baut die Features für einen Tag, verändert dann alles, was zur
   Entscheidung noch nicht bekannt war, und verlangt identische Features: Day-Ahead-Preise ab
   dem Liefertag, ID-AEP ab D-2, Ist-Last, Lastprognosen späterer Tage, installierte Leistung
-  noch nicht nutzbarer Monate, später veröffentlichtes Wetter. Das läuft für einen normalen
-  Tag, für den Umstellungstag mit 100 Viertelstunden und für eine frühe Live-Entscheidung um
-  10:40. Kontrolltests zeigen, dass der Test Änderungen überhaupt sieht.
+  noch nicht nutzbarer Monate und später veröffentlichtes Wetter, sowohl Archivwerte als auch
+  vollständige Läufe, in allen Variablen. Das läuft für einen Tag mit vollständigen Läufen, für
+  den Umstellungstag mit 100 Viertelstunden und für eine frühe Live-Entscheidung um 10:40, bei
+  der ein um 10:50 veröffentlichter Lauf nur der Entscheidung um 11:00 zusteht.
+  Kontrolltests zeigen, dass der Test Änderungen überhaupt sieht.
 - `tests/test_pipeline.py`: In einer synthetischen Welt mit eingebautem Signal findet die
   Pipeline es, in reinem Rauschen findet sie nichts. Kein Training auf Labels, die zur
   Entscheidung unbekannt waren. Live liefert für denselben Tag dieselben Positionen wie der
@@ -352,7 +374,7 @@ python -m pytest                  # Tests, u. a. der Lookahead-Test
 
 python -m dps fetch --full        # Preise, Last, ID-AEP seit 2025-10-01 nach data/ (geht ohne Keys)
 python -m dps run                 # Teil 1, Teil 2, Report, README-Abschnitt
-python -m dps run --robustness    # dazu alle Varianten und die Datenprüfung (~15 min)
+python -m dps run --robustness    # dazu alle Varianten und die Datenprüfung (rund eine Stunde)
 python -m dps signal --day 2026-10-10 --force   # Signal von Hand; nach 11:50 als spät markiert
 ```
 
@@ -368,7 +390,7 @@ Die Demo-Zahlen sind erfunden. Die synthetische Welt hat ein absichtlich eingeba
 1. Repository-Secrets: `ENTSOE_API_KEY`, `NTP_CLIENT_ID`, `NTP_CLIENT_SECRET`. Ohne sie läuft alles
    über Energy-Charts und den CSV-Download von netztransparenz.de; für den Dauerbetrieb sind die
    offiziellen APIs aber robuster (`cp .env.example .env` für lokal).
-2. Settings → Actions → General → Workflow permissions: „Read and write".
+2. Settings → Actions → General → Workflow permissions: „Read and write“.
 3. `Backtest` einmal von Hand starten (füllt den Daten-Cache und den Ergebnis-Abschnitt).
 4. `Live` läuft danach täglich von selbst: Signal-Slots alle zehn Minuten im Fenster, eine
    Abrechnung am Nachmittag.
@@ -388,7 +410,7 @@ dps/
   panel.py      Viertelstunden-Panel: Preise, Spread, Bekanntheitszeiten
   features.py   Features streng nach Verfügbarkeit
   explain.py    Teil 1, OLS mit Newey-West
-  model.py      Modell und Schwellenwahl
+  model.py      Modell (Mittel über Startwerte), Schwellenwahl, Datenwächter
   trading.py    PnL, gemeinsam für Backtest und Live
   baselines.py  die Latte
   backtest.py   Walk-forward
@@ -404,4 +426,4 @@ dps/
 
 Code: MIT. Daten: ENTSO-E Transparency Platform, netztransparenz.de (die vier deutschen ÜNB),
 Open-Meteo/DWD/ECMWF und Energy-Charts über das de-power-forecast-Dataset; bitte deren
-Nutzungsbedingungen beachten. Kein Anlagerat.
+Nutzungsbedingungen beachten. Keine Anlageberatung.

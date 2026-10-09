@@ -1,18 +1,19 @@
 """Every variant we tried, on the same walk-forward split, in one table.
 
-The main model was fixed before the first real backtest (dps/config.py). The variants
-below were run afterwards to see how much the result depends on those choices. They are
-all reported, the good and the bad: picking the best row of this table and calling it
-the strategy would be fitting the test period. Read the table as the uncertainty of the
-headline number, not as a menu.
+Only the first version (first row) was fixed before the first backtest on real data.
+After it, the main model changed twice (no load forecast, average of five seeds); every
+other variant was run afterwards to see how much the result depends on such choices.
+They are all reported, the good and the bad: picking the best row of this table and
+calling it the strategy would be fitting the test period. Read the table as the
+uncertainty of the headline number, not as a menu.
 """
 from __future__ import annotations
 
 import json
 import logging
 import time
-from dataclasses import dataclass, field
-from datetime import date, timedelta
+from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 
 import numpy as np
@@ -21,8 +22,8 @@ from sklearn.ensemble import HistGradientBoostingRegressor
 
 from . import backtest, baselines, config, metrics, panel, trading
 from .explain import ols_hac
-from .model import SpreadModel, choose_threshold, decide
-from .util import BERLIN, now
+from .model import SpreadModel, choose_threshold, decide, guard
+from .util import now
 
 LOG = logging.getLogger(__name__)
 CAP = 200.0
@@ -54,15 +55,18 @@ class Variant:
 
 
 VARIANTS = (
-    Variant("main", "Hauptmodell", "Hauptmodell (Einstellungen vorab festgelegt, ohne Lastprognose)"),
+    Variant("first_version", "Hauptmodell", "erste Version, vor dem ersten Backtest festgelegt "
+            "(mit Lastprognose, ein einzelnes Modell, Startwert 0)", data="with_load", seeds=(0,)),
+    Variant("main", "Hauptmodell", "Hauptmodell: nach dem ersten Backtest ohne Lastprognose und als Mittel "
+            "aus fünf Startwerten"),
     Variant("with_load", "Datenstand", "mit Lastprognose", data="with_load"),
-    Variant("archive_only", "Datenstand", "Wetter nur so frisch wie im Archiv (ohne die vollständigen Läufe ab Juni)",
-            data="archive_only"),
+    Variant("archive_only", "Datenstand", "Wetter nur so frisch wie im Archiv (vollständige Läufe auf dessen "
+            "Vorlaufzeiten 24–29 h und 48–53 h zurückgeschnitten)", data="archive_only"),
     Variant("no_capacity", "Datenstand", "ohne MW-Features (keine installierte Leistung)", drop=MW_COLS),
     Variant("fixed_2", "Entscheidungsregel", "feste Schwelle 2 €/MWh, nichts gewählt", rule="fixed"),
     Variant("val_56", "Entscheidungsregel", "Schwelle auf 56 statt 28 Tagen gewählt", validation_days=56),
     Variant("pooled", "Entscheidungsregel", "Schwelle auf allen bisherigen Out-of-sample-Tagen gewählt", rule="pooled"),
-    Variant("split", "Entscheidungsregel", "getrennte Schwellen für long und short, „nie\" erlaubt", rule="split"),
+    Variant("split", "Entscheidungsregel", "getrennte Schwellen für long und short, „nie“ erlaubt", rule="split"),
     Variant("signal_size", "Entscheidungsregel", "Größe nach Signalstärke (10–20 MW)", sizing="signal"),
     Variant("median", "Modell", "Median- statt Quadratverlust", params=(("loss", "absolute_error"),)),
     Variant("regularised", "Modell", "stärker reguliert (150 Bäume, ≥ 500 Viertelstunden je Blatt)",
@@ -175,7 +179,7 @@ def walk(df: pd.DataFrame, cols: list[str], start: date, end: date, v: Variant) 
                     IDA = np.concatenate([known["id_aep"].to_numpy(), IDA])
                 state = _choose(P, DA, IDA, v)
             pred = _predict(_fit(lab, cols, v), sp.test[cols])
-        r = backtest.results_frame(_sides(pred, state, v), sp.test, "model", pred)
+        r = backtest.results_frame(guard(_sides(pred, state, v), sp.test)[0], sp.test, "model", pred)
         r["spread_known_at"] = sp.test["spread_known_at"].to_numpy()
         parts.append(r)
         oos.append(r[["day", "pred", "da", "id_aep", "spread_known_at"]])
@@ -244,7 +248,7 @@ def markdown(rob: dict | None) -> str:
             group = r["group"]
             L.append(f"| _{group}_ | | | | | | | |")
         label = LABELS.get(r["key"], r["label"])          # labels live in the code, numbers in the JSON
-        name = f"**{label}**" if r["key"] == "main" else label
+        name = f"**{label}**" if r["key"] in ("main", "first_version") else label
         period = "" if r["key"] != "start_december" else f" ({r['from']} bis {r['to']})"
         L.append(f"| {name}{period} | {_fmt(r['net_eur'], 0, True)} | {_fmt(r['eur_per_mwh'], 2, True)} | "
                  f"{_fmt(r['t_daily_hac'], 2)} | {_fmt(r['capped_net_eur'], 0, True)} ({_fmt(r['capped_t'], 1)}) | "
@@ -255,12 +259,16 @@ def markdown(rob: dict | None) -> str:
              f"{_fmt(min(nets), 0, True)} bis {_fmt(max(nets), 0, True)} €.")
     single = [r for r in rob["variants"] if r["key"].startswith("single_")]
     sets = [r for r in rob["variants"] if r["key"] == "main" or r["key"].startswith("seeds_")]
-    def span(rows):
-        n = [r["net_eur"] for r in rows]
-        t = [r["t_daily_hac"] for r in rows if r["t_daily_hac"] is not None]
-        return f"{_fmt(min(n), 0, True)} bis {_fmt(max(n), 0, True)} € (t {_fmt(min(t), 2)} bis {_fmt(max(t), 2)})"
     if len(single) > 1:
-        L.append(f"Ein einzelnes Modell landet je nach Zufallsstartwert bei {span(single)}: so groß ist das "
-                 "Schätzrauschen, bevor irgendeine Designentscheidung ins Spiel kommt. Deshalb mittelt das "
-                 "Hauptmodell fünf Startwerte" + (f"; mit anderen fünf liegt es bei {span(sets)}." if len(sets) > 1 else "."))
+        n = [r["net_eur"] for r in single]
+        t = [r["t_daily_hac"] for r in single if r["t_daily_hac"] is not None]
+        L.append(f"Ein einzelnes Modell landet je nach Zufallsstartwert bei {_fmt(min(n), 0, True)} bis "
+                 f"{_fmt(max(n), 0, True)} € (t {_fmt(min(t), 2)} bis {_fmt(max(t), 2)}). So groß ist das "
+                 "Schätzrauschen, bevor irgendeine Designentscheidung ins Spiel kommt; deshalb mittelt das "
+                 "Hauptmodell fünf Startwerte.")
+        if len(sets) > 1:
+            names = {"main": "0–4 (Hauptmodell)", "seeds_5_9": "5–9", "seeds_10_14": "10–14"}
+            L.append("Mittel über fünf Startwerte: " + ", ".join(
+                f"{names.get(r['key'], r['key'])}: {_fmt(r['net_eur'], 0, True)} € (t {_fmt(r['t_daily_hac'], 2)})"
+                for r in sets) + ".")
     return "\n".join(L) + "\n"

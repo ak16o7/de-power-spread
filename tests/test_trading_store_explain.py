@@ -133,3 +133,25 @@ def test_model_is_the_mean_of_its_seeds():
     one = [SpreadModel(seeds=(s,)).fit(X, y).predict(X) for s in (0, 1)]
     assert np.allclose(both, (one[0] + one[1]) / 2)
     assert not np.allclose(one[0], one[1])          # the seed matters for a single fit
+
+
+def test_no_blind_trades():
+    from datetime import date
+    from dps.model import data_problem, guard
+    def day(d, **over):
+        f = pd.DataFrame({"day": d, "da_prev_slot": [50.0, 60.0], "sp_slot_last": [1.0, -2.0],
+                          "icon_eu_on_cf": [0.3, 0.4], "ecmwf_ifs_on_cf": [0.3, 0.5],
+                          "icon_eu_rev_on_cf": [np.nan, np.nan],          # NaN by design, never decisive
+                          "diag_wx_age_h_icon_eu": 2.0, "diag_wx_age_h_ecmwf_ifs": 3.0})
+        for k, v in over.items():
+            f[k] = v
+        return f
+    ok = day(date(2026, 5, 1))
+    assert data_problem(ok) is None
+    assert "day-ahead" in data_problem(day(date(2026, 5, 1), da_prev_slot=np.nan))
+    assert "spread history" in data_problem(day(date(2026, 5, 1), sp_slot_last=np.nan))
+    assert "ecmwf_ifs" in data_problem(day(date(2026, 5, 1), ecmwf_ifs_on_cf=np.nan))
+    assert "old" in data_problem(day(date(2026, 5, 1), diag_wx_age_h_icon_eu=31.0))
+    test = pd.concat([ok, day(date(2026, 5, 2), icon_eu_on_cf=np.nan)], ignore_index=True)
+    side, blocked = guard(np.ones(4), test)
+    assert side.tolist() == [1, 1, 0, 0] and list(blocked) == ["2026-05-02"]

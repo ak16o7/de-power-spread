@@ -97,8 +97,8 @@ def markdown(res: dict) -> str:
     cap_head = f" gekappt ±{cap:.0f} | t |" if capped else ""
     lines = ["| Fehler (Ist − ÜNB-DA), je GW | €/MWh Spread | t |" + cap_head + " " + " | ".join(res["dayparts"]) + " |",
              "|---|---:|---:|" + ("---:|---:|" if capped else "") + "---:|" * len(res["dayparts"])]
-    def num(x, fmt):
-        return "–" if x is None or x != x else format(x, fmt)
+    def num(x, fmt):   # German decimal comma
+        return "–" if x is None or x != x else format(x, fmt).replace(".", ",")
     for k, v in res["all"]["coef"].items():
         cells = []
         for part in res["dayparts"].values():
@@ -109,10 +109,10 @@ def markdown(res: dict) -> str:
         lines.append(f"| {label.get(k, k)} | {num(v['eur_mwh_per_gw'], '+.2f')} | {num(v['t'], '.1f')} | "
                      + cap_cells + " | ".join(cells) + " |")
     n = f"{res['all']['n']:,}".replace(",", "\u202f")
-    r2c = f", gekappt {res['all_capped']['r2']:.2f}" if capped else ""
-    lines.append(f"\nn = {n} Viertelstunden, R² = {res['all']['r2']:.2f}{r2c}. "
-                 "t mit Newey-West-Standardfehlern (Lags: ein Tag). „Gekappt\": Spread auf ±"
+    r2c = f", gekappt {num(res['all_capped']['r2'], '.2f')}" if capped else ""
+    lines.append(f"\nn = {n} Viertelstunden, R² = {num(res['all']['r2'], '.2f')}{r2c}. "
+                 "t mit Newey-West-Standardfehlern (Lags: ein Tag). „Gekappt“: Spread auf ±"
                  f"{cap or 0:.0f} €/MWh begrenzt, damit wenige Preisspitzen die Schätzung nicht dominieren. "
-                 "Spalten rechts: getrennte Regressionen je Tageszeit (ungekappt); „–\": Fehler schwankt dort "
+                 "Spalten rechts: getrennte Regressionen je Tageszeit (ungekappt); „–“: Fehler schwankt dort "
                  f"zu wenig (Standardabweichung unter {MIN_STD_MW:.0f} MW) für eine sinnvolle Steigung.")
     return "\n".join(lines) + "\n"

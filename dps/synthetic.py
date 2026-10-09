@@ -35,7 +35,46 @@ def _ar1(rng, n, phi, sigma):
     return x
 
 
-def make(data_dir: Path, hf_dir: Path, start: date, end: date, alpha: bool = True, seed: int = 0) -> None:
+def _complete_runs(hf_dir: Path, rng, hours: pd.DatetimeIndex, ws_true: dict, cloud_true: np.ndarray,
+                   cs: dict, first: pd.Timestamp, last: pd.Timestamp) -> None:
+    """Complete runs every 6 h with leads 0..71 h, like the recorded runs in the real dataset.
+    Each run has its own error, growing with the lead."""
+    pos = {t: i for i, t in enumerate(hours)}
+    for m, (ws_col, wd_col, delay) in MODEL_SPEC.items():
+        for run in pd.date_range(first.floor("6h"), last, freq="6h"):
+            valid = pd.date_range(run, run + pd.Timedelta(hours=71), freq="h")
+            idx = np.array([pos[v] for v in valid if v in pos])
+            if len(idx) == 0:
+                continue
+            lead = np.arange(len(idx), dtype="float64")
+            e_ws = rng.normal(0, 1, len(idx)).cumsum() * 0.6 * np.sqrt(lead / 24 + 0.1)
+            e_cl = rng.normal(0, 0.03, len(idx)).cumsum() * np.sqrt(lead / 24 + 0.1)
+            rows = []
+            for p in config.POINTS:
+                cl = np.clip(cloud_true[idx] + e_cl, 0, 1)
+                ghi = cs[p][idx] * (1 - 0.75 * cl)
+                rows.append(pd.DataFrame({
+                    "point": p, "valid": hours[idx], "run": run,
+                    "shortwave_radiation": ghi.astype("float32"), "direct_radiation": (0.6 * ghi).astype("float32"),
+                    "diffuse_radiation": (0.4 * ghi).astype("float32"),
+                    "temperature_2m": np.float32(10.0) + rng.normal(0, 1, len(idx)).astype("float32"),
+                    "cloud_cover": (100 * cl).astype("float32"), "snow_depth": np.float32(0.0),
+                    ws_col: np.clip(ws_true[p][idx] + e_ws + rng.normal(0, 1.5, len(idx)), 0, None).astype("float32"),
+                    wd_col: np.float32(250.0), "wind_gusts_10m": np.float32(np.nan), "surface_pressure": np.float32(1013.0),
+                }))
+            df = pd.concat(rows, ignore_index=True)
+            df["available_at"] = run + pd.Timedelta(hours=delay)
+            df["fetched_at"] = run + pd.Timedelta(hours=delay)
+            df["source"] = "live"
+            df["point"] = df["point"].astype("string")
+            p = hf_dir / f"weather/runs/{m}/{run:%Y-%m}/{run:%Y%m%dT%H}.parquet"
+            p.parent.mkdir(parents=True, exist_ok=True)
+            df.to_parquet(p, index=False)
+
+
+def make(data_dir: Path, hf_dir: Path, start: date, end: date, alpha: bool = True, seed: int = 0,
+         runs_days: int = 0) -> None:
+    """runs_days > 0: also write complete runs covering the last `runs_days` delivery days."""
     rng = np.random.default_rng(seed)
     a = start - timedelta(days=40)
     b = end + timedelta(days=3)
@@ -79,6 +118,9 @@ def make(data_dir: Path, hf_dir: Path, start: date, end: date, alpha: bool = Tru
             p = hf_dir / f"weather/previous_runs/{m}/{y}/{y}-{mo:02d}.parquet"
             p.parent.mkdir(parents=True, exist_ok=True)
             g.to_parquet(p, index=False)
+    if runs_days > 0:
+        _complete_runs(hf_dir, np.random.default_rng(seed + 1), hours, ws_true, cloud_true, cs,
+                       local(end - timedelta(days=runs_days + 3)), local(end))
     # ---- capacity
     months = pd.date_range(pd.Timestamp(a.year - 1, 1, 1, tz="UTC"), pd.Timestamp(b.year, 12, 1, tz="UTC"), freq="MS")
     cap = pd.concat([pd.DataFrame({"month": months, "type": t, "gw": g, "seen_at": pd.Timestamp("2026-10-01", tz="UTC")})

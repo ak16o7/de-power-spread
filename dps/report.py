@@ -25,7 +25,8 @@ def _fmt(x, nd=0, signed=False):
     if x is None or (isinstance(x, float) and pd.isna(x)):
         return "–"
     s = f"{x:+,.{nd}f}" if signed else f"{x:,.{nd}f}"
-    return s.replace(",", " ")
+    # German: thousands with a narrow space, decimal comma
+    return s.replace(",", "\x00").replace(".", ",").replace("\x00", " ")
 
 
 def chart(results: pd.DataFrame, out: Path, title_note: str = "") -> None:
@@ -96,9 +97,10 @@ def verdict(bt: dict) -> list[str]:
     bullets = []
     if be is not None:
         bullets.append(f"- **Gewinnschwelle der Ausführung:** Das Modell verdient {_fmt(m['eur_per_mwh'], 2, True)} €/MWh "
-                       f"netto bei {bt['assumptions']['slippage_eur_mwh']} €/MWh Slippage. Kostet der Ausstieg mehr als "
-                       f"{_fmt(be, 1)} €/MWh gegenüber dem ID-AEP, ist der Gewinn weg. Ob echte Ausführung das schafft, "
-                       "kann dieser Backtest nicht zeigen: der ID-AEP ist ein Index, kein Preis, zu dem man handeln kann.")
+                       f"netto bei {_fmt(bt['assumptions']['slippage_eur_mwh'], 1)} €/MWh Slippage. Kostet der Ausstieg "
+                       f"mehr als {_fmt(be, 1)} €/MWh gegenüber dem ID-AEP, ist der Gewinn weg. Ob echte Ausführung das "
+                       "schafft, kann dieser Backtest nicht zeigen: Der ID-AEP ist ein Index, kein Preis, zu dem man "
+                       "handeln kann.")
     if ls:
         bullets.append(f"- **Long gegen Short:** long {_fmt(ls['long_net_eur'], 0, True)} € auf {_fmt(ls['long_mwh'])} MWh, "
                        f"short {_fmt(ls['short_net_eur'], 0, True)} € auf {_fmt(ls['short_mwh'])} MWh.")
@@ -116,8 +118,8 @@ def markdown(bt: dict, ex: dict | None, image: str = "reports/pnl.png", rob: dic
     L = [f"Testzeitraum {tp['from']} bis {tp['to']} ({tp['days']} Tage, walk-forward, jeder Monat out-of-sample). "
          f"Position {a['size_mw']:.0f} MW je gehandelter Viertelstunde, Einstieg zum Day-Ahead-Preis, Ausstieg bewertet "
          f"zum ID-AEP (Benchmark, kein handelbarer Preis). "
-         f"Kosten: {a['fee_eur_mwh_per_leg']} €/MWh je Seite, {a['slippage_eur_mwh']} €/MWh Slippage beim Ausstieg, "
-         f"{a['missing_exit_penalty_eur_mwh']} €/MWh Strafe, wenn der ID-AEP fehlt.\n",
+         f"Kosten: {_fmt(a['fee_eur_mwh_per_leg'], 2)} €/MWh je Seite, {_fmt(a['slippage_eur_mwh'], 1)} €/MWh Slippage "
+         f"beim Ausstieg, {_fmt(a['missing_exit_penalty_eur_mwh'], 0)} €/MWh Strafe, wenn der ID-AEP fehlt.\n",
          *verdict(bt), "",
          f"![PnL]({image})\n",
          "| Strategie | Netto € | €/MWh | MWh | Treffer | Sharpe (ann.) | t (HAC) | Max. Drawdown € | Schlechtester Tag € | ID-AEP fehlte |",
@@ -184,15 +186,18 @@ def markdown(bt: dict, ex: dict | None, image: str = "reports/pnl.png", rob: dic
         L.append(f"| {mon} | {_fmt(v['net_eur'], 0, True)} | {_fmt(v['mwh'])} | {_fmt(mm.get('threshold'), 0)} | "
                  f"{mm.get('train_days', '–')} |")
     L += ["", "### Robustheit: alle getesteten Varianten", "",
-          "Gleicher Walk-forward, gleiche Kosten. Das Hauptmodell stand vor dem ersten echten Backtest fest; "
-          "die Varianten kamen danach. Alle stehen hier, auch die schlechten. Die beste Zeile als Strategie "
-          "zu nehmen wäre Anpassung an den Testzeitraum: Die Tabelle zeigt, wie unsicher die Hauptzahl ist.", "",
+          "Gleicher Walk-forward, gleiche Kosten. Vor dem ersten Backtest auf echten Daten stand nur die erste "
+          "Version fest (erste Zeile). Danach wurde das Hauptmodell zweimal geändert: Die Lastprognose flog raus, "
+          "weil ihr Veröffentlichungszeitpunkt nicht belegbar ist, und die Vorhersage ist jetzt das Mittel aus fünf "
+          "Startwerten, weil ein einzelnes Modell stark am Startwert hing. Beides hat den PnL im Test erhöht. Alle "
+          "anderen Varianten kamen danach, und alle stehen hier, auch die schlechten. Die beste Zeile zur Strategie "
+          "zu erklären wäre Anpassung an den Testzeitraum: Die Tabelle zeigt, wie unsicher die Hauptzahl ist.", "",
           robustness.markdown(rob)]
     L += ["### Was ein Prognosefehler kostet (ex post)", "", explain.markdown(ex) if ex else "_fehlt_"]
     L += ["### Stimmen die Zeitstempel der Wetterdaten?", "",
           "Der Lookahead-Test prüft, dass der Code jedes `available_at` respektiert. Ob die Stempel selbst stimmen, "
-          "lässt sich prüfen, wo das Dataset beide Arten von Prognosen hat: Archivwerte („Tag 1\" = mindestens "
-          "24 h alt, „Tag 2\" = 48 h) und vollständige Läufe (nachgeladen oder live mitgeschnitten).", "",
+          "lässt sich prüfen, wo das Dataset beide Arten von Prognosen hat: Archivwerte („Tag 1“ = mindestens "
+          "24 h alt, „Tag 2“ = 48 h) und vollständige Läufe (nachgeladen oder live mitgeschnitten).", "",
           checks.markdown(chk)]
     prov = bt.get("provenance") or {}
     if prov:

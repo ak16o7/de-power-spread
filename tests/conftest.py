@@ -67,10 +67,11 @@ def noise(noise_world, monkeypatch):
 
 @pytest.fixture
 def tmp_world(tmp_path, monkeypatch):
-    """A fresh, writable copy of a small synthetic world (for tests that modify data)."""
+    """A fresh, writable copy of a small synthetic world (for tests that modify data). Its
+    last 25 days also have complete weather runs, like the real dataset since June 2026."""
     start = config.START
     end = start + timedelta(days=60)
-    synthetic.make(tmp_path / "data", tmp_path / "hf", start, end, alpha=True, seed=3)
+    synthetic.make(tmp_path / "data", tmp_path / "hf", start, end, alpha=True, seed=3, runs_days=25)
     _wire(monkeypatch, tmp_path)
     yield tmp_path, start, end
     hf.weather.cache_clear()
