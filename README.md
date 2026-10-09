@@ -1,201 +1,198 @@
 # DE Power Spread
 
-**Die Frage:** Kann man mit öffentlich verfügbaren Wetterprognosen vorhersagen, ob Strom kurz
-vor der Lieferung teurer oder billiger wird als am Vortag, und damit nach Kosten Geld verdienen?
+Systematische Day-Ahead/Intraday-Spread-Strategie für DE-LU auf Viertelstundenbasis.
+Positioniert wird je Viertelstunde in der Day-Ahead-Auktion (Entscheidung 11:00 D-1, vor
+Gate Closure 12:00), glattgestellt im kontinuierlichen Intraday-Handel, bewertet zum ID-AEP.
+Das Signal kommt ausschließlich aus frei verfügbaren Daten, im Kern aus NWP-Prognosen
+(ICON-EU, ECMWF IFS). Evaluiert walk-forward gegen naive Baselines mit vorab festgelegtem
+Erfolgskriterium, seit Oktober 2026 zusätzlich als Live-Track-Record mit öffentlichem
+Zeitstempel.
 
-Dieses Projekt prüft das am deutschen Strommarkt. Jeden Tag um 11:00 entscheidet ein Modell für
-jede Viertelstunde des nächsten Tages: kaufen, verkaufen oder nichts tun. Gemessen wird so
-streng wie möglich: in Euro nach Kosten, gegen einfache Vergleichsstrategien, ohne Blick in die
-Zukunft und seit Oktober 2026 auch live, mit öffentlichem Zeitstempel.
+**Hypothese.** Der DA-Preis bildet die Erwartung zum Auktionszeitpunkt ab; der Spread
+ID − DA wird vor allem von Prognosefehlern bei Wind und PV getrieben (Ex-post-Regression
+unten). Geprüft wird, ob die um 11:00 verfügbaren Prognosen (Wetterlage, Revisionen,
+Dissens zwischen ICON und ECMWF) systematische Information über das Vorzeichen des Spreads
+enthalten, die nach Kosten verwertbar ist.
 
 ## Ergebnis
 
-Begriffe wie Spread, ID-AEP oder t-Wert erklärt die Tabelle [Begriffe](#begriffe), die Vergleichsstrategien („Immer long“ usw.) der Abschnitt [Warum man den Zahlen trauen kann](#warum-man-den-zahlen-trauen-kann).
-
 <!-- RESULTS:START -->
-**Ergebnis auf einen Blick** · Test 2026-01-01 bis 2026-10-07 (280 Tage), gerechnet am 2026-10-09
+Out-of-sample 2026-01-01 bis 2026-10-07 (280 Liefertage), Walk-forward mit monatlichem Refit, 10 MW je gehandelter Viertelstunde, Kosten 0,25 €/MWh je Leg plus 1,0 €/MWh Slippage gegen ID-AEP. Stand 2026-10-09.
 
-- **Verdient das Modell Geld?** Ja: +155 425 € nach Kosten (+3,73 € je MWh), t-Wert 2,38.
-- **Kommt das aus den Wetterprognosen?** Ja: Dasselbe Modell ohne Wetterdaten kommt auf -55 083 €.
-- **Ist es besser als einfache Regeln?** Nicht eindeutig. Deutlich besser (t > 2) ist es nur als „Immer short“. „Immer long“ verdient sogar mehr (+189 252 €), aber fast nur an Preisspitzen: Mit Spreads auf ±200 €/MWh begrenzt bleiben +15 036 €, beim Modell +142 043 €. Das vorab festgelegte Erfolgskriterium ist damit **nicht erfüllt**.
-- **Wo kommt der Gewinn her?** Aus Long-Positionen (+170 265 €); Short-Positionen verlieren unterm Strich (-14 840 €). Ein großer Teil hängt an wenigen Tagen: Ohne die 10 besten Tage blieben +19 813 €.
-- **Was darf die Ausführung kosten?** Der Gewinn hält, solange echte Geschäfte im Schnitt höchstens 4,7 €/MWh schlechter sind als der ID-AEP-Index (angesetzt: 1,0 €/MWh).
-- **Ehrlichkeitshinweis:** Die vor dem ersten Test festgelegte Version kam auf +101 647 € (t-Wert 1,54). Zwei Änderungen danach haben das Ergebnis verbessert; was und warum, steht unten.
+| Kennzahl | Modell |
+|---|---:|
+| Netto-PnL | +155 425 € |
+| Netto je gehandelter MWh | +3,73 € |
+| Gehandeltes Volumen | 41 660 MWh |
+| t-Wert Tages-PnL (Newey-West) | 2,38 |
+| Sharpe p. a. (Tages-PnL) | 2,59 |
+| Max. Drawdown | -37 357 € |
+| Break-even-Slippage gegen ID-AEP | 4,7 €/MWh |
+| Netto-PnL, Spread auf ±200 €/MWh gekappt | +142 043 € (t 3,83) |
 
-**Fazit:** Ein sauber gemessenes, aber schwaches Signal. Kein Geldautomat.
+**Vorab festgelegtes Kriterium** (Tages-PnL schlägt jede Baseline mit HAC-t > 2): **nicht erfüllt**. Signifikant besser als „Immer short“ (t 3,56); nicht signifikant gegen „Immer long“ (t -0,22), „Vorzeichen je Viertelstunde (28 T)“ (t 0,63), „Letztes bekanntes Vorzeichen“ (t 1,06).
 
-![Kumulierter Gewinn des Modells und der Vergleichsstrategien](reports/pnl.png)
+- „Immer long“ liegt ungekappt bei +189 252 €, mit Spread-Cap ±200 €/MWh bei +15 036 €: überwiegend Spike-Prämie. Mit gekappten Spreads liegt das Modell vorn, aber nicht signifikant (t 1,29).
+- Der Edge kommt aus den NWP-Features: ohne sie -55 083 € (t -0,93).
+- Asymmetrisch und konzentriert: Long +170 265 €, Short -14 840 €; ohne die 10 besten Tage +19 813 €.
+- Die vor dem ersten Backtest fixierte Erstversion liegt bei +101 647 € (t 1,54); die zwei Änderungen danach sind unten dokumentiert.
 
-| Strategie | Gewinn nach Kosten | € je MWh | t-Wert | Gewinn ohne extreme Preisspitzen (Spread auf ±200 €/MWh begrenzt) |
-|---|---:|---:|---:|---:|
-| **Modell** | +155 425 € | +3,73 | 2,38 | +142 043 € |
-| Immer long | +189 252 € | +2,82 | 1,38 | +15 036 € |
-| Immer short | -390 822 € | -5,82 | -2,84 | -216 606 € |
-| Vorzeichen je Viertelstunde (28 T) | +103 275 € | +1,54 | 1,25 | +65 184 € |
-| Letztes bekanntes Vorzeichen | +65 797 € | +0,98 | 0,78 | -22 089 € |
+**Einordnung:** Messbarer, aber schwacher Edge, statistisch nicht von einfachen Baselines zu trennen und abhängig von der Ausführungsqualität gegen den Index.
 
-**Wie stabil ist das?** Dieselbe Rechnung mit geänderten Annahmen:
+![Kumulierter Netto-PnL, Modell gegen Baselines](reports/pnl.png)
 
-| Variante | Gewinn nach Kosten | t-Wert |
+| Strategie | Netto € | €/MWh | t (HAC) | Max. DD € | Netto €, Spread ±200 gekappt |
+|---|---:|---:|---:|---:|---:|
+| **Modell** | +155 425 | +3,73 | 2,38 | -37 357 | +142 043 |
+| Immer long | +189 252 | +2,82 | 1,38 | -129 624 | +15 036 |
+| Immer short | -390 822 | -5,82 | -2,84 | -398 874 | -216 606 |
+| Vorzeichen je Viertelstunde (28 T) | +103 275 | +1,54 | 1,25 | -57 401 | +65 184 |
+| Letztes bekanntes Vorzeichen | +65 797 | +0,98 | 0,78 | -39 963 | -22 089 |
+
+**Robustheit** (Auszug; gleiche Splits, gleiche Kosten):
+
+| Variante | Netto € | t (HAC) |
 |---|---:|---:|
-| Erste, vorab festgelegte Version | +101 647 € | 1,54 |
-| **Hauptmodell** | +155 425 € | 2,38 |
-| Hauptmodell mit Lastprognose | +160 194 € | 2,19 |
-| Hauptmodell ohne Wetterdaten | -55 083 € | -0,93 |
-| Feste Handelsschwelle statt monatlich gewählter | +152 752 € | 1,80 |
-| Test schon ab Dezember 2025 | +131 415 € | 1,93 |
-| Ein einzelnes Modell statt Mittel aus fünf, je nach Zufallsstartwert | +44 744 bis +176 158 € | 0,78 bis 2,56 |
+| Erstversion (vor dem ersten Backtest fixiert) | +101 647 | 1,54 |
+| **Hauptmodell** | +155 425 | 2,38 |
+| mit DA-Lastprognose als Feature | +160 194 | 2,19 |
+| ohne NWP-Features | -55 083 | -0,93 |
+| NWP nur im Vintage des Previous-Runs-Archivs | +153 345 | 2,36 |
+| fixe Schwelle 2 €/MWh statt Auswahl | +152 752 | 1,80 |
+| Teststart Dezember 2025 | +131 415 | 1,93 |
+| Einzel-Fit statt Seed-Mittel (Seeds 0–4) | +44 744 bis +176 158 | 0,78 bis 2,56 |
 
-Alle 26 getesteten Varianten, auch die schlechten, stehen in [reports/REPORT.md](reports/REPORT.md).
+Alle 26 Varianten, Kostensensitivität, Long/Short, Monatswerte, Ex-post-Regression und Datenprüfung: [reports/REPORT.md](reports/REPORT.md).
 
-**Warum der Spread sich bewegt:** Liefern Sonne oder Wind 1 GW mehr als die Netzbetreiber am Vortag prognostiziert haben, fällt der Intraday-Preis gegenüber Day-Ahead im Schnitt um 7,6 €/MWh (Solar), 4,8 €/MWh (Wind an Land), 4,7 €/MWh (Wind auf See). Diese Überraschungen versucht das Modell vorab zu erkennen.
-
-Alle Tabellen (Kosten, Monate, Long und Short, alle Varianten, Regression, Datenprüfung): [reports/REPORT.md](reports/REPORT.md).
+**Ex post:** 1 GW positiver Prognosefehler (Ist minus ÜNB-Day-Ahead-Prognose) verschiebt den Spread um -7,6 €/MWh Solar (t -13,0), -4,8 €/MWh Wind onshore (t -5,9), -4,7 €/MWh Wind offshore (t -4,0) (Spread auf ±200 €/MWh gekappt, Newey-West).
 
 <!-- RESULTS:END -->
 
-## Der Trade in einem Beispiel
+## Setup
 
-Strom für morgen wird zweimal gehandelt:
+### Trade und PnL
 
-1. **Day-Ahead-Auktion**, heute um 12:00. Sie legt für jede Viertelstunde von morgen einen
-   Preis fest.
-2. **Intraday-Handel**, bis kurz vor der Lieferung. Hier reagiert der Preis auf alles, was
-   nach der Auktion passiert, vor allem auf neue Wetterprognosen.
+- **Entry:** preisunabhängiges Gebot in der SDAC-Auktion, 10 MW je Viertelstunde, long (Kauf)
+  oder short (Verkauf). MTU 15 Minuten seit dem 1. Oktober 2025; ab dann beginnt die Historie.
+- **Exit:** Close-out im Continuous Intraday vor Lieferung, bewertet zum ID-AEP. Der ID-AEP ist
+  der mengengewichtete Preis der letzten Geschäfte des Viertelstundenprodukts bis 500 MW,
+  bei zu wenig Umsatz mit dem Stundenprodukt aufgefüllt, also der Index der reBAP-Kopplung
+  (inhaltlich ID500).
+- **PnL je Viertelstunde:** Position × (ID-AEP − DA) × 2,5 MWh, abzüglich 0,25 €/MWh je Leg
+  und 1 €/MWh Slippage gegen den Index. Fehlt der ID-AEP (unter 500 MW Umsatz), werden
+  10 €/MWh Verlust gebucht statt die Position zu verwerfen.
+- **Kein Imbalance-Exposure:** Der Bilanzkreis ist vor Lieferung immer ausgeglichen; es gibt
+  keine Spekulation auf den reBAP.
+- **Kritische Annahme:** Ausführung zum Index plus Slippage. Der ID-AEP ist nicht handelbar;
+  echte Fills hängen von Timing, Orderbuchtiefe und Geld-Brief-Spanne ab. Die
+  Break-even-Slippage im Ergebnis zeigt, wie viel Ausführungsverlust gegen den Index der Edge
+  verträgt. Intraday-Tickdaten (EPEX) würden die Annahme ersetzen; frei verfügbar ist nur der
+  Index.
 
-Der Unterschied zwischen beiden Preisen heißt **Spread** (Intraday minus Day-Ahead). Auf ihn
-wird gewettet:
+### Informationsstand um 11:00 D-1
 
-| Position | Was man tut | Gewinn, wenn … |
+| Daten | Quelle | verwendet ab |
 |---|---|---|
-| **Long** | in der Auktion kaufen, kurz vor Lieferung verkaufen | … Strom intraday teurer wird |
-| **Short** | in der Auktion verkaufen, kurz vor Lieferung zurückkaufen | … Strom intraday billiger wird |
+| DA-Preise DE-LU je Viertelstunde | ENTSO-E A44, ohne Key SMARD über Energy-Charts | 13:30 am Tag vor Lieferung; als Feature die Kurve von D-1 |
+| ID-AEP je Viertelstunde | netztransparenz.de (WebAPI oder CSV-Download) | 00:00 an D+2 (konservativ, beobachtet: D+1); jüngstes Label zur Entscheidung ist D-3 |
+| NWP ICON-EU und ECMWF IFS an 16 Punkten (Wind in Nabenhöhe, GHI, Temperatur, Bewölkung) | [de-power-forecast-data](https://huggingface.co/datasets/akderekaan/de-power-forecast-data) (Open-Meteo) | laut `available_at`, nur Vorlauf ≥ 24 h; Previous-Runs-Archiv bis 30.09.2026, vollständige Läufe ab 10.06.2026 |
+| Installierte Leistung Wind und PV | Energy-Charts | Monat M−2 |
+| Ist-Erzeugung (A75), ÜNB-DA-Prognose Wind/PV (A69, 18:00 D-1) | ENTSO-E über das Dataset | nur ex post, nie als Feature |
+| Last und DA-Lastprognose (A65) | ENTSO-E, ohne Key Energy-Charts | nur ex post; kein Feature, weil Veröffentlichungs- und Revisionszeitpunkt nicht belegbar sind |
 
-**Zahlenbeispiel:** 10 MW für eine Viertelstunde sind 2,5 MWh. Auktionspreis 60 €/MWh,
-Intraday-Preis 75 €/MWh. Long verdient (75 − 60) × 2,5 = 37,50 €, minus 3,75 € Kosten,
-also 33,75 €. Short hätte 37,50 € plus Kosten verloren.
+### Features
 
-**Warum es den Spread gibt:** Bei der Auktion kennt der Markt nur die Wetterprognose vom
-Vortag. Weht morgen mehr Wind oder scheint mehr Sonne als erwartet, gibt es zu viel Strom und
-der Intraday-Preis fällt; dann gewinnt Short. Kommt weniger, steigt er; dann gewinnt Long.
-Das Modell versucht, die Richtung dieser Überraschung vorab zu erraten.
+- **NWP je Modell:** Kapazitätsfaktor-Proxy onshore und offshore (generische Leistungskurve),
+  GHI, Clear-Sky-Index, Temperatur, Bewölkung; Revision gegenüber dem Stand 24 h zuvor;
+  Dissens ECMWF − ICON.
+- **Leistungs-Proxy:** Wind- und PV-MW aus Kapazitätsfaktor bzw. GHI und installierter Leistung.
+- **DA-Kurve D-1:** Preis der Viertelstunde, Tagesmittel, Standardabweichung, Shape.
+- **Spread-Historie** (nur veröffentlichte Tage): Slot-Mittel über 14 und 28 Tage, letzter
+  bekannter Slot, 7-Tage-Mittel und -Betragsmittel.
+- **Kalender:** Viertelstunde, Wochentag, Wochenende oder bundesweiter Feiertag, Sonnenstand.
 
-Die Position wird vor der Lieferung immer vollständig glattgestellt. Unterm Strich bleibt also
-nie eine Strommenge offen, und es wird nie auf Ausgleichsenergie spekuliert. Das wäre ein
-Verstoß gegen die Bilanzkreistreue, keine Strategie.
+### Modell und Entscheidungsregel
 
-## Ein Handelstag
+- **Modell:** HistGradientBoostingRegressor auf den Spread, Trainingsziel auf das
+  1./99. Perzentil winsorisiert, feste Hyperparameter. Die Prognose ist das Mittel aus fünf
+  Seeds. Der Seed steuert nur den Early-Stopping-Holdout, Einzel-Fits streuen aber stark
+  (Robustheit).
+- **Signal:** Position = Vorzeichen der Prognose, wenn |Prognose| die Schwelle übersteigt. Die
+  Schwelle kommt aus {0, 2, 5, 10, 15, 20, 30} €/MWh und wird monatlich auf den letzten
+  28 gelabelten Tagen gewählt, mit einem Modell, das diese Tage nicht gesehen hat.
+- **Walk-forward:** monatlicher Refit; Labels nur, soweit sie zur Entscheidung für den ersten
+  Liefertag des Monats veröffentlicht waren. Erster Testmonat mit mindestens 60 gelabelten
+  Tagen ist Januar 2026.
+- **Data Guard:** Kein Handel ohne DA-Preise von D-1, Spread-Historie und beide NWP-Modelle
+  oder wenn die jüngste Prognose älter als 30 h ist. Im Backtest und live identisch.
 
-| Wann | Was passiert |
-|---|---|
-| Vortag, bis 11:00 | Daten sammeln: Wetterprognosen, die Auktionspreise für den Vortag selbst, Spreads der letzten Tage |
-| Vortag, 11:00 | Das Modell entscheidet für jede der 96 Viertelstunden: long, short oder nichts |
-| Vortag, 12:00 | Day-Ahead-Auktion: Einstieg zum Auktionspreis |
-| Liefertag | Kurz vor jeder Viertelstunde wird im Intraday-Handel glattgestellt |
-| Tag danach | Der ID-AEP wird veröffentlicht, der Tag wird abgerechnet |
+## Validierung
 
-### Wie der Ausstieg bewertet wird: der ID-AEP
+- **Baselines:**
 
-Echte Intraday-Kurse kosten Geld (die Börse EPEX verkauft sie). Frei verfügbar ist der
-**ID-AEP**, den die vier Übertragungsnetzbetreiber für jede Viertelstunde veröffentlichen: der
-Durchschnittspreis der letzten 500 MW, die vor der Lieferung gehandelt wurden. Inhaltlich ist
-das der ID500 (der Name kommt daher, dass der Ausgleichsenergiepreis daran gekoppelt ist).
-
-Der ID-AEP ist ein **Index, kein Preis, zu dem man handeln kann**. Ein echter Händler bekommt
-mal mehr, mal weniger. Diesen Unterschied deckt ein Kostenaufschlag ab (Slippage, 1 €/MWh).
-Wie groß er höchstens sein darf, ohne dass der Gewinn verschwindet, steht oben im Ergebnis
-(„Was darf die Ausführung kosten?“).
-
-## Wie das Modell entscheidet
-
-**Was es um 11:00 weiß.** Jede Quelle wird nur mit dem Stand verwendet, der zur Entscheidung
-tatsächlich veröffentlicht war:
-
-| Input | Quelle | bekannt ab |
-|---|---|---|
-| Wetterprognosen (Wind an Land und auf See, Sonne, Temperatur, Wolken) der Modelle ICON-EU und ECMWF an 16 Orten in Deutschland, dazu wie stark sie sich zuletzt geändert haben und wie sehr sich die beiden Modelle widersprechen | [de-power-forecast-data](https://huggingface.co/datasets/akderekaan/de-power-forecast-data) (Open-Meteo, DWD, ECMWF) | laut Zeitstempel jeder Prognose; nur Prognosen, die mindestens 24 h vor ihrer Gültigkeit gemacht wurden |
-| Installierte Wind- und Solarleistung | Energy-Charts | Wert von vor zwei Monaten |
-| Auktionspreise des Vortags | ENTSO-E oder SMARD (Bundesnetzagentur) | 13:30 am Tag davor |
-| Spreads der letzten Tage | netztransparenz.de | nur Tage, deren ID-AEP schon veröffentlicht war (drei Tage alt und älter) |
-| Kalender: Uhrzeit, Wochentag, Feiertag, Sonnenstand | berechnet | immer |
-
-**Das Modell.** Gradient Boosting (scikit-learn) mit festen Einstellungen. Es lernt aus der
-Vergangenheit, welcher Spread bei welcher Wetterlage zu erwarten ist. Die Vorhersage ist das
-Mittel aus fünf identischen Modellen mit verschiedenem Zufallsstart, weil ein einzelnes
-Modell stark vom Zufall abhing (siehe Ergebnis, „Wie stabil ist das?“).
-
-**Die Handelsregel.** Gehandelt wird nur, wenn der vorhergesagte Spread groß genug ist. Die
-Schwelle wird jeden Monat auf den letzten 28 Tagen gewählt, mit einem Modell, das diese Tage
-nicht kannte.
-
-**Walk-forward.** Das Modell wird jeden Monat neu trainiert, immer nur mit Daten, die zu diesem
-Zeitpunkt schon bekannt waren. Jeder Testmonat ist für das Modell also echte Zukunft.
-
-## Warum man den Zahlen trauen kann
-
-- **Kein Blick in die Zukunft.** Ein automatischer Test baut die Entscheidung für einen Tag,
-  verfälscht dann alle Daten, die erst später veröffentlicht wurden, und verlangt exakt
-  dieselbe Entscheidung. Absichtlich eingebaute Fehler fängt er. Zusätzlich sind die
-  Zeitstempel der Wetterdaten gegen die Daten selbst geprüft: Kein einziger Wert war frischer
-  als angegeben (Tabelle in [REPORT.md](reports/REPORT.md)).
-- **Einfache Vergleichsstrategien.** Ein Modell ist nur etwas wert, wenn es simple Regeln
-  schlägt:
-
-  | Vergleichsstrategie | Regel |
+  | Baseline | Regel |
   |---|---|
   | Immer long / Immer short | jede Viertelstunde dieselbe Richtung |
-  | Vorzeichen je Viertelstunde | Richtung, in die der Spread zu dieser Uhrzeit in den letzten 28 Tagen im Schnitt ging |
-  | Letztes bekanntes Vorzeichen | Richtung des Spreads zu dieser Uhrzeit am neuesten bekannten Tag |
+  | Vorzeichen je Viertelstunde (28 T) | Vorzeichen des mittleren Spreads im selben Slot über die letzten 28 bekannten Tage |
+  | Letztes bekanntes Vorzeichen | Vorzeichen des Spreads im selben Slot am jüngsten bekannten Tag (D-3) |
 
-  **Das Erfolgskriterium stand vorher fest:** Das Modell muss jede dieser Regeln mit einem
-  t-Wert über 2 schlagen. Ob das erfüllt ist, rechnet der Report automatisch aus.
-- **Realistische Kosten.** 0,25 €/MWh Gebühren je Seite und 1 €/MWh Slippage beim Ausstieg,
-  bei 10 MW je Viertelstunde. Der Report zeigt auch, was bei höheren Kosten übrig bleibt.
-- **Alles offen.** Alle getesteten Varianten stehen im Report, auch die schlechten. Die beste
-  davon als Strategie zu verkaufen, wäre Selbstbetrug.
+- **Erfolgskriterium,** seit dem ersten Commit festgelegt: Das Modell schlägt jede Baseline im
+  Tages-PnL mit HAC-t > 2 (Newey-West, 5 Lags).
+- **Lookahead-Test:** Alle nach der Entscheidung veröffentlichten Daten werden verfälscht: DA
+  ab Liefertag, ID-AEP ab D-2, Lastprognosen späterer Tage, noch nicht nutzbare
+  Kapazitätsmonate, NWP aller Vintages und Variablen. Die Features müssen identisch bleiben.
+  Geprüft werden auch der Tag der Zeitumstellung (100 Viertelstunden) und eine frühe
+  Live-Entscheidung. Per Mutationstest ist belegt, dass der Test eingebaute Fehler findet.
+- **NWP-Zeitstempel gegen die Daten verifiziert:** Archivwerte lassen sich exakt einzelnen
+  Modellläufen zuordnen; keiner stammt aus einem Lauf mit kürzerem Vorlauf als angegeben. Die
+  gemessenen Veröffentlichungszeiten der live mitgeschnittenen Läufe liegen unter den
+  angesetzten Grenzen.
+- **Robustheit:** 26 Varianten auf denselben Splits: Schwellenregeln, Sizing, Loss,
+  Regularisierung, Bagging, ein zweistufiges Modell über die ÜNB-Prognosefehler,
+  Feature-Ablationen, NWP-Vintage, Teststart, Seeds. Vollständig in
+  [reports/REPORT.md](reports/REPORT.md).
+- **Reproduzierbarkeit:** `reports/backtest.json` hält Code-Commit, Revision des Datasets und
+  Stand des Datencaches fest.
 
-### Was nach dem ersten Test geändert wurde
+### Änderungen nach dem ersten Backtest
 
-Vor dem ersten Test auf echten Daten war alles festgelegt. Danach wurde zweimal geändert.
-Aufgefallen ist beides beim Prüfen der Testergebnisse, begründet ist beides unabhängig von der
-Höhe des Gewinns:
+1. **DA-Lastprognose als Feature entfernt.** Ihr Zeitstempel ist nicht belegbar, ihr Beitrag
+   nicht messbar.
+2. **Seed-Mittel statt Einzel-Fit.** Ein Einzel-Fit streut über die Seeds zwischen etwa
+   +45k € und +176k €.
+3. **Bugfix:** Die installierte Leistung wurde nach UTC-Monat statt nach lokalem Liefermonat
+   nachgeschlagen.
 
-1. **Die Lastprognose wurde entfernt.** Bei ihr lässt sich nicht belegen, wann ein Wert
-   veröffentlicht oder ob er später korrigiert wurde. Messbar bringt sie ohnehin nichts.
-2. **Fünf Modelle statt einem.** Ein einzelnes Modell hing stark vom Zufallsstart ab.
-   Fünf zu mitteln reduziert dieses Rauschen, ohne irgendetwas am Modell einzustellen.
-
-Außerdem wurde ein kleiner Fehler behoben (die installierte Leistung wurde in den ersten
-Stunden jedes Monats aus dem falschen Monat gelesen). Beide Änderungen haben das Ergebnis
-verbessert. Deshalb steht die ursprüngliche Version mit ihrem schwächeren Ergebnis gleich oben
-mit im Ergebnis.
+Aufgefallen ist beides bei der Prüfung der Testergebnisse; begründet ist es unabhängig von der
+Höhe des PnL. Beide Modelländerungen haben den Test-PnL erhöht. Die Erstversion ist deshalb im
+Ergebnis und in der Robustheitstabelle ausgewiesen.
 
 ## Grenzen
 
-- **Der Ausstieg ist ein Index, kein echter Preis.** Ob echte Ausführung gut genug wäre, kann
-  nur ein Handelsdesk mit Orderbuchdaten beantworten.
-- **Kurze Historie.** Gut neun Monate Test, Daten ab Oktober 2025 (seitdem wird Day-Ahead in
-  Viertelstunden gehandelt). Jahreszeiten hat das Modell nur einmal gesehen.
-- **Wenige Tage tragen viel.** Ein t-Wert um 2 über neun Monate ist bei so starken
-  Preisspitzen wenig belastbar.
-- **Wetterdaten werden besser.** Ab Mitte Juni 2026 gibt es vollständige Modellläufe statt nur
-  Archivwerten; die Prognosen im Modell sind seitdem frischer. Das war echte, zur Entscheidung
-  verfügbare Information, aber der Testzeitraum ist dadurch nicht ganz einheitlich.
-- **Kleinkram.** Installierte Leistung im heutigen Datenstand (spätere Nachmeldungen sind
-  klein), nur bundesweite Feiertage, keine eigene Marktwirkung.
+- **Ausführung:** Index statt Fills. Die Break-even-Slippage ist die entscheidende Zahl. Ob sie
+  erreichbar ist, lässt sich nur mit Orderbuchdaten beantworten.
+- **Stichprobe:** gut neun Monate out-of-sample, ein Saisonzyklus, fette Ränder. Ein t um 2 ist
+  wenig belastbar.
+- **Profil:** Der Edge ist long-lastig und hängt an wenigen Spike-Tagen.
+- **NWP-Vintage nicht homogen:** Ab Mitte Juni 2026 gibt es vollständige Läufe mit frischeren
+  Prognosen, seit Oktober nur noch diese. Die Variante, die das auf das Archiv-Vintage
+  zurückschneidet, liegt nahe am Hauptergebnis.
+- **Kleinere Punkte:** Die installierte Leistung ist der heutige Datenstand (Nachmeldungen sind
+  klein). Es gibt nur bundesweite Feiertage. Marktwirkung wird nicht modelliert (10 MW
+  gegenüber einem 500-MW-Index). Es gibt keine Positions- und Risikolimits, keinen
+  Portfoliokontext und keine Intraday-Auktionen (IDA).
 
 ## Live-Track-Record
 
-Der Backtest wurde vom Autor angeschaut, so ehrlich er auch gerechnet ist. Der einzige Test auf
-wirklich unbekannten Daten ist der Live-Betrieb:
-
-- Jeden Tag zwischen 10:45 und 11:50 berechnet eine GitHub Action die Positionen für morgen und
-  legt sie in `signals/` ab. Push-Zeitpunkt und Protokoll des Laufs belegen, dass das Signal vor
-  der Auktion existierte.
-- Verfahren, Daten und Regeln sind dieselben wie im Backtest; ein Test prüft das. Fehlen Daten,
-  wird an dem Tag nicht gehandelt. Ein Signal, das erst nach 11:50 fertig ist, zählt nicht.
-- Sobald der ID-AEP veröffentlicht ist, wird mit derselben Rechnung wie im Backtest abgerechnet
-  (`live/ledger.csv`).
+- **Ablauf:** Täglich im Fenster 10:45–11:50 erzeugt eine GitHub Action die Positionen für D+1
+  und committet sie nach `signals/`. Push-Zeitpunkt und Lauf-Protokoll belegen, dass das
+  Signal vor Gate Closure existierte.
+- **Gleiches Verfahren wie im Backtest:** gleiches Monatsmodell, gleiche Schwellenregel, gleicher
+  Verfügbarkeitsfilter, gleicher Data Guard; ein Test prüft die Gleichheit. Ein Signal, das
+  erst nach 11:50 fertig ist, wird markiert und nicht gezählt.
+- **Abrechnung:** nach Veröffentlichung des ID-AEP mit derselben PnL-Funktion
+  (`live/ledger.csv`). Das ist der einzige Test auf Daten, die beim Festlegen des Modells
+  niemand kannte.
 
 <!-- LIVE:START -->
 _Noch kein abgerechneter Tag. Signale liegen in `signals/`, abgerechnet wird, sobald der ID-AEP veröffentlicht ist._
@@ -204,43 +201,26 @@ Warten auf ID-AEP: 2026-10-10
 
 <!-- LIVE:END -->
 
-## Begriffe
-
-| Begriff | Bedeutung |
-|---|---|
-| Day-Ahead | Auktion am Vortag um 12:00, ein Preis je Viertelstunde |
-| Intraday | fortlaufender Handel bis kurz vor der Lieferung |
-| Spread | Intraday-Preis minus Day-Ahead-Preis |
-| Long / Short | auf steigenden / fallenden Intraday-Preis setzen |
-| ID-AEP | Durchschnittspreis der letzten 500 MW Intraday-Handel einer Viertelstunde, veröffentlicht von den Netzbetreibern |
-| Slippage | wie viel schlechter ein echtes Geschäft ist als der Referenzpreis |
-| t-Wert | wie deutlich ein Ergebnis über dem Tagesrauschen liegt; ab etwa 2 ist Zufall unwahrscheinlich. Berechnet mit Newey-West-Korrektur, weil aufeinanderfolgende Tage zusammenhängen |
-| Walk-forward | jeden Monat neu trainieren, nur mit dem, was bis dahin bekannt war |
-| Lookahead | versehentlicher Blick in die Zukunft im Backtest, der Kardinalfehler |
-
-## Für Entwickler
+## Reproduktion
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
 
-python -m dps demo                # ganze Pipeline auf erfundenen Daten, ohne Zugangsdaten
-python -m pytest                  # Tests, u. a. der Lookahead-Test
+python -m pytest                  # Tests inkl. Lookahead-Test
+python -m dps demo                # komplette Pipeline auf synthetischen Daten
 
-python -m dps fetch --full        # echte Daten seit 2025-10-01 laden (geht ohne API-Keys)
-python -m dps run                 # Regression, Backtest, Report, dieses README
-python -m dps run --robustness    # dazu alle Varianten und die Datenprüfung (rund eine Stunde)
+python -m dps fetch --full        # Daten seit 2025-10-01 (ohne API-Keys über freie Quellen)
+python -m dps run                 # Ex-post-Regression, Backtest, Report, README
+python -m dps run --robustness    # zusätzlich alle Varianten und die Datenprüfung (ca. 1 h)
 ```
 
-- **Betrieb auf GitHub:** Workflows unter `.github/workflows`: `Live` (täglich Signal und
-  Abrechnung), `Backtest` (sonntags alles neu rechnen), `CI` (Tests). Optionale Secrets
-  `ENTSOE_API_KEY`, `NTP_CLIENT_ID`, `NTP_CLIENT_SECRET` für die offiziellen APIs; ohne sie
-  laufen Energy-Charts und der CSV-Download von netztransparenz.de.
-- **Reproduzierbarkeit:** `reports/backtest.json` hält Code-Commit, Revision des Wetter-Datasets
-  und Datenstand fest. `DPS_HF_REVISION=<commit>` liest genau diese Revision.
-- **Code:** `dps/config.py` (alle Annahmen an einer Stelle), `features.py` (Inputs streng nach
-  Verfügbarkeit), `model.py`, `backtest.py`, `robustness.py`, `live.py`, `trading.py`
-  (PnL-Rechnung für Backtest und Live), `checks.py` (Datenprüfung), `report.py`.
+- **Betrieb:** Workflows in `.github/workflows`: `Live` (Signal und Abrechnung), `Backtest`
+  (sonntags komplett neu), `CI`. Optionale Secrets `ENTSOE_API_KEY`, `NTP_CLIENT_ID` und
+  `NTP_CLIENT_SECRET` für die offiziellen APIs.
+- **Code:** alle Annahmen in `dps/config.py`; Features streng nach Verfügbarkeit in
+  `features.py`; PnL-Funktion für Backtest und Live in `trading.py`; dazu `model.py`,
+  `backtest.py`, `robustness.py`, `checks.py`, `live.py` und `report.py`.
 
-Code unter MIT-Lizenz. Daten: ENTSO-E Transparency Platform, netztransparenz.de,
-Open-Meteo/DWD/ECMWF, Energy-Charts; deren Nutzungsbedingungen gelten. Keine Anlageberatung.
+Code: MIT. Daten: ENTSO-E Transparency Platform, netztransparenz.de, Open-Meteo/DWD/ECMWF,
+Energy-Charts; es gelten deren Nutzungsbedingungen. Keine Anlageberatung.
