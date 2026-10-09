@@ -162,7 +162,7 @@ def markdown(bt: dict, ex: dict | None, image: str = "reports/pnl.png", rob: dic
     slips = list(next(iter(bt["slippage_sensitivity"].values())).keys())
     be = bt.get("break_even_slippage_eur_mwh") or {}
     L += ["", "**Kostenempfindlichkeit**: Netto-PnL in € bei Slippage (€/MWh gegenüber dem ID-AEP) von", "",
-          "| Strategie | " + " | ".join(slips) + " |" + (" Gewinnschwelle €/MWh |" if be else ""),
+          "| Strategie | " + " | ".join(_fmt(float(k), 1) for k in slips) + " |" + (" Gewinnschwelle €/MWh |" if be else ""),
           "|---|" + "---:|" * len(slips) + ("---:|" if be else "")]
     for s in ORDER:
         row = bt["slippage_sensitivity"].get(s)

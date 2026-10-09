@@ -1,12 +1,31 @@
 {
- "generated_at": "2026-10-09T00:35:08.843520+00:00",
+ "generated_at": "2026-10-09T08:07:44.589916+00:00",
  "capped_eur_mwh": 200.0,
  "note": "all variants that were run, on the same walk-forward split; the main model was fixed beforehand",
  "variants": [
   {
+   "key": "first_version",
+   "group": "Hauptmodell",
+   "label": "erste Version, vor dem ersten Backtest festgelegt (mit Lastprognose, ein einzelnes Modell, Startwert 0)",
+   "from": "2026-01-01",
+   "to": "2026-10-07",
+   "days": 280,
+   "net_eur": 101647.0,
+   "eur_per_mwh": 2.67,
+   "mwh": 38090.0,
+   "t_daily_hac": 1.54,
+   "capped_net_eur": 103278.0,
+   "capped_t": 2.82,
+   "t_vs_slot_sign_28d": -0.02,
+   "t_vs_always_long": -0.55,
+   "long_net_eur": 165504.0,
+   "short_net_eur": -63856.0,
+   "seconds": 30
+  },
+  {
    "key": "main",
    "group": "Hauptmodell",
-   "label": "Hauptmodell (Einstellungen vorab festgelegt, ohne Lastprognose)",
+   "label": "Hauptmodell: nach dem ersten Backtest ohne Lastprognose und als Mittel aus f\u00fcnf Startwerten",
    "from": "2026-01-01",
    "to": "2026-10-07",
    "days": 280,
@@ -20,7 +39,7 @@
    "t_vs_always_long": -0.22,
    "long_net_eur": 170265.0,
    "short_net_eur": -14840.0,
-   "seconds": 131
+   "seconds": 139
   },
   {
    "key": "with_load",
@@ -39,12 +58,12 @@
    "t_vs_always_long": -0.17,
    "long_net_eur": 179479.0,
    "short_net_eur": -19285.0,
-   "seconds": 135
+   "seconds": 147
   },
   {
    "key": "archive_only",
    "group": "Datenstand",
-   "label": "Wetter nur so frisch wie im Archiv (ohne die vollst\u00e4ndigen L\u00e4ufe ab Juni)",
+   "label": "Wetter nur so frisch wie im Archiv (vollst\u00e4ndige L\u00e4ufe auf dessen Vorlaufzeiten 24\u201329 h und 48\u201353 h zur\u00fcckgeschnitten)",
    "from": "2026-01-01",
    "to": "2026-10-07",
    "days": 280,
@@ -58,7 +77,7 @@
    "t_vs_always_long": -0.23,
    "long_net_eur": 164424.0,
    "short_net_eur": -11079.0,
-   "seconds": 132
+   "seconds": 147
   },
   {
    "key": "no_capacity",
@@ -77,7 +96,7 @@
    "t_vs_always_long": -0.23,
    "long_net_eur": 172716.0,
    "short_net_eur": -17975.0,
-   "seconds": 123
+   "seconds": 139
   },
   {
    "key": "fixed_2",
@@ -96,7 +115,7 @@
    "t_vs_always_long": -0.21,
    "long_net_eur": 208820.0,
    "short_net_eur": -56068.0,
-   "seconds": 68
+   "seconds": 84
   },
   {
    "key": "val_56",
@@ -115,7 +134,7 @@
    "t_vs_always_long": -0.4,
    "long_net_eur": 180575.0,
    "short_net_eur": -54092.0,
-   "seconds": 125
+   "seconds": 140
   },
   {
    "key": "pooled",
@@ -134,12 +153,12 @@
    "t_vs_always_long": -0.25,
    "long_net_eur": 186776.0,
    "short_net_eur": -34289.0,
-   "seconds": 131
+   "seconds": 154
   },
   {
    "key": "split",
    "group": "Entscheidungsregel",
-   "label": "getrennte Schwellen f\u00fcr long und short, \u201enie\" erlaubt",
+   "label": "getrennte Schwellen f\u00fcr long und short, \u201enie\u201c erlaubt",
    "from": "2026-01-01",
    "to": "2026-10-07",
    "days": 280,
@@ -153,7 +172,7 @@
    "t_vs_always_long": -0.1,
    "long_net_eur": 187156.0,
    "short_net_eur": -12513.0,
-   "seconds": 131
+   "seconds": 153
   },
   {
    "key": "signal_size",
@@ -172,7 +191,7 @@
    "t_vs_always_long": 0.7,
    "long_net_eur": 361377.0,
    "short_net_eur": -42653.0,
-   "seconds": 132
+   "seconds": 145
   },
   {
    "key": "median",
@@ -191,7 +210,7 @@
    "t_vs_always_long": -1.02,
    "long_net_eur": 70784.0,
    "short_net_eur": -57804.0,
-   "seconds": 169
+   "seconds": 187
   },
   {
    "key": "regularised",
@@ -210,7 +229,7 @@
    "t_vs_always_long": -0.35,
    "long_net_eur": 154849.0,
    "short_net_eur": -22851.0,
-   "seconds": 65
+   "seconds": 70
   },
   {
    "key": "cap_100",
@@ -229,7 +248,7 @@
    "t_vs_always_long": -0.55,
    "long_net_eur": 115858.0,
    "short_net_eur": -13565.0,
-   "seconds": 131
+   "seconds": 141
   },
   {
    "key": "bagging",
@@ -248,7 +267,7 @@
    "t_vs_always_long": -0.28,
    "long_net_eur": 141034.0,
    "short_net_eur": 5041.0,
-   "seconds": 176
+   "seconds": 198
   },
   {
    "key": "two_stage",
@@ -267,7 +286,7 @@
    "t_vs_always_long": -1.21,
    "long_net_eur": 42905.0,
    "short_net_eur": -23363.0,
-   "seconds": 396
+   "seconds": 435
   },
   {
    "key": "no_weather",
@@ -286,7 +305,7 @@
    "t_vs_always_long": -1.78,
    "long_net_eur": -101.0,
    "short_net_eur": -54982.0,
-   "seconds": 80
+   "seconds": 95
   },
   {
    "key": "no_spread_history",
@@ -305,7 +324,7 @@
    "t_vs_always_long": -0.09,
    "long_net_eur": 149866.0,
    "short_net_eur": 22945.0,
-   "seconds": 121
+   "seconds": 133
   },
   {
    "key": "no_da_prev",
@@ -324,7 +343,7 @@
    "t_vs_always_long": 0.06,
    "long_net_eur": 179235.0,
    "short_net_eur": 19939.0,
-   "seconds": 122
+   "seconds": 143
   },
   {
    "key": "start_december",
@@ -343,7 +362,7 @@
    "t_vs_always_long": -0.27,
    "long_net_eur": 160401.0,
    "short_net_eur": -28986.0,
-   "seconds": 137
+   "seconds": 153
   },
   {
    "key": "single_0",
@@ -362,7 +381,7 @@
    "t_vs_always_long": -0.26,
    "long_net_eur": 182177.0,
    "short_net_eur": -30112.0,
-   "seconds": 27
+   "seconds": 31
   },
   {
    "key": "single_1",
@@ -381,7 +400,7 @@
    "t_vs_always_long": -0.21,
    "long_net_eur": 186321.0,
    "short_net_eur": -30251.0,
-   "seconds": 27
+   "seconds": 31
   },
   {
    "key": "single_2",
@@ -400,7 +419,7 @@
    "t_vs_always_long": -0.98,
    "long_net_eur": 108834.0,
    "short_net_eur": -64090.0,
-   "seconds": 26
+   "seconds": 30
   },
   {
    "key": "single_3",
@@ -419,7 +438,7 @@
    "t_vs_always_long": -0.09,
    "long_net_eur": 195711.0,
    "short_net_eur": -19553.0,
-   "seconds": 27
+   "seconds": 29
   },
   {
    "key": "single_4",
@@ -438,7 +457,7 @@
    "t_vs_always_long": -0.68,
    "long_net_eur": 126233.0,
    "short_net_eur": -43490.0,
-   "seconds": 27
+   "seconds": 31
   },
   {
    "key": "seeds_5_9",
@@ -457,7 +476,7 @@
    "t_vs_always_long": 0.03,
    "long_net_eur": 179139.0,
    "short_net_eur": 14334.0,
-   "seconds": 132
+   "seconds": 165
   },
   {
    "key": "seeds_10_14",
@@ -476,15 +495,14 @@
    "t_vs_always_long": 0.05,
    "long_net_eur": 195858.0,
    "short_net_eur": 1576.0,
-   "seconds": 131
+   "seconds": 149
   }
  ],
  "provenance": {
-  "code_commit": "b71d943da1ae3848174527e41434aa3d45ca54a8",
+  "code_commit": "70c7d36eaeddabb604a3cbe79154958f55024ba7",
   "hf_dataset": "akderekaan/de-power-forecast-data",
   "hf_revisions": [
-   "d05cb1b49d9ba23184e8fb12a095e86c182f2895",
-   "eb17ba432d506ce3e11ecff84aab5b0167482971"
+   "519789445ac9f4b90ffaa1df74539c587290fb35"
   ],
   "store": {
    "da": {
