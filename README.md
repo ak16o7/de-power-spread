@@ -24,8 +24,7 @@ nach Kosten etwas übrig?
   dem niemand handeln kann. Die Gewinnschwelle im Ergebnisteil sagt, wie viel schlechter als
   der Index echte Ausführung sein darf.
 
-Ein sauber gemessenes, schwaches Signal also, kein Geldautomat. Die ehrliche Zahl ist hier
-das Ergebnis.
+Ein sauber gemessenes, schwaches Signal also, kein Geldautomat.
 
 ## Warum genau dieser Trade
 
@@ -52,17 +51,17 @@ das Ergebnis.
 <!-- RESULTS:START -->
 Testzeitraum 2026-01-01 bis 2026-10-07 (280 Tage, walk-forward, jeder Monat out-of-sample). Position 10 MW je gehandelter Viertelstunde, Einstieg zum Day-Ahead-Preis, Ausstieg bewertet zum ID-AEP (Benchmark, kein handelbarer Preis). Kosten: 0.25 €/MWh je Seite, 1.0 €/MWh Slippage beim Ausstieg, 10.0 €/MWh Strafe, wenn der ID-AEP fehlt.
 
-**Urteil nach dem vorab festgelegten Kriterium** (das Modell zählt nur, wenn es jede Baseline im Tages-PnL mit t > 2 schlägt): **nicht erfüllt**. Geschlagen: Immer short (t 3.48). Nicht geschlagen: Immer long (t -0.26), Vorzeichen je Viertelstunde (28 T) (t 0.61), Letztes bekanntes Vorzeichen (t 1.07).
+**Urteil nach dem vorab festgelegten Kriterium** (das Modell zählt nur, wenn es jede Baseline im Tages-PnL mit t > 2 schlägt): **nicht erfüllt**. Geschlagen: Immer short (t 3.56). Nicht geschlagen: Immer long (t -0.22), Vorzeichen je Viertelstunde (28 T) (t 0.63), Letztes bekanntes Vorzeichen (t 1.06).
 
-- **Gewinnschwelle der Ausführung:** Das Modell verdient +4.26 €/MWh netto bei 1.0 €/MWh Slippage. Kostet der Ausstieg mehr als 5.3 €/MWh gegenüber dem ID-AEP, ist der Gewinn weg. Ob echte Ausführung das schafft, kann dieser Backtest nicht zeigen: der ID-AEP ist ein Index, kein Preis, zu dem man handeln kann.
-- **Long gegen Short:** long +182 177 € auf 23 115 MWh, short -30 112 € auf 12 610 MWh.
-- **Spitzen:** ohne die 10 besten Tage bleiben +16 341 € von +152 065 €.
+- **Gewinnschwelle der Ausführung:** Das Modell verdient +3.73 €/MWh netto bei 1.0 €/MWh Slippage. Kostet der Ausstieg mehr als 4.7 €/MWh gegenüber dem ID-AEP, ist der Gewinn weg. Ob echte Ausführung das schafft, kann dieser Backtest nicht zeigen: der ID-AEP ist ein Index, kein Preis, zu dem man handeln kann.
+- **Long gegen Short:** long +170 265 € auf 25 200 MWh, short -14 840 € auf 16 460 MWh.
+- **Spitzen:** ohne die 10 besten Tage bleiben +19 813 € von +155 425 €.
 
 ![PnL](reports/pnl.png)
 
 | Strategie | Netto € | €/MWh | MWh | Treffer | Sharpe (ann.) | t (HAC) | Max. Drawdown € | Schlechtester Tag € | ID-AEP fehlte |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| **Modell** | +152 065 | +4.26 | 35 725 | 51 % | 2.61 | 2.45 | -40 817 | -31 134 | 0 |
+| **Modell** | +155 425 | +3.73 | 41 660 | 51 % | 2.59 | 2.38 | -37 357 | -31 329 | 0 |
 | Immer long | +189 252 | +2.82 | 67 190 | 44 % | 1.90 | 1.38 | -129 624 | -48 138 | 0 |
 | Immer short | -390 822 | -5.82 | 67 190 | 50 % | -3.93 | -2.84 | -398 874 | -30 949 | 0 |
 | Vorzeichen je Viertelstunde (28 T) | +103 275 | +1.54 | 67 190 | 49 % | 1.51 | 1.25 | -57 401 | -44 370 | 0 |
@@ -72,16 +71,16 @@ Testzeitraum 2026-01-01 bis 2026-10-07 (280 Tage, walk-forward, jeder Monat out-
 
 | gegen | Ø €/Tag | t (HAC) | Ø €/Tag, Spread gekappt ±200 | t |
 |---|---:|---:|---:|---:|
-| Immer long | -132.8 | -0.26 | +390.8 | 1.16 |
-| Immer short | +1 938.9 | 3.48 | +1 218.1 | 3.54 |
-| Vorzeichen je Viertelstunde (28 T) | +174.2 | 0.61 | +211.7 | 1.22 |
-| Letztes bekanntes Vorzeichen | +308.1 | 1.07 | +523.4 | 2.90 |
+| Immer long | -120.8 | -0.22 | +453.6 | 1.29 |
+| Immer short | +1 950.9 | 3.56 | +1 280.9 | 3.78 |
+| Vorzeichen je Viertelstunde (28 T) | +186.2 | 0.63 | +274.5 | 1.52 |
+| Letztes bekanntes Vorzeichen | +320.1 | 1.06 | +586.2 | 3.19 |
 
 **Spike-Abhängigkeit**: Netto-PnL in €, wenn der Spread auf ±X €/MWh begrenzt wäre (t in Klammern). Was unter der Kappung verschwindet, kam aus wenigen Preisspitzen.
 
 | Strategie | ungekappt | davon 10 größte Viertelstunden | ohne die 10 besten Tage | ±500 | ±200 | ±100 |
 |---|---:|---:|---:|---:|---:|---:|
-| Modell | +152 065 | +16 466 | +16 341 | +134 009 (3.4) | +124 455 (3.7) | +102 392 (3.6) |
+| Modell | +155 425 | +16 840 | +19 813 | +148 694 (3.5) | +142 043 (3.8) | +118 742 (3.7) |
 | Immer long | +189 252 | +26 937 | -33 820 | +99 641 (0.9) | +15 036 (0.2) | -67 739 (-0.9) |
 | Immer short | -390 822 | -27 012 | -518 909 | -301 211 (-2.9) | -216 606 (-2.4) | -133 831 (-1.8) |
 | Vorzeichen je Viertelstunde (28 T) | +103 275 | +26 937 | -35 965 | +70 144 (1.4) | +65 184 (1.6) | +45 334 (1.2) |
@@ -91,7 +90,7 @@ Testzeitraum 2026-01-01 bis 2026-10-07 (280 Tage, walk-forward, jeder Monat out-
 
 | Strategie | 0.0 | 1.0 | 2.0 | 5.0 | Gewinnschwelle €/MWh |
 |---|---:|---:|---:|---:|---:|
-| Modell | +187 790 | +152 065 | +116 340 | +9 165 | 5.3 |
+| Modell | +197 085 | +155 425 | +113 765 | -11 215 | 4.7 |
 | Immer long | +256 442 | +189 252 | +122 062 | -79 508 | 3.8 |
 | Immer short | -323 632 | -390 822 | -458 012 | -659 582 | – (verliert schon ohne Slippage) |
 | Vorzeichen je Viertelstunde (28 T) | +170 465 | +103 275 | +36 085 | -165 485 | 2.5 |
@@ -101,7 +100,7 @@ Testzeitraum 2026-01-01 bis 2026-10-07 (280 Tage, walk-forward, jeder Monat out-
 
 | Strategie | long | short |
 |---|---:|---:|
-| Modell | +182 177 (23 115) | -30 112 (12 610) |
+| Modell | +170 265 (25 200) | -14 840 (16 460) |
 | Immer long | +189 252 (67 190) | +0 (0) |
 | Immer short | +0 (0) | -390 822 (67 190) |
 | Vorzeichen je Viertelstunde (28 T) | +185 879 (40 780) | -82 603 (26 410) |
@@ -112,15 +111,15 @@ Testzeitraum 2026-01-01 bis 2026-10-07 (280 Tage, walk-forward, jeder Monat out-
 | Monat | Netto € | MWh | Schwelle €/MWh | Trainingstage |
 |---|---:|---:|---:|---:|
 | 2026-01 | -4 321 | 180 | 30 | 90 |
-| 2026-02 | +570 | 318 | 30 | 121 |
-| 2026-03 | +4 414 | 340 | 30 | 149 |
-| 2026-04 | +20 480 | 2 770 | 10 | 180 |
-| 2026-05 | +11 342 | 6 928 | 2 | 210 |
-| 2026-06 | +27 808 | 7 200 | 0 | 241 |
-| 2026-07 | +21 728 | 6 445 | 2 | 271 |
-| 2026-08 | +48 284 | 4 975 | 5 | 302 |
-| 2026-09 | +28 161 | 5 060 | 5 | 333 |
-| 2026-10 | -6 399 | 1 510 | 2 | 363 |
+| 2026-02 | +1 017 | 202 | 30 | 121 |
+| 2026-03 | +6 289 | 5 218 | 5 | 149 |
+| 2026-04 | +19 481 | 2 538 | 10 | 180 |
+| 2026-05 | +8 267 | 5 928 | 5 | 210 |
+| 2026-06 | +29 419 | 7 200 | 0 | 241 |
+| 2026-07 | +32 147 | 7 440 | 0 | 271 |
+| 2026-08 | +20 880 | 5 172 | 5 | 302 |
+| 2026-09 | +47 538 | 6 102 | 2 | 333 |
+| 2026-10 | -5 292 | 1 680 | 0 | 363 |
 
 ### Robustheit: alle getesteten Varianten
 
@@ -129,37 +128,40 @@ Gleicher Walk-forward, gleiche Kosten. Das Hauptmodell stand vor dem ersten echt
 | Variante | Netto € | €/MWh | t | Spread gekappt ±200: Netto € (t) | t gegen Vorzeichen je Viertelstunde | Long € | Short € |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | _Hauptmodell_ | | | | | | | |
-| **Hauptmodell (Einstellungen vorab festgelegt, ohne Lastprognose)** | +152 065 | +4.26 | 2.45 | +124 455 (3.7) | 0.61 | +182 177 | -30 112 |
+| **Hauptmodell (Einstellungen vorab festgelegt, ohne Lastprognose)** | +155 425 | +3.73 | 2.38 | +142 043 (3.8) | 0.63 | +170 265 | -14 840 |
 | _Datenstand_ | | | | | | | |
-| mit Lastprognose (erste Version des Projekts) | +101 647 | +2.67 | 1.54 | +103 278 (2.8) | -0.02 | +165 504 | -63 856 |
-| Wetter nur so frisch wie im Archiv (ohne die vollständigen Läufe ab Juni) | +151 037 | +3.86 | 2.29 | +124 124 (3.4) | 0.56 | +181 881 | -30 844 |
-| ohne MW-Features (keine installierte Leistung) | +131 849 | +3.44 | 2.09 | +108 721 (3.0) | 0.38 | +175 961 | -44 112 |
+| mit Lastprognose | +160 194 | +3.76 | 2.19 | +135 272 (3.5) | 0.57 | +179 479 | -19 285 |
+| Wetter nur so frisch wie im Archiv (ohne die vollständigen Läufe ab Juni) | +153 345 | +3.59 | 2.36 | +135 775 (3.6) | 0.59 | +164 424 | -11 079 |
+| ohne MW-Features (keine installierte Leistung) | +154 742 | +4.19 | 2.39 | +137 855 (3.8) | 0.62 | +172 716 | -17 975 |
 | _Entscheidungsregel_ | | | | | | | |
-| feste Schwelle 2 €/MWh, nichts gewählt | +138 650 | +2.33 | 1.68 | +119 112 (2.3) | 0.43 | +206 180 | -67 531 |
-| Schwelle auf 56 statt 28 Tagen gewählt | +96 723 | +3.13 | 1.48 | +86 935 (2.3) | -0.08 | +134 446 | -37 723 |
-| Schwelle auf allen bisherigen Out-of-sample-Tagen gewählt | +115 368 | +4.33 | 2.00 | +87 531 (3.1) | 0.16 | +149 279 | -33 911 |
-| getrennte Schwellen für long und short, „nie" erlaubt | +175 632 | +4.44 | 2.64 | +118 056 (3.1) | 1.03 | +188 899 | -13 268 |
-| Größe nach Signalstärke (10–20 MW) | +317 218 | +3.89 | 2.39 | +263 504 (3.7) | 1.84 | +329 881 | -12 663 |
+| feste Schwelle 2 €/MWh, nichts gewählt | +152 752 | +2.59 | 1.80 | +128 300 (2.4) | 0.53 | +208 820 | -56 068 |
+| Schwelle auf 56 statt 28 Tagen gewählt | +126 483 | +3.90 | 1.65 | +91 951 (2.2) | 0.27 | +180 575 | -54 092 |
+| Schwelle auf allen bisherigen Out-of-sample-Tagen gewählt | +152 487 | +4.58 | 2.24 | +119 375 (3.3) | 0.62 | +186 776 | -34 289 |
+| getrennte Schwellen für long und short, „nie" erlaubt | +174 643 | +4.35 | 2.38 | +118 481 (3.0) | 0.79 | +187 156 | -12 513 |
+| Größe nach Signalstärke (10–20 MW) | +318 724 | +4.22 | 2.55 | +265 236 (3.7) | 1.69 | +361 377 | -42 653 |
 | _Modell_ | | | | | | | |
-| Median- statt Quadratverlust | +15 206 | +0.53 | 0.31 | +70 394 (2.2) | -0.93 | +76 079 | -60 874 |
-| stärker reguliert (150 Bäume, ≥ 500 Viertelstunden je Blatt) | +125 344 | +3.07 | 2.12 | +137 479 (3.8) | 0.23 | +140 737 | -15 393 |
-| Trainingsziel hart auf ±100 €/MWh gekappt | +121 396 | +3.06 | 1.69 | +114 291 (3.3) | 0.15 | +117 376 | +4 020 |
+| Median- statt Quadratverlust | +12 980 | +0.42 | 0.22 | +56 984 (1.6) | -0.85 | +70 784 | -57 804 |
+| stärker reguliert (150 Bäume, ≥ 500 Viertelstunden je Blatt) | +131 998 | +3.22 | 2.11 | +133 314 (3.6) | 0.29 | +154 849 | -22 851 |
+| Trainingsziel hart auf ±100 €/MWh gekappt | +102 293 | +3.32 | 2.06 | +128 471 (4.1) | -0.01 | +115 858 | -13 565 |
 | Mittel aus 5 Modellen auf Tages-Bootstraps | +146 075 | +3.86 | 2.37 | +146 903 (3.9) | 0.49 | +141 034 | +5 041 |
-| zweistufig: ÜNB-Prognosefehler vorhersagen, dann in € umrechnen | +28 851 | +1.48 | 0.48 | -16 923 (-0.5) | -0.91 | +81 561 | -52 709 |
+| zweistufig: ÜNB-Prognosefehler vorhersagen, dann in € umrechnen | +19 542 | +1.13 | 0.48 | +7 515 (0.3) | -0.95 | +42 905 | -23 363 |
 | _Feature-Gruppe weggelassen_ | | | | | | | |
-| ohne Wetter | -10 046 | -0.39 | -0.16 | +50 914 (1.8) | -1.45 | +50 068 | -60 115 |
-| ohne Spread-Historie | +166 118 | +4.85 | 2.23 | +126 583 (3.4) | 0.52 | +172 649 | -6 531 |
-| ohne Day-Ahead-Preise des Vortags | +180 628 | +4.48 | 2.23 | +110 197 (2.8) | 0.67 | +172 881 | +7 747 |
+| ohne Wetter | -55 083 | -2.84 | -0.93 | +39 071 (1.6) | -1.82 | -101 | -54 982 |
+| ohne Spread-Historie | +172 811 | +5.73 | 2.50 | +132 658 (3.9) | 0.61 | +149 866 | +22 945 |
+| ohne Day-Ahead-Preise des Vortags | +199 174 | +4.83 | 2.36 | +107 505 (2.5) | 0.85 | +179 235 | +19 939 |
 | _Startmonat_ | | | | | | | |
-| Test ab Dezember 2025 (59 statt 60 Trainingstage verlangt) (2025-12-01 bis 2026-10-07) | +128 055 | +3.23 | 1.96 | +104 704 (2.8) | 0.57 | +172 314 | -44 259 |
+| Test ab Dezember 2025 (59 statt 60 Trainingstage verlangt) (2025-12-01 bis 2026-10-07) | +131 415 | +2.89 | 1.93 | +122 292 (3.0) | 0.59 | +160 401 | -28 986 |
 | _Zufallsstartwert_ | | | | | | | |
-| Hauptmodell mit Zufallsstartwert 1 statt 0 | +156 071 | +4.00 | 2.27 | +133 742 (3.4) | 0.54 | +186 321 | -30 251 |
-| Hauptmodell mit Zufallsstartwert 2 statt 0 | +44 744 | +1.25 | 0.78 | +87 881 (2.6) | -0.70 | +108 834 | -64 090 |
-| Hauptmodell mit Zufallsstartwert 3 statt 0 | +176 158 | +4.28 | 2.56 | +130 078 (3.4) | 0.86 | +195 711 | -19 553 |
-| Hauptmodell mit Zufallsstartwert 4 statt 0 | +82 743 | +2.33 | 1.57 | +102 140 (3.1) | -0.24 | +126 233 | -43 490 |
+| ein einzelnes Modell statt des Mittels, Startwert 0 | +152 065 | +4.26 | 2.45 | +124 455 (3.7) | 0.61 | +182 177 | -30 112 |
+| ein einzelnes Modell statt des Mittels, Startwert 1 | +156 071 | +4.00 | 2.27 | +133 742 (3.4) | 0.54 | +186 321 | -30 251 |
+| ein einzelnes Modell statt des Mittels, Startwert 2 | +44 744 | +1.25 | 0.78 | +87 881 (2.6) | -0.70 | +108 834 | -64 090 |
+| ein einzelnes Modell statt des Mittels, Startwert 3 | +176 158 | +4.28 | 2.56 | +130 078 (3.4) | 0.86 | +195 711 | -19 553 |
+| ein einzelnes Modell statt des Mittels, Startwert 4 | +82 743 | +2.33 | 1.57 | +102 140 (3.1) | -0.24 | +126 233 | -43 490 |
+| Mittel über die Startwerte 5–9 | +193 473 | +5.15 | 2.66 | +143 167 (3.6) | 0.89 | +179 139 | +14 334 |
+| Mittel über die Startwerte 10–14 | +197 435 | +4.64 | 2.64 | +149 160 (4.0) | 1.01 | +195 858 | +1 576 |
 
-Spanne über die Varianten (ohne weggelassene Feature-Gruppen und ohne die größere Position): +15 206 bis +176 158 €.
-Allein der Zufallsstartwert bewegt das Hauptmodell zwischen +44 744 und +176 158 € (t 0.78 bis 2.56): so groß ist das Schätzrauschen, bevor irgendeine Designentscheidung ins Spiel kommt.
+Spanne über die Varianten (ohne weggelassene Feature-Gruppen und ohne die größere Position): +12 980 bis +197 435 €.
+Ein einzelnes Modell landet je nach Zufallsstartwert bei +44 744 bis +176 158 € (t 0.78 bis 2.56): so groß ist das Schätzrauschen, bevor irgendeine Designentscheidung ins Spiel kommt. Deshalb mittelt das Hauptmodell fünf Startwerte; mit anderen fünf liegt es bei +155 425 bis +197 435 € (t 2.38 bis 2.66).
 
 ### Was ein Prognosefehler kostet (ex post)
 
@@ -185,10 +187,10 @@ Der Lookahead-Test prüft, dass der Code jedes `available_at` respektiert. Ob di
 | ecmwf_ifs | Tag 2 (behauptet ≥ 48 h) | 41 952 | 41 759 | 48 / 51 / 65 h | 0 |
 
 Gültigkeitszeiten 2026-06-14 bis 2026-10-11, wo es beide Datenarten gibt. Ein Archivwert gilt als zugeordnet, wenn er in allen Variablen, die beide haben, exakt einem einzigen vollständigen Lauf gleicht. „Frischer als behauptet" zählt Werte aus einem Lauf mit kürzerem Vorlauf als angegeben.
-Gemessene Veröffentlichung live mitgeschnittener Läufe: icon_eu 2.87–4.22 h nach Laufstart (71 Läufe; im Archiv angesetzt: 4.5 h); ecmwf_ifs 6.12–7.5 h nach Laufstart (37 Läufe; im Archiv angesetzt: 8.5 h).
+Gemessene Veröffentlichung live mitgeschnittener Läufe: icon_eu 2.87–4.22 h nach Laufstart (72 Läufe; im Archiv angesetzt: 4.5 h); ecmwf_ifs 6.12–7.5 h nach Laufstart (38 Läufe; im Archiv angesetzt: 8.5 h).
 
 
-<sub>Gerechnet am 2026-10-08 22:59 UTC, Code aa795f7, Wetterdaten akderekaan/de-power-forecast-data @ 58d14fac3406.</sub>
+<sub>Gerechnet am 2026-10-08 23:44 UTC, Code b71d943, Wetterdaten akderekaan/de-power-forecast-data @ eb17ba432d50.</sub>
 
 <!-- RESULTS:END -->
 

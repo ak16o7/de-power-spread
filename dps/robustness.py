@@ -260,7 +260,7 @@ def markdown(rob: dict | None) -> str:
         t = [r["t_daily_hac"] for r in rows if r["t_daily_hac"] is not None]
         return f"{_fmt(min(n), 0, True)} bis {_fmt(max(n), 0, True)} € (t {_fmt(min(t), 2)} bis {_fmt(max(t), 2)})"
     if len(single) > 1:
-        L.append(f"Ein einzelnes Modell landet je nach Zufallsstartwert zwischen {span(single)}: so groß ist das "
+        L.append(f"Ein einzelnes Modell landet je nach Zufallsstartwert bei {span(single)}: so groß ist das "
                  "Schätzrauschen, bevor irgendeine Designentscheidung ins Spiel kommt. Deshalb mittelt das "
                  "Hauptmodell fünf Startwerte" + (f"; mit anderen fünf liegt es bei {span(sets)}." if len(sets) > 1 else "."))
     return "\n".join(L) + "\n"

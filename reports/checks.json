@@ -1,0 +1,86 @@
+{
+ "generated_at": "2026-10-09T00:35:08.898162+00:00",
+ "weather": [
+  {
+   "model": "icon_eu",
+   "overlap": [
+    "2026-06-14",
+    "2026-10-11"
+   ],
+   "variables": 10,
+   "lead_days": {
+    "1": {
+     "pairs": 41712,
+     "identified": 41709,
+     "ambiguous": 3,
+     "lead_h": {
+      "min": 24,
+      "median": 27,
+      "max": 29
+     },
+     "fresher_than_claimed": 0
+    },
+    "2": {
+     "pairs": 41712,
+     "identified": 41712,
+     "ambiguous": 0,
+     "lead_h": {
+      "min": 48,
+      "median": 51,
+      "max": 53
+     },
+     "fresher_than_claimed": 0
+    }
+   },
+   "live_publication_delay_h": {
+    "runs": 72,
+    "min": 2.87,
+    "max": 4.22,
+    "assumed_for_archive": 4.5
+   }
+  },
+  {
+   "model": "ecmwf_ifs",
+   "overlap": [
+    "2026-06-13",
+    "2026-10-11"
+   ],
+   "variables": 10,
+   "lead_days": {
+    "1": {
+     "pairs": 41952,
+     "identified": 41759,
+     "ambiguous": 1,
+     "lead_h": {
+      "min": 24,
+      "median": 27,
+      "max": 41
+     },
+     "fresher_than_claimed": 0
+    },
+    "2": {
+     "pairs": 41952,
+     "identified": 41759,
+     "ambiguous": 1,
+     "lead_h": {
+      "min": 48,
+      "median": 51,
+      "max": 65
+     },
+     "fresher_than_claimed": 0
+    }
+   },
+   "live_publication_delay_h": {
+    "runs": 38,
+    "min": 6.12,
+    "max": 7.5,
+    "assumed_for_archive": 8.5
+   }
+  }
+ ],
+ "hf_revisions": [
+  "d05cb1b49d9ba23184e8fb12a095e86c182f2895",
+  "d9795560e5a5806e0e51a8804308134dd7e2eaee",
+  "eb17ba432d506ce3e11ecff84aab5b0167482971"
+ ]
+}
