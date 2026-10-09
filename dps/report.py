@@ -209,6 +209,104 @@ def markdown(bt: dict, ex: dict | None, image: str = "reports/pnl.png", rob: dic
     return "\n".join(L) + "\n"
 
 
+def _rob(rob: dict | None) -> dict:
+    return {r["key"]: r for r in (rob or {}).get("variants", [])}
+
+
+def readme_markdown(bt: dict, ex: dict | None, rob: dict | None, image: str = "reports/pnl.png") -> str:
+    """The short, plain-language version for the README. Everything else is in REPORT.md.
+    Every sentence is derived from the numbers, so it stays true when the weekly run updates them."""
+    st = bt["strategies"]
+    m = st["model"]
+    tp = bt["test_period"]
+    vs = bt["model_vs"]
+    rv = _rob(rob)
+    spikes = bt.get("spike_sensitivity") or {}
+    cap = str(int(config.SPIKE_CAPS[len(config.SPIKE_CAPS) // 2]))
+    capped = {s: (spikes.get(s) or {}).get(cap, {}).get("net_eur") for s in ORDER}
+    won = [LABEL[b] for b, v in vs.items() if (v.get("t_hac") or 0) > 2]
+    passed = bt.get("verdict", {}).get("passed", False)
+    L = [f"**Ergebnis auf einen Blick** · Test {tp['from']} bis {tp['to']} ({tp['days']} Tage), "
+         f"gerechnet am {bt['generated_at'][:10]}", ""]
+    L.append(f"- **Verdient das Modell Geld?** {'Ja' if m['net_eur'] > 0 else 'Nein'}: "
+             f"{_fmt(m['net_eur'], 0, True)} € nach Kosten ({_fmt(m['eur_per_mwh'], 2, True)} € je MWh), "
+             f"t-Wert {_fmt(m['t_daily_hac'], 2)}.")
+    nw = rv.get("no_weather")
+    if nw:
+        L.append(f"- **Kommt das aus den Wetterprognosen?** "
+                 f"{'Ja' if nw['net_eur'] < 0.5 * m['net_eur'] else 'Nur zum Teil'}: "
+                 f"Dasselbe Modell ohne Wetterdaten kommt auf {_fmt(nw['net_eur'], 0, True)} €.")
+    beats = ("Ja, gegen alle mit t > 2." if passed else
+             ("Nicht eindeutig. Deutlich besser (t > 2) ist es nur als " + " und ".join(f"„{w}“" for w in won) + "."
+              if won else "Nein, gegen keine mit t > 2."))
+    line = f"- **Ist es besser als einfache Regeln?** {beats}"
+    al = st.get("always_long")
+    if al and al["net_eur"] > m["net_eur"] and capped.get("always_long") is not None:
+        line += (f" „Immer long“ verdient sogar mehr ({_fmt(al['net_eur'], 0, True)} €), aber fast nur an "
+                 f"Preisspitzen: Mit Spreads auf ±{cap} €/MWh begrenzt bleiben {_fmt(capped['always_long'], 0, True)} €, "
+                 f"beim Modell {_fmt(capped['model'], 0, True)} €.")
+    if not passed:
+        line += " Das vorab festgelegte Erfolgskriterium ist damit **nicht erfüllt**."
+    L.append(line)
+    ls = (bt.get("long_short") or {}).get("model")
+    wb = next((v for k, v in spikes.get("model", {}).items() if k.startswith("without_best_")), None)
+    if ls and wb is not None:
+        short = (f"Short-Positionen verlieren unterm Strich ({_fmt(ls['short_net_eur'], 0, True)} €)"
+                 if ls["short_net_eur"] < 0 else f"Short-Positionen bringen {_fmt(ls['short_net_eur'], 0, True)} €")
+        L.append(f"- **Wo kommt der Gewinn her?** Aus Long-Positionen ({_fmt(ls['long_net_eur'], 0, True)} €); "
+                 f"{short}. Ein großer Teil hängt an wenigen Tagen: Ohne die 10 besten Tage blieben "
+                 f"{_fmt(wb, 0, True)} €.")
+    be = (bt.get("break_even_slippage_eur_mwh") or {}).get("model")
+    if be is not None and be > 0:
+        L.append(f"- **Was darf die Ausführung kosten?** Der Gewinn hält, solange echte Geschäfte im Schnitt höchstens "
+                 f"{_fmt(be, 1)} €/MWh schlechter sind als der ID-AEP-Index (angesetzt: "
+                 f"{_fmt(bt['assumptions']['slippage_eur_mwh'], 1)} €/MWh).")
+    fv = rv.get("first_version")
+    if fv:
+        L.append(f"- **Ehrlichkeitshinweis:** Die vor dem ersten Test festgelegte Version kam auf "
+                 f"{_fmt(fv['net_eur'], 0, True)} € (t-Wert {_fmt(fv['t_daily_hac'], 2)}). Zwei Änderungen danach haben "
+                 "das Ergebnis verbessert; was und warum, steht unten.")
+    L += ["", "**Fazit:** " + ("Das Modell schlägt die einfachen Regeln." if passed else
+                              "Ein sauber gemessenes, aber schwaches Signal. Kein Geldautomat."), "",
+          f"![Kumulierter Gewinn des Modells und der Vergleichsstrategien]({image})", "",
+          f"| Strategie | Gewinn nach Kosten | € je MWh | t-Wert | Gewinn ohne extreme Preisspitzen (Spread auf ±{cap} €/MWh begrenzt) |",
+          "|---|---:|---:|---:|---:|"]
+    for s in ORDER:
+        v = st.get(s)
+        if v:
+            name = f"**{LABEL[s]}**" if s == "model" else LABEL[s]
+            L.append(f"| {name} | {_fmt(v['net_eur'], 0, True)} € | {_fmt(v['eur_per_mwh'], 2, True)} | "
+                     f"{_fmt(v['t_daily_hac'], 2)} | {_fmt(capped.get(s), 0, True)} € |")
+    keys = [("first_version", "Erste, vorab festgelegte Version"), ("main", "**Hauptmodell**"),
+            ("with_load", "Hauptmodell mit Lastprognose"), ("no_weather", "Hauptmodell ohne Wetterdaten"),
+            ("fixed_2", "Feste Handelsschwelle statt monatlich gewählter"),
+            ("start_december", "Test schon ab Dezember 2025")]
+    rows = [(label, rv[k]) for k, label in keys if k in rv]
+    single = [r for k, r in rv.items() if k.startswith("single_")]
+    if rows:
+        L += ["", "**Wie stabil ist das?** Dieselbe Rechnung mit geänderten Annahmen:", "",
+              "| Variante | Gewinn nach Kosten | t-Wert |", "|---|---:|---:|"]
+        for label, r in rows:
+            L.append(f"| {label} | {_fmt(r['net_eur'], 0, True)} € | {_fmt(r['t_daily_hac'], 2)} |")
+        if single:
+            n = [r["net_eur"] for r in single]
+            t = [r["t_daily_hac"] for r in single if r["t_daily_hac"] is not None]
+            L.append(f"| Ein einzelnes Modell statt Mittel aus fünf, je nach Zufallsstartwert | "
+                     f"{_fmt(min(n), 0, True)} bis {_fmt(max(n), 0, True)} € | {_fmt(min(t), 2)} bis {_fmt(max(t), 2)} |")
+        L.append(f"\nAlle {len(rv)} getesteten Varianten, auch die schlechten, stehen in [reports/REPORT.md](reports/REPORT.md).")
+    cc = ((ex or {}).get("all_capped") or {}).get("coef", {})
+    if cc:
+        parts = [(lbl, cc[k]["eur_mwh_per_gw"]) for k, lbl in (("err_solar", "Solar"), ("err_wind_on", "Wind an Land"),
+                                                              ("err_wind_off", "Wind auf See")) if k in cc]
+        L += ["", "**Warum der Spread sich bewegt:** Liefern Sonne oder Wind 1 GW mehr als die Netzbetreiber am Vortag "
+              "prognostiziert haben, fällt der Intraday-Preis gegenüber Day-Ahead im Schnitt um "
+              + ", ".join(f"{_fmt(-v, 1)} €/MWh ({lbl})" for lbl, v in parts if v < 0)
+              + ". Diese Überraschungen versucht das Modell vorab zu erkennen."]
+    L += ["", "Alle Tabellen (Kosten, Monate, Long und Short, alle Varianten, Regression, Datenprüfung): "
+              "[reports/REPORT.md](reports/REPORT.md)."]
+    return "\n".join(L) + "\n"
+
+
 def update_section(path: Path, name: str, body: str) -> bool:
     """Replace the text between <!-- name:START --> and <!-- name:END --> in a file."""
     if not path.is_file():
@@ -233,8 +331,9 @@ def run(readme: bool = True, title_note: str = "") -> str:
     chk_path = rep / "checks.json"
     chk = json.loads(chk_path.read_text()) if chk_path.is_file() else None
     chart(pd.read_parquet(rep / "backtest.parquet"), rep / "pnl.png", title_note)
-    (rep / "REPORT.md").write_text("# Backtest-Report\n\n" + markdown(bt, ex, image="pnl.png", rob=rob, chk=chk))
-    body = markdown(bt, ex, image=f"{rep.as_posix()}/pnl.png", rob=rob, chk=chk)
+    (rep / "REPORT.md").write_text("# Backtest-Report\n\nAlle Zahlen im Detail. Die Kurzfassung steht im "
+                                   "[README](../README.md).\n\n" + markdown(bt, ex, image="pnl.png", rob=rob, chk=chk))
+    body = readme_markdown(bt, ex, rob, image=f"{rep.as_posix()}/pnl.png")
     if readme:
         update_section(Path(config.README), "RESULTS", body)
     LOG.info("report written to %s", rep / "REPORT.md")

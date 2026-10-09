@@ -1,5 +1,7 @@
 # Backtest-Report
 
+Alle Zahlen im Detail. Die Kurzfassung steht im [README](../README.md).
+
 Testzeitraum 2026-01-01 bis 2026-10-07 (280 Tage, walk-forward, jeder Monat out-of-sample). Position 10 MW je gehandelter Viertelstunde, Einstieg zum Day-Ahead-Preis, Ausstieg bewertet zum ID-AEP (Benchmark, kein handelbarer Preis). Kosten: 0,25 €/MWh je Seite, 1,0 €/MWh Slippage beim Ausstieg, 10 €/MWh Strafe, wenn der ID-AEP fehlt.
 
 **Urteil nach dem vorab festgelegten Kriterium** (das Modell zählt nur, wenn es jede Baseline im Tages-PnL mit t > 2 schlägt): **nicht erfüllt**. Geschlagen: Immer short (t 3,56). Nicht geschlagen: Immer long (t -0,22), Vorzeichen je Viertelstunde (28 T) (t 0,63), Letztes bekanntes Vorzeichen (t 1,06).
