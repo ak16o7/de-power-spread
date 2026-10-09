@@ -221,7 +221,10 @@ Der Live-Teil ist der einzige Test auf Daten, die beim Festlegen des Modells noc
 gesehen hatte. Alles im Backtest wurde mindestens einmal angeschaut.
 
 <!-- LIVE:START -->
-_Noch kein abgerechneter Tag._
+_Noch kein abgerechneter Tag. Signale liegen in `signals/`, abgerechnet wird, sobald der ID-AEP veröffentlicht ist._
+
+Warten auf ID-AEP: 2026-10-10
+
 <!-- LIVE:END -->
 
 ## Methode
