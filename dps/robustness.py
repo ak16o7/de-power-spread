@@ -52,17 +52,21 @@ class Variant:
     min_train_days: int = config.MIN_TRAIN_DAYS
     two_stage: bool = False
     seeds: tuple | None = None         # None: config.MODEL_SEEDS
+    grid: tuple | None = None          # None: config.THRESHOLD_GRID
 
 
 VARIANTS = (
     Variant("first_version", "Hauptmodell", "erste Version, vor dem ersten Backtest festgelegt "
-            "(mit Lastprognose, ein einzelnes Modell, Startwert 0)", data="with_load", seeds=(0,)),
-    Variant("main", "Hauptmodell", "Hauptmodell: nach dem ersten Backtest ohne Lastprognose und als Mittel "
-            "aus fünf Startwerten"),
+            "(mit Lastprognose, ein einzelnes Modell, Startwert 0, Schwelle 0 erlaubt)", data="with_load", seeds=(0,),
+            grid=(0.0,) + config.THRESHOLD_GRID),
+    Variant("main", "Hauptmodell", "Hauptmodell: ohne Lastprognose, Mittel aus fünf Startwerten, "
+            "Schwelle mindestens 2 €/MWh"),
     Variant("with_load", "Datenstand", "mit Lastprognose", data="with_load"),
     Variant("archive_only", "Datenstand", "Wetter nur so frisch wie im Archiv (vollständige Läufe auf dessen "
             "Vorlaufzeiten 24–29 h und 48–53 h zurückgeschnitten)", data="archive_only"),
     Variant("no_capacity", "Datenstand", "ohne MW-Features (keine installierte Leistung)", drop=MW_COLS),
+    Variant("zero_threshold", "Entscheidungsregel", "Schwelle 0 erlaubt (Regel bis 9. Oktober 2026)",
+            grid=(0.0,) + config.THRESHOLD_GRID),
     Variant("fixed_2", "Entscheidungsregel", "feste Schwelle 2 €/MWh, nichts gewählt", rule="fixed"),
     Variant("val_56", "Entscheidungsregel", "Schwelle auf 56 statt 28 Tagen gewählt", validation_days=56),
     Variant("pooled", "Entscheidungsregel", "Schwelle auf allen bisherigen Out-of-sample-Tagen gewählt", rule="pooled"),
@@ -141,15 +145,15 @@ def _sides(pred: np.ndarray, state, v: Variant) -> np.ndarray:
 
 def _choose(pred, da, ida, v: Variant):
     if v.rule == "split":
-        grid = list(config.THRESHOLD_GRID) + [NO_TRADE]
+        grid = list(v.grid or config.THRESHOLD_GRID) + [NO_TRADE]
         # ties go to the more cautious pair, like the main rule
         best = max(((round(float(trading.pnl(_sides(pred, (a, b), v), da, ida)["net"].sum()), 6),
                      min(a, 1e6) + min(b, 1e6)), (a, b)) for a in grid for b in grid)
         return best[1]
     if v.sizing == "signal":
-        table = [(round(float(trading.pnl(_sides(pred, th, v), da, ida)["net"].sum()), 6), th) for th in config.THRESHOLD_GRID]
+        table = [(round(float(trading.pnl(_sides(pred, th, v), da, ida)["net"].sum()), 6), th) for th in (v.grid or config.THRESHOLD_GRID)]
         return max(table)[1]
-    return choose_threshold(pred, da, ida)[0]
+    return choose_threshold(pred, da, ida, v.grid)[0]
 
 
 def walk(df: pd.DataFrame, cols: list[str], start: date, end: date, v: Variant) -> pd.DataFrame:

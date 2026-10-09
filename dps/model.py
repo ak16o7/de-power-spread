@@ -74,8 +74,9 @@ def decide(pred: np.ndarray, threshold: float) -> np.ndarray:
     return np.where(np.abs(pred) > threshold, np.sign(pred), 0.0)
 
 
-def choose_threshold(pred: np.ndarray, da, id_aep, grid=config.THRESHOLD_GRID) -> tuple[float, list[dict]]:
+def choose_threshold(pred: np.ndarray, da, id_aep, grid=None) -> tuple[float, list[dict]]:
     """Threshold with the highest net PnL on validation data (ties: the larger threshold)."""
+    grid = config.THRESHOLD_GRID if grid is None else grid
     table = []
     for th in grid:
         res = trading.pnl(decide(pred, th), da, id_aep)

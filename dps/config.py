@@ -43,7 +43,11 @@ SLIPPAGE_GRID = (0.0, 1.0, 2.0, 5.0)
 SPIKE_CAPS = (500.0, 200.0, 100.0)
 
 # --------------------------------------------------------------------------- model
-THRESHOLD_GRID = (0.0, 2.0, 5.0, 10.0, 15.0, 20.0, 30.0)  # |predicted spread| in EUR/MWh
+# |predicted spread| in EUR/MWh above which a quarter hour is traded; picked monthly from
+# this grid. Never below the round-trip cost (2 x fee + slippage = 1.5 EUR/MWh): a trade
+# whose own expected edge is smaller than its cost has negative expectation by construction.
+# Until 2026-10-09 the grid also held 0 (robustness table: variant "zero_threshold").
+THRESHOLD_GRID = (2.0, 5.0, 10.0, 15.0, 20.0, 30.0)
 MIN_TRAIN_DAYS = 60       # first test month needs this many labelled days before it
 VALIDATION_DAYS = 28      # newest labelled days of each training window pick the threshold
 TARGET_CLIP_QUANTILES = (0.01, 0.99)  # winsorise spikes in the training target only
@@ -101,3 +105,7 @@ REPORTS_DIR = os.environ.get("DPS_REPORTS_DIR", "reports")
 SIGNALS_DIR = os.environ.get("DPS_SIGNALS_DIR", "signals")
 LIVE_DIR = os.environ.get("DPS_LIVE_DIR", "live")
 README = os.environ.get("DPS_README", "README.md")
+
+# --------------------------------------------------------------------------- sanity
+ROUND_TRIP_COST_EUR_MWH = 2 * FEE_EUR_MWH_PER_LEG + SLIPPAGE_EUR_MWH
+assert min(THRESHOLD_GRID) >= ROUND_TRIP_COST_EUR_MWH, "a threshold below the round-trip cost trades negative edge"
