@@ -1,7 +1,8 @@
 """Every variant we tried, on the same walk-forward split, in one table.
 
 Only the first version (first row) was fixed before the first backtest on real data.
-After it, the main model changed twice (no load forecast, average of five seeds); every
+After it, the main model changed three times (no load forecast, average of five seeds,
+threshold never below the round-trip cost); every
 other variant was run afterwards to see how much the result depends on such choices.
 They are all reported, the good and the bad: picking the best row of this table and
 calling it the strategy would be fitting the test period. Read the table as the

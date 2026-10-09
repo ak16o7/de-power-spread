@@ -35,7 +35,7 @@ Out-of-sample 2026-01-01 bis 2026-10-07 (280 Liefertage), Walk-forward mit monat
 - „Immer long“ liegt ungekappt bei +189 252 €, mit Spread-Cap ±200 €/MWh bei +15 036 €: überwiegend Spike-Prämie. Mit gekappten Spreads liegt das Modell vorn, aber nicht signifikant (t 1,31).
 - Der Edge kommt aus den NWP-Features: ohne sie -55 083 € (t -0,93).
 - Asymmetrisch und konzentriert: Long +171 740 €, Short -15 405 €; ohne die 10 besten Tage +21 843 €.
-- Die vor dem ersten Backtest fixierte Erstversion liegt bei +101 647 € (t 1,54); die zwei Änderungen danach sind unten dokumentiert.
+- Die vor dem ersten Backtest fixierte Erstversion liegt bei +101 647 € (t 1,54); die Änderungen danach sind unten dokumentiert.
 
 **Einordnung:** Messbarer, aber schwacher Edge, statistisch nicht von einfachen Baselines zu trennen und abhängig von der Ausführungsqualität gegen den Index.
 
@@ -118,8 +118,9 @@ Alle 27 Varianten, Kostensensitivität, Long/Short, Monatswerte, Ex-post-Regress
   Seeds. Der Seed steuert nur den Early-Stopping-Holdout, Einzel-Fits streuen aber stark
   (Robustheit).
 - **Signal:** Position = Vorzeichen der Prognose, wenn |Prognose| die Schwelle übersteigt. Die
-  Schwelle kommt aus {0, 2, 5, 10, 15, 20, 30} €/MWh und wird monatlich auf den letzten
-  28 gelabelten Tagen gewählt, mit einem Modell, das diese Tage nicht gesehen hat.
+  Schwelle kommt aus {2, 5, 10, 15, 20, 30} €/MWh, liegt also nie unter den Round-trip-Kosten
+  von 1,5 €/MWh, und wird monatlich auf den letzten 28 gelabelten Tagen gewählt, mit einem
+  Modell, das diese Tage nicht gesehen hat.
 - **Walk-forward:** monatlicher Refit; Labels nur, soweit sie zur Entscheidung für den ersten
   Liefertag des Monats veröffentlicht waren. Erster Testmonat mit mindestens 60 gelabelten
   Tagen ist Januar 2026.
@@ -147,7 +148,7 @@ Alle 27 Varianten, Kostensensitivität, Long/Short, Monatswerte, Ex-post-Regress
   Modellläufen zuordnen; keiner stammt aus einem Lauf mit kürzerem Vorlauf als angegeben. Die
   gemessenen Veröffentlichungszeiten der live mitgeschnittenen Läufe liegen unter den
   angesetzten Grenzen.
-- **Robustheit:** 26 Varianten auf denselben Splits: Schwellenregeln, Sizing, Loss,
+- **Robustheit:** alle getesteten Varianten auf denselben Splits: Schwellenregeln, Sizing, Loss,
   Regularisierung, Bagging, ein zweistufiges Modell über die ÜNB-Prognosefehler,
   Feature-Ablationen, NWP-Vintage, Teststart, Seeds. Vollständig in
   [reports/REPORT.md](reports/REPORT.md).
@@ -160,12 +161,18 @@ Alle 27 Varianten, Kostensensitivität, Long/Short, Monatswerte, Ex-post-Regress
    nicht messbar.
 2. **Seed-Mittel statt Einzel-Fit.** Ein Einzel-Fit streut über die Seeds zwischen etwa
    +45k € und +176k €.
-3. **Bugfix:** Die installierte Leistung wurde nach UTC-Monat statt nach lokalem Liefermonat
+3. **Schwelle nie unter den Kosten** (seit 9. Oktober 2026). Vorher enthielt das Grid 0 €/MWh;
+   in drei Testmonaten wurde damit jede Viertelstunde gehandelt, auch bei Prognosen von wenigen
+   Cent und damit erwarteter Marge unter den Kosten. Effekt: rund 8 % weniger Volumen, höhere
+   Marge je MWh, PnL praktisch unverändert.
+4. **Bugfix:** Die installierte Leistung wurde nach UTC-Monat statt nach lokalem Liefermonat
    nachgeschlagen.
 
-Aufgefallen ist beides bei der Prüfung der Testergebnisse; begründet ist es unabhängig von der
-Höhe des PnL. Beide Modelländerungen haben den Test-PnL erhöht. Die Erstversion ist deshalb im
-Ergebnis und in der Robustheitstabelle ausgewiesen.
+Aufgefallen ist all das bei der Prüfung der Testergebnisse; begründet ist es unabhängig von der
+Höhe des PnL. Alle drei Modelländerungen haben den Test-PnL erhöht oder unverändert gelassen.
+Die Erstversion ist deshalb im Ergebnis und in der Robustheitstabelle ausgewiesen, die alte
+Schwellenregel als eigene Variante. Weitere Änderungen am Modell sind nicht vorgesehen; ab hier
+entscheidet der Live-Track-Record.
 
 ## Grenzen
 
@@ -177,10 +184,16 @@ Ergebnis und in der Robustheitstabelle ausgewiesen.
 - **NWP-Vintage nicht homogen:** Ab Mitte Juni 2026 gibt es vollständige Läufe mit frischeren
   Prognosen, seit Oktober nur noch diese. Die Variante, die das auf das Archiv-Vintage
   zurückschneidet, liegt nahe am Hauptergebnis.
+- **Signal, kein Handelssystem:** Das Setup prüft, ob ein Edge existiert. Für den Handel
+  fehlen eine Kalibrierung der Prognose auf den erwarteten Spread (im Mittel kommt nur etwa ein
+  Viertel der prognostizierten Abweichung an), Positionsgrößen nach Erwartungswert und Risiko,
+  Limits und eine explizite Behandlung des Tail-Risikos, etwa über Quantilprognosen. Bewusst
+  nicht nachgerüstet: Jede dieser Stellschrauben auf denselben neun Monaten zu justieren, wäre
+  Fitting am Testzeitraum.
 - **Kleinere Punkte:** Die installierte Leistung ist der heutige Datenstand (Nachmeldungen sind
   klein). Es gibt nur bundesweite Feiertage. Marktwirkung wird nicht modelliert (10 MW
-  gegenüber einem 500-MW-Index). Es gibt keine Positions- und Risikolimits, keinen
-  Portfoliokontext und keine Intraday-Auktionen (IDA).
+  gegenüber einem 500-MW-Index). Es gibt keinen Portfoliokontext und keine Intraday-Auktionen
+  (IDA).
 
 ## Live-Track-Record
 
@@ -193,6 +206,9 @@ Ergebnis und in der Robustheitstabelle ausgewiesen.
 - **Abrechnung:** nach Veröffentlichung des ID-AEP mit derselben PnL-Funktion
   (`live/ledger.csv`). Das ist der einzige Test auf Daten, die beim Festlegen des Modells
   niemand kannte.
+- **Regelstand:** Das erste Signal (Liefertag 10.10.2026) entstand noch mit Schwelle 0 und
+  handelt alle 96 Viertelstunden; es zählt nach der Regel, die bei seiner Erzeugung galt. Ab
+  dem Liefertag 11.10.2026 gilt die Kostenuntergrenze.
 
 <!-- LIVE:START -->
 _Noch kein abgerechneter Tag. Signale liegen in `signals/`, abgerechnet wird, sobald der ID-AEP veröffentlicht ist._

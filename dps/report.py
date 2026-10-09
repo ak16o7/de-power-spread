@@ -187,9 +187,9 @@ def markdown(bt: dict, ex: dict | None, image: str = "reports/pnl.png", rob: dic
                  f"{mm.get('train_days', '–')} |")
     L += ["", "### Robustheit: alle getesteten Varianten", "",
           "Gleicher Walk-forward, gleiche Kosten. Vor dem ersten Backtest auf echten Daten stand nur die erste "
-          "Version fest (erste Zeile). Danach wurde das Hauptmodell zweimal geändert: Die Lastprognose flog raus, "
-          "weil ihr Veröffentlichungszeitpunkt nicht belegbar ist, und die Vorhersage ist jetzt das Mittel aus fünf "
-          "Startwerten, weil ein einzelnes Modell stark am Startwert hing. Beides hat den PnL im Test erhöht. Alle "
+          "Version fest (erste Zeile). Danach wurde das Hauptmodell dreimal geändert: Lastprognose entfernt "
+          "(Zeitstempel nicht belegbar), Mittel aus fünf Startwerten (ein Einzel-Fit hing stark am Startwert), "
+          "Handelsschwelle nie unter den Round-trip-Kosten. Keine der Änderungen hat den PnL im Test gesenkt. Alle "
           "anderen Varianten kamen danach, und alle stehen hier, auch die schlechten. Die beste Zeile zur Strategie "
           "zu erklären wäre Anpassung an den Testzeitraum: Die Tabelle zeigt, wie unsicher die Hauptzahl ist.", "",
           robustness.markdown(rob)]
@@ -268,7 +268,7 @@ def readme_markdown(bt: dict, ex: dict | None, rob: dict | None, image: str = "r
     fv = rv.get("first_version")
     if fv:
         notes.append(f"Die vor dem ersten Backtest fixierte Erstversion liegt bei {_fmt(fv['net_eur'], 0, True)} € "
-                     f"(t {_fmt(fv['t_daily_hac'], 2)}); die zwei Änderungen danach sind unten dokumentiert.")
+                     f"(t {_fmt(fv['t_daily_hac'], 2)}); die Änderungen danach sind unten dokumentiert.")
     L += [""] + [f"- {n}" for n in notes]
     L += ["", "**Einordnung:** " + ("Edge gegen alle Baselines signifikant." if passed else
                                     "Messbarer, aber schwacher Edge, statistisch nicht von einfachen Baselines "
