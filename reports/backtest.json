@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-09T07:10:29.739388+00:00",
+ "generated_at": "2026-10-09T11:31:40.266382+00:00",
  "test_period": {
   "from": "2026-01-01",
   "to": "2026-10-07",
@@ -61,11 +61,6 @@
    "threshold": 30.0,
    "validation": [
     {
-     "threshold": 0.0,
-     "net_eur": -30044.600000000002,
-     "mwh": 6720.0
-    },
-    {
      "threshold": 2.0,
      "net_eur": -28662.699999999997,
      "mwh": 6020.0
@@ -105,11 +100,6 @@
    "train_last_day": "2026-01-29",
    "threshold": 30.0,
    "validation": [
-    {
-     "threshold": 0.0,
-     "net_eur": -14760.899999999996,
-     "mwh": 6720.0
-    },
     {
      "threshold": 2.0,
      "net_eur": -17258.6,
@@ -151,11 +141,6 @@
    "threshold": 5.0,
    "validation": [
     {
-     "threshold": 0.0,
-     "net_eur": -4314.850000000002,
-     "mwh": 6720.0
-    },
-    {
      "threshold": 2.0,
      "net_eur": -3134.125,
      "mwh": 5942.5
@@ -195,11 +180,6 @@
    "train_last_day": "2026-03-29",
    "threshold": 10.0,
    "validation": [
-    {
-     "threshold": 0.0,
-     "net_eur": 11319.950000000004,
-     "mwh": 6710.0
-    },
     {
      "threshold": 2.0,
      "net_eur": 13762.5,
@@ -241,11 +221,6 @@
    "threshold": 5.0,
    "validation": [
     {
-     "threshold": 0.0,
-     "net_eur": 61054.975,
-     "mwh": 6720.0
-    },
-    {
      "threshold": 2.0,
      "net_eur": 62304.95000000001,
      "mwh": 5805.0
@@ -283,13 +258,8 @@
    "first_test_day": "2026-06-01",
    "train_days": 241,
    "train_last_day": "2026-05-29",
-   "threshold": 0.0,
+   "threshold": 2.0,
    "validation": [
-    {
-     "threshold": 0.0,
-     "net_eur": 15988.0,
-     "mwh": 6720.0
-    },
     {
      "threshold": 2.0,
      "net_eur": 15899.675,
@@ -328,13 +298,8 @@
    "first_test_day": "2026-07-01",
    "train_days": 271,
    "train_last_day": "2026-06-28",
-   "threshold": 0.0,
+   "threshold": 5.0,
    "validation": [
-    {
-     "threshold": 0.0,
-     "net_eur": 29171.674999999996,
-     "mwh": 6720.0
-    },
     {
      "threshold": 2.0,
      "net_eur": 25874.974999999995,
@@ -376,11 +341,6 @@
    "threshold": 5.0,
    "validation": [
     {
-     "threshold": 0.0,
-     "net_eur": 29951.875,
-     "mwh": 6720.0
-    },
-    {
      "threshold": 2.0,
      "net_eur": 29204.550000000007,
      "mwh": 5600.0
@@ -421,11 +381,6 @@
    "threshold": 2.0,
    "validation": [
     {
-     "threshold": 0.0,
-     "net_eur": 22370.524999999998,
-     "mwh": 6720.0
-    },
-    {
      "threshold": 2.0,
      "net_eur": 24184.800000000003,
      "mwh": 5855.0
@@ -463,13 +418,8 @@
    "first_test_day": "2026-10-01",
    "train_days": 363,
    "train_last_day": "2026-09-28",
-   "threshold": 0.0,
+   "threshold": 2.0,
    "validation": [
-    {
-     "threshold": 0.0,
-     "net_eur": 49929.925,
-     "mwh": 6720.0
-    },
     {
      "threshold": 2.0,
      "net_eur": 48276.375,
@@ -563,16 +513,16 @@
   "model": {
    "days": 280,
    "days_traded": 238,
-   "quarter_hours_traded": 16664,
-   "mwh": 41660.0,
-   "net_eur": 155425.0,
-   "gross_eur": 217915.0,
-   "costs_eur": 62490.0,
-   "eur_per_mwh": 3.73,
-   "hit_rate": 0.512,
-   "sharpe_daily_ann": 2.59,
-   "t_daily_hac": 2.38,
-   "max_drawdown_eur": -37357.0,
+   "quarter_hours_traded": 15333,
+   "mwh": 38332.5,
+   "net_eur": 156336.0,
+   "gross_eur": 213835.0,
+   "costs_eur": 57499.0,
+   "eur_per_mwh": 4.08,
+   "hit_rate": 0.515,
+   "sharpe_daily_ann": 2.62,
+   "t_daily_hac": 2.41,
+   "max_drawdown_eur": -36555.0,
    "worst_day_eur": -31329.0,
    "best_day_eur": 23539.0,
    "missing_exit_qh": 0,
@@ -599,20 +549,20 @@
  },
  "model_vs": {
   "always_long": {
-   "mean_eur_per_day": -120.8,
+   "mean_eur_per_day": -117.6,
    "t_hac": -0.22
   },
   "always_short": {
-   "mean_eur_per_day": 1950.9,
-   "t_hac": 3.56
+   "mean_eur_per_day": 1954.1,
+   "t_hac": 3.57
   },
   "slot_sign_28d": {
-   "mean_eur_per_day": 186.2,
-   "t_hac": 0.63
+   "mean_eur_per_day": 189.5,
+   "t_hac": 0.64
   },
   "last_known_sign": {
-   "mean_eur_per_day": 320.1,
-   "t_hac": 1.06
+   "mean_eur_per_day": 323.4,
+   "t_hac": 1.07
   }
  },
  "slippage_sensitivity": {
@@ -635,10 +585,10 @@
    "5.0": -202893.0
   },
   "model": {
-   "0.0": 197085.0,
-   "1.0": 155425.0,
-   "2.0": 113765.0,
-   "5.0": -11215.0
+   "0.0": 194668.0,
+   "1.0": 156336.0,
+   "2.0": 118003.0,
+   "5.0": 3006.0
   },
   "slot_sign_28d": {
    "0.0": 170465.0,
@@ -651,7 +601,7 @@
   "always_long": 3.82,
   "always_short": -4.82,
   "last_known_sign": 1.98,
-  "model": 4.73,
+  "model": 5.08,
   "slot_sign_28d": 2.54
  },
  "spike_sensitivity": {
@@ -705,18 +655,18 @@
   },
   "model": {
    "top10_qh_net_eur": 16840.0,
-   "without_best_10_days_eur": 19813.0,
+   "without_best_10_days_eur": 21843.0,
    "500": {
-    "net_eur": 148694.0,
-    "t_daily_hac": 3.45
+    "net_eur": 149444.0,
+    "t_daily_hac": 3.51
    },
    "200": {
-    "net_eur": 142043.0,
-    "t_daily_hac": 3.83
+    "net_eur": 143306.0,
+    "t_daily_hac": 3.92
    },
    "100": {
-    "net_eur": 118742.0,
-    "t_daily_hac": 3.72
+    "net_eur": 120364.0,
+    "t_daily_hac": 3.81
    }
   },
   "slot_sign_28d": {
@@ -739,20 +689,20 @@
  "model_vs_capped": {
   "cap_eur_mwh": 200.0,
   "always_long": {
-   "mean_eur_per_day": 453.6,
-   "t_hac": 1.29
+   "mean_eur_per_day": 458.1,
+   "t_hac": 1.31
   },
   "always_short": {
-   "mean_eur_per_day": 1280.9,
-   "t_hac": 3.78
+   "mean_eur_per_day": 1285.4,
+   "t_hac": 3.81
   },
   "slot_sign_28d": {
-   "mean_eur_per_day": 274.5,
-   "t_hac": 1.52
+   "mean_eur_per_day": 279.0,
+   "t_hac": 1.57
   },
   "last_known_sign": {
-   "mean_eur_per_day": 586.2,
-   "t_hac": 3.19
+   "mean_eur_per_day": 590.7,
+   "t_hac": 3.23
   }
  },
  "long_short": {
@@ -775,10 +725,10 @@
    "short_mwh": 35682.5
   },
   "model": {
-   "long_net_eur": 170265.0,
-   "long_mwh": 25200.0,
-   "short_net_eur": -14840.0,
-   "short_mwh": 16460.0
+   "long_net_eur": 171740.0,
+   "long_mwh": 23497.5,
+   "short_net_eur": -15405.0,
+   "short_mwh": 14835.0
   },
   "slot_sign_28d": {
    "long_net_eur": 185879.0,
@@ -819,12 +769,12 @@
    "mwh": 5927.5
   },
   "2026-06": {
-   "net_eur": 29419.0,
-   "mwh": 7200.0
+   "net_eur": 29692.0,
+   "mwh": 6650.0
   },
   "2026-07": {
-   "net_eur": 32147.0,
-   "mwh": 7440.0
+   "net_eur": 31982.0,
+   "mwh": 4840.0
   },
   "2026-08": {
    "net_eur": 20880.0,
@@ -835,15 +785,15 @@
    "mwh": 6102.5
   },
   "2026-10": {
-   "net_eur": -5292.0,
-   "mwh": 1680.0
+   "net_eur": -4490.0,
+   "mwh": 1502.5
   }
  },
  "provenance": {
-  "code_commit": "70c7d36eaeddabb604a3cbe79154958f55024ba7",
+  "code_commit": "8caf54725fa649cfe32fdba1d8883b2101a7cb46",
   "hf_dataset": "akderekaan/de-power-forecast-data",
   "hf_revisions": [
-   "519789445ac9f4b90ffaa1df74539c587290fb35"
+   "db6bf7f0f3580b38e3ccd0eb6f0955173a31a4d1"
   ],
   "store": {
    "da": {
