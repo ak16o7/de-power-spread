@@ -1,17 +1,20 @@
 name: Backtest
 
 # Weekly: refresh data, rerun explain, the walk-forward backtest and every robustness
-# variant, commit reports and README.
+# variant, commit reports and README. Started on Sundays at 07:00 local by the same external
+# scheduler as the live signal (workflow_dispatch API). No GitHub cron: unlike a missed
+# signal, a missed week costs nothing and is caught up the next Sunday, and a second
+# trigger would only run the same 1-2 h twice.
 on:
-  schedule:
-    - cron: "41 5 * * 0"
   workflow_dispatch:
 
 permissions:
   contents: write
 
+# Own group, not the live one: GitHub starts scheduled runs late, sometimes by hours, and a
+# 1-2 h backtest must never hold up the signal. Both commit steps rebase and retry instead.
 concurrency:
-  group: repo-write
+  group: backtest
   cancel-in-progress: false
 
 jobs:
@@ -46,5 +49,5 @@ jobs:
           git add reports README.md
           if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
           git commit -m "backtest: $(date -u +%Y-%m-%d)"
-          git pull --rebase
-          git push
+          for i in 1 2 3 4 5; do git pull --rebase && git push && exit 0; sleep 10; done
+          exit 1

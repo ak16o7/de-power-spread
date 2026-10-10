@@ -1,7 +1,8 @@
 """Live track record: a signal for tomorrow before the auction, settled once the ID-AEP is out.
 
-signal: runs between 10:45 and 11:50 local (GitHub Actions, several cron slots; the first
-        one that lands writes the file). Same procedure as the backtest: the model of the
+signal: runs between 10:45 and 11:50 local (GitHub Actions, started by an external
+        scheduler; GitHub's own cron slots are only a fallback; the first run inside the
+        window writes the file). Same procedure as the backtest: the model of the
         delivery month (labels known at the decision time of the month's first day,
         threshold from the same validation rule), features from data available at
         min(now, 11:00 D-1). No signal on a day the data guard blocks (model.data_problem,
@@ -9,7 +10,8 @@ signal: runs between 10:45 and 11:50 local (GitHub Actions, several cron slots; 
         counted. The push to GitHub and the Actions run log are the public proof that it
         existed before the 12:00 auction.
 settle: books every counted signal whose ID-AEP is known, with the same PnL function as
-        the backtest, into live/ledger.csv and the README.
+        the backtest, into live/ledger.csv and the README, and lists every delivery day
+        since the first signal that has none.
 """
 from __future__ import annotations
 
@@ -106,6 +108,22 @@ def signal(day: date | None = None, force: bool = False) -> dict:
     return {"status": "written", **meta}
 
 
+def missing_days(signal_days: list[date], t: pd.Timestamp) -> list[str]:
+    """Delivery days since the first signal whose window has closed without a signal file
+    (no run started in time, or the data guard blocked every run). Listed in the record,
+    so a gap can never pass for a quietly dropped day."""
+    if not signal_days:
+        return []
+    today = t.tz_convert(BERLIN).date()
+    last = today + timedelta(days=1) if t > window(today + timedelta(days=1))[1] else today
+    have, out, d = set(signal_days), [], min(signal_days)
+    while d <= last:
+        if d not in have:
+            out.append(str(d))
+        d += timedelta(days=1)
+    return out
+
+
 def _counted(meta: dict) -> bool:
     """A signal counts only if it was finished inside the window, before gate closure."""
     if meta.get("late", False):
@@ -121,10 +139,11 @@ def settle() -> dict:
     t = now()
     da = store.read("da").set_index("ts")["da"].astype("float64")
     ida = store.read("id_aep").set_index("ts")["id_aep"].astype("float64")
-    rows, pending = [], []
+    rows, pending, signal_days = [], [], []
     for meta_path in sorted(Path(config.SIGNALS_DIR).glob("*.json")):
         meta = json.loads(meta_path.read_text())
         day = date.fromisoformat(meta["delivery_day"])
+        signal_days.append(day)
         sig = pd.read_csv(meta_path.with_suffix(".csv"))
         idx = pd.DatetimeIndex(pd.to_datetime(sig["ts_utc"], utc=True))
         prices = da.reindex(idx)
@@ -144,19 +163,23 @@ def settle() -> dict:
     live = Path(config.LIVE_DIR)
     live.mkdir(parents=True, exist_ok=True)
     ledger.to_csv(live / "ledger.csv", index=False)
-    body = live_markdown(ledger, pending)
+    missing = missing_days(signal_days, t)
+    body = live_markdown(ledger, pending, missing)
     (live / "SUMMARY.md").write_text("# Live-Track-Record\n\n" + body)
     report.update_section(Path(config.README), "LIVE", body)
     counted = ledger[~ledger["late"].astype(bool)] if not ledger.empty else ledger
-    return {"settled_days": int(len(counted)), "pending": pending,
+    return {"settled_days": int(len(counted)), "pending": pending, "missing": missing,
             "net_eur": round(float(counted["net_eur"].sum()), 2) if len(counted) else 0.0}
 
 
-def live_markdown(ledger: pd.DataFrame, pending: list[str]) -> str:
+def live_markdown(ledger: pd.DataFrame, pending: list[str], missing: list[str] = ()) -> str:
     f = report._fmt
     counted = ledger[~ledger["late"].astype(bool)] if not ledger.empty else ledger
     late = ledger[ledger["late"].astype(bool)] if not ledger.empty else ledger
     late_note = f"\n\nNach 11:50 fertig und deshalb nicht gezählt: {', '.join(late['day'])}" if len(late) else ""
+    if missing:
+        late_note += ("\n\nKein Signal (kein Lauf rechtzeitig gestartet oder Data Guard, Grund im "
+                      f"Actions-Log): {', '.join(missing)}")
     if counted.empty:
         return ("_Noch kein abgerechneter Tag. Signale liegen in `signals/`, abgerechnet wird, "
                 "sobald der ID-AEP veröffentlicht ist._" + late_note

@@ -127,6 +127,18 @@ def test_status_gate(planted, monkeypatch):
         assert live.status(day)["status"] == expect, minutes
 
 
+def test_days_without_signal_are_listed():
+    first = date(2026, 10, 10)
+    have = [first, date(2026, 10, 12)]
+    before = pd.Timestamp("2026-10-12T09:00:00Z")      # 11:00 CEST, window for 13.10 still open
+    after = pd.Timestamp("2026-10-12T10:00:00Z")       # 12:00 CEST, window for 13.10 closed
+    assert live.missing_days(have, before) == ["2026-10-11"]
+    assert live.missing_days(have, after) == ["2026-10-11", "2026-10-13"]
+    assert live.missing_days([], after) == []
+    md = live.live_markdown(pd.DataFrame(columns=["day", "late", "net_eur", "mwh"]), [], ["2026-10-11"])
+    assert "Kein Signal" in md and "2026-10-11" in md
+
+
 def test_robustness_main_row_equals_backtest(planted):
     from dps import robustness
     root, start, end = planted

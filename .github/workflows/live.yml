@@ -1,10 +1,11 @@
 name: Live
 
 # Signal for tomorrow before the 12:00 day-ahead auction, and settlement of earlier days.
-# GitHub cron runs in UTC and is often late, so the signal job has a slot every ten
-# minutes across 10:45-11:50 local in both summer (UTC+2) and winter time (UTC+1).
-# `dps status` decides cheaply whether a signal is due; only the first slot inside the
-# window does the work. A signal finished after 11:50 is marked late and never counted.
+# Primary trigger: an external scheduler (cron-job.org) calls the workflow_dispatch API at
+# 10:47 and 11:15 local, and at 18:30 for settlement. GitHub's own cron is best effort: from
+# 9 to 11 Oct 2026 not one of its slots started inside the window. The slots below stay
+# as a fallback. `dps status` decides cheaply whether a signal is due, so duplicate runs
+# do nothing. A signal finished after 11:50 is marked late and never counted.
 # The push of signals/YYYY-MM-DD.* and this run's log are the timestamped public record
 # (a commit date alone can be set by whoever commits).
 on:
@@ -41,7 +42,7 @@ jobs:
           git pull --ff-only origin "${GITHUB_REF_NAME}"
           python -m dps status --github-output
       - name: Restore data cache
-        if: steps.gate.outputs.due == 'true' || github.event.schedule == '23 16 * * *'
+        if: steps.gate.outputs.due == 'true' || github.event.schedule == '23 16 * * *' || github.event_name == 'workflow_dispatch'
         uses: actions/cache@v4
         with:
           path: |
@@ -50,7 +51,7 @@ jobs:
           key: dps-data-${{ github.run_id }}
           restore-keys: dps-data-
       - name: Fetch prices, load, ID-AEP
-        if: steps.gate.outputs.due == 'true' || github.event.schedule == '23 16 * * *'
+        if: steps.gate.outputs.due == 'true' || github.event.schedule == '23 16 * * *' || github.event_name == 'workflow_dispatch'
         run: python -m dps fetch --recent-days 10
         env:
           ENTSOE_API_KEY: ${{ secrets.ENTSOE_API_KEY }}
@@ -60,15 +61,15 @@ jobs:
         if: steps.gate.outputs.due == 'true'
         run: python -m dps signal
       - name: Settle earlier signals
-        if: steps.gate.outputs.due == 'true' || github.event.schedule == '23 16 * * *'
+        if: steps.gate.outputs.due == 'true' || github.event.schedule == '23 16 * * *' || github.event_name == 'workflow_dispatch'
         run: python -m dps settle
       - name: Commit
-        if: steps.gate.outputs.due == 'true' || github.event.schedule == '23 16 * * *'
+        if: steps.gate.outputs.due == 'true' || github.event.schedule == '23 16 * * *' || github.event_name == 'workflow_dispatch'
         run: |
           git config user.name "ak16o7"
           git config user.email "akderekaan@hotmail.com"
           git add signals live README.md
           if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
           git commit -m "live: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          git pull --rebase
-          git push
+          for i in 1 2 3 4 5; do git pull --rebase && git push && exit 0; sleep 10; done
+          exit 1

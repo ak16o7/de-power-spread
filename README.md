@@ -159,12 +159,12 @@ Alle 27 Varianten, Kostensensitivität, Long/Short, Monatswerte, Ex-post-Regress
 
 1. **DA-Lastprognose als Feature entfernt.** Ihr Zeitstempel ist nicht belegbar, ihr Beitrag
    nicht messbar.
-2. **Seed-Mittel statt Einzel-Fit.** Ein Einzel-Fit streut über die Seeds zwischen etwa
-   +45k € und +176k €.
+2. **Seed-Mittel statt Einzel-Fit.** Im Backtest vom Oktober 2026 streute ein Einzel-Fit über
+   die Seeds zwischen etwa +45k € und +176k €.
 3. **Schwelle nie unter den Kosten** (seit 9. Oktober 2026). Vorher enthielt das Grid 0 €/MWh;
    in drei Testmonaten wurde damit jede Viertelstunde gehandelt, auch bei Prognosen von wenigen
-   Cent und damit erwarteter Marge unter den Kosten. Effekt: rund 8 % weniger Volumen, höhere
-   Marge je MWh, PnL praktisch unverändert.
+   Cent und damit erwarteter Marge unter den Kosten. Effekt damals: rund 8 % weniger Volumen,
+   höhere Marge je MWh, PnL praktisch unverändert.
 4. **Bugfix:** Die installierte Leistung wurde nach UTC-Monat statt nach lokalem Liefermonat
    nachgeschlagen.
 
@@ -197,21 +197,28 @@ entscheidet der Live-Track-Record.
 
 ## Live-Track-Record
 
-- **Ablauf:** Täglich im Fenster 10:45–11:50 erzeugt eine GitHub Action die Positionen für D+1
-  und committet sie nach `signals/`. Push-Zeitpunkt und Lauf-Protokoll belegen, dass das
-  Signal vor Gate Closure existierte.
+- **Ablauf:** Täglich um 10:47 startet ein externer Scheduler die GitHub Action über die API
+  (11:15 als Reserve, 18:30 für die Abrechnung). Sie erzeugt die Positionen für D+1 und
+  committet sie nach `signals/`. Push-Zeitpunkt und Lauf-Protokoll belegen, dass das Signal vor
+  Gate Closure existierte. GitHubs eigener Cron ist nur Fallback: Er startet geplante Läufe
+  nach bestem Bemühen und hat vom 9. bis 11.10.2026 im Fenster keinen einzigen gestartet.
 - **Gleiches Verfahren wie im Backtest:** gleiches Monatsmodell, gleiche Schwellenregel, gleicher
   Verfügbarkeitsfilter, gleicher Data Guard; ein Test prüft die Gleichheit. Ein Signal, das
   erst nach 11:50 fertig ist, wird markiert und nicht gezählt.
 - **Abrechnung:** nach Veröffentlichung des ID-AEP mit derselben PnL-Funktion
   (`live/ledger.csv`). Das ist der einzige Test auf Daten, die beim Festlegen des Modells
   niemand kannte.
+- **Lücken:** Ein Liefertag ohne Signal wird unten aufgeführt und fehlt nicht stillschweigend.
+  Für den 11. und 12.10.2026 gibt es keins, weil der Workflow damals noch allein am GitHub-Cron
+  hing.
 - **Regelstand:** Das erste Signal (Liefertag 10.10.2026) entstand noch mit Schwelle 0 und
   handelt alle 96 Viertelstunden; es zählt nach der Regel, die bei seiner Erzeugung galt. Ab
-  dem Liefertag 11.10.2026 gilt die Kostenuntergrenze.
+  dem nächsten Signal gilt die Kostenuntergrenze.
 
 <!-- LIVE:START -->
 _Noch kein abgerechneter Tag. Signale liegen in `signals/`, abgerechnet wird, sobald der ID-AEP veröffentlicht ist._
+
+Kein Signal (kein Lauf rechtzeitig gestartet oder Data Guard, Grund im Actions-Log): 2026-10-11, 2026-10-12
 
 Warten auf ID-AEP: 2026-10-10
 
@@ -231,8 +238,9 @@ python -m dps run                 # Ex-post-Regression, Backtest, Report, README
 python -m dps run --robustness    # zusätzlich alle Varianten und die Datenprüfung (ca. 1 h)
 ```
 
-- **Betrieb:** Workflows in `.github/workflows`: `Live` (Signal und Abrechnung), `Backtest`
-  (sonntags komplett neu), `CI`. Optionale Secrets `ENTSOE_API_KEY`, `NTP_CLIENT_ID` und
+- **Betrieb:** Workflows in `.github/workflows`, von außen per `workflow_dispatch`-API
+  gestartet: `Live` (Signal 10:47, Reserve 11:15, Abrechnung 18:30; Live-Block im README
+  täglich neu), `Backtest` (sonntags 07:00 alles neu, Ergebnisblock im README); dazu `CI`. Optionale Secrets `ENTSOE_API_KEY`, `NTP_CLIENT_ID` und
   `NTP_CLIENT_SECRET` für die offiziellen APIs.
 - **Code:** alle Annahmen in `dps/config.py`; Features streng nach Verfügbarkeit in
   `features.py`; PnL-Funktion für Backtest und Live in `trading.py`; dazu `model.py`,
