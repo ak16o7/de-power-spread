@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-11T11:37:50.077156+00:00",
+ "generated_at": "2026-10-11T15:36:34.361843+00:00",
  "period": {
   "from": "2025-10-01",
   "to": "2026-10-11"
@@ -25,12 +25,12 @@
     "t": -1.71
    },
    "err_wind_off": {
-    "eur_mwh_per_gw": -5.681,
+    "eur_mwh_per_gw": -5.682,
     "se": 2.684,
     "t": -2.12
    },
    "err_load": {
-    "eur_mwh_per_gw": 0.715,
+    "eur_mwh_per_gw": 0.716,
     "se": 0.652,
     "t": 1.1
    }
@@ -99,8 +99,8 @@
    "r2": 0.042,
    "coef": {
     "const": {
-     "eur_mwh_per_gw": 9.395,
-     "se": 2.439,
+     "eur_mwh_per_gw": 9.393,
+     "se": 2.438,
      "t": 3.85
     },
     "err_solar": {
@@ -114,12 +114,12 @@
      "t": 0.87
     },
     "err_wind_off": {
-     "eur_mwh_per_gw": -2.79,
-     "se": 4.813,
+     "eur_mwh_per_gw": -2.789,
+     "se": 4.814,
      "t": -0.58
     },
     "err_load": {
-     "eur_mwh_per_gw": 1.64,
+     "eur_mwh_per_gw": 1.639,
      "se": 1.274,
      "t": 1.29
     }
@@ -130,12 +130,12 @@
    "r2": 0.04,
    "coef": {
     "const": {
-     "eur_mwh_per_gw": 1.863,
+     "eur_mwh_per_gw": 1.862,
      "se": 2.875,
      "t": 0.65
     },
     "err_solar": {
-     "eur_mwh_per_gw": -7.663,
+     "eur_mwh_per_gw": -7.662,
      "se": 0.998,
      "t": -7.68
     },
@@ -145,12 +145,12 @@
      "t": -6.0
     },
     "err_wind_off": {
-     "eur_mwh_per_gw": -10.223,
+     "eur_mwh_per_gw": -10.224,
      "se": 3.651,
      "t": -2.8
     },
     "err_load": {
-     "eur_mwh_per_gw": 2.322,
+     "eur_mwh_per_gw": 2.323,
      "se": 1.12,
      "t": 2.07
     }
@@ -171,13 +171,13 @@
      "t": -7.86
     },
     "err_wind_off": {
-     "eur_mwh_per_gw": -8.076,
+     "eur_mwh_per_gw": -8.077,
      "se": 3.546,
      "t": -2.28
     },
     "err_load": {
-     "eur_mwh_per_gw": -0.747,
-     "se": 1.01,
+     "eur_mwh_per_gw": -0.746,
+     "se": 1.011,
      "t": -0.74
     }
    }
@@ -209,7 +209,7 @@
     "t": -3.58
    },
    "err_load": {
-    "eur_mwh_per_gw": -0.089,
+    "eur_mwh_per_gw": -0.088,
     "se": 0.293,
     "t": -0.3
    }

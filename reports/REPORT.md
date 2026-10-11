@@ -127,7 +127,7 @@ Mittel über fünf Startwerte: 0–4 (Hauptmodell): +133 794 € (t 1,93), 5�
 | Solar | -7,93 | -6,1 | -7,67 | -13,0 | – | -11,40 | -7,68 | -7,66 | – |
 | Wind an Land | -3,82 | -1,7 | -4,95 | -6,1 | -6,30 | -6,95 | +4,60 | -7,14 | -11,23 |
 | Wind auf See | -5,68 | -2,1 | -4,36 | -3,6 | -8,90 | -8,49 | -2,79 | -10,22 | -8,08 |
-| Last | +0,71 | 1,1 | -0,09 | -0,3 | -0,50 | -0,91 | +1,64 | +2,32 | -0,75 |
+| Last | +0,72 | 1,1 | -0,09 | -0,3 | -0,50 | -0,91 | +1,64 | +2,32 | -0,75 |
 
 n = 36 000 Viertelstunden, R² = 0,02, gekappt 0,12. t mit Newey-West-Standardfehlern (Lags: ein Tag). „Gekappt“: Spread auf ±200 €/MWh begrenzt, damit wenige Preisspitzen die Schätzung nicht dominieren. Spalten rechts: getrennte Regressionen je Tageszeit (ungekappt); „–“: Fehler schwankt dort zu wenig (Standardabweichung unter 250 MW) für eine sinnvolle Steigung.
 
@@ -143,7 +143,7 @@ Der Lookahead-Test prüft, dass der Code jedes `available_at` respektiert. Ob di
 | ecmwf_ifs | 2026-06-13 bis 2026-09-30 | Tag 2 (behauptet ≥ 48 h) | 41 952 | 41 759 | 48 / 51 / 65 h | 0 |
 
 Ein Archivwert gilt als zugeordnet, wenn er in allen Variablen, die beide Datenarten haben, exakt einem einzigen vollständigen Lauf gleicht. „Frischer als behauptet“ zählt Werte aus einem Lauf mit kürzerem Vorlauf als angegeben. Verglichen wird fast nur mit nachgeladenen Läufen, denn das Archiv endet, kurz nachdem der Live-Mitschnitt beginnt. Die live mitgeschnittenen Läufe liefern dafür die gemessene Veröffentlichungszeit.
-Gemessen: icon_eu 2,9 bis 4,2 h nach Laufstart (91 Läufe; das Archiv setzt 4,5 h an); ecmwf_ifs 6,1 bis 7,8 h nach Laufstart (47 Läufe; das Archiv setzt 8,5 h an).
+Gemessen: icon_eu 2,9 bis 4,2 h nach Laufstart (92 Läufe; das Archiv setzt 4,5 h an); ecmwf_ifs 6,1 bis 7,8 h nach Laufstart (48 Läufe; das Archiv setzt 8,5 h an).
 
 
-<sub>Gerechnet am 2026-10-11 11:39 UTC, Code 507c286, Wetterdaten akderekaan/de-power-forecast-data @ 9a35b39a5dba.</sub>
+<sub>Gerechnet am 2026-10-11 15:38 UTC, Code cefbf05, Wetterdaten akderekaan/de-power-forecast-data @ 29163849cbd0.</sub>

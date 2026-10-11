@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-11T11:39:39.035343+00:00",
+ "generated_at": "2026-10-11T15:38:23.194255+00:00",
  "test_period": {
   "from": "2026-01-01",
   "to": "2026-10-09",
@@ -790,10 +790,10 @@
   }
  },
  "provenance": {
-  "code_commit": "507c286f33a328e7e477fc8bbf8eeb4b8648b28f",
+  "code_commit": "cefbf05c158d89b9f4a75eafe8c54795c5e2ca03",
   "hf_dataset": "akderekaan/de-power-forecast-data",
   "hf_revisions": [
-   "9a35b39a5dba33f1cd504fb577ead891d63b6745"
+   "29163849cbd0bc94d5a06e2917e4c5ab3826382a"
   ],
   "store": {
    "da": {

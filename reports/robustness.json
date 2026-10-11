@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-11T12:12:07.137249+00:00",
+ "generated_at": "2026-10-11T16:10:51.552807+00:00",
  "capped_eur_mwh": 200.0,
  "note": "all variants that were run, on the same walk-forward split; the main model was fixed beforehand",
  "variants": [
@@ -58,7 +58,7 @@
    "t_vs_always_long": -0.34,
    "long_net_eur": 168585.0,
    "short_net_eur": -34591.0,
-   "seconds": 81
+   "seconds": 83
   },
   {
    "key": "archive_only",
@@ -77,7 +77,7 @@
    "t_vs_always_long": -0.47,
    "long_net_eur": 150351.0,
    "short_net_eur": -31944.0,
-   "seconds": 80
+   "seconds": 82
   },
   {
    "key": "no_capacity",
@@ -96,7 +96,7 @@
    "t_vs_always_long": -0.46,
    "long_net_eur": 149863.0,
    "short_net_eur": -29913.0,
-   "seconds": 77
+   "seconds": 76
   },
   {
    "key": "zero_threshold",
@@ -115,7 +115,7 @@
    "t_vs_always_long": -0.37,
    "long_net_eur": 160169.0,
    "short_net_eur": -26733.0,
-   "seconds": 81
+   "seconds": 80
   },
   {
    "key": "fixed_2",
@@ -153,7 +153,7 @@
    "t_vs_always_long": -0.58,
    "long_net_eur": 161269.0,
    "short_net_eur": -63886.0,
-   "seconds": 77
+   "seconds": 78
   },
   {
    "key": "pooled",
@@ -191,7 +191,7 @@
    "t_vs_always_long": -0.4,
    "long_net_eur": 175403.0,
    "short_net_eur": -38691.0,
-   "seconds": 82
+   "seconds": 81
   },
   {
    "key": "signal_size",
@@ -210,7 +210,7 @@
    "t_vs_always_long": 0.43,
    "long_net_eur": 343253.0,
    "short_net_eur": -70108.0,
-   "seconds": 82
+   "seconds": 81
   },
   {
    "key": "median",
@@ -229,7 +229,7 @@
    "t_vs_always_long": -1.22,
    "long_net_eur": 42132.0,
    "short_net_eur": -65858.0,
-   "seconds": 100
+   "seconds": 103
   },
   {
    "key": "regularised",
@@ -267,7 +267,7 @@
    "t_vs_always_long": -0.69,
    "long_net_eur": 107538.0,
    "short_net_eur": -26281.0,
-   "seconds": 83
+   "seconds": 81
   },
   {
    "key": "bagging",
@@ -286,7 +286,7 @@
    "t_vs_always_long": -0.3,
    "long_net_eur": 155738.0,
    "short_net_eur": -13083.0,
-   "seconds": 110
+   "seconds": 112
   },
   {
    "key": "two_stage",
@@ -305,7 +305,7 @@
    "t_vs_always_long": -1.28,
    "long_net_eur": 33783.0,
    "short_net_eur": -23363.0,
-   "seconds": 243
+   "seconds": 244
   },
   {
    "key": "no_weather",
@@ -343,7 +343,7 @@
    "t_vs_always_long": -0.18,
    "long_net_eur": 144292.0,
    "short_net_eur": 14017.0,
-   "seconds": 75
+   "seconds": 74
   },
   {
    "key": "no_da_prev",
@@ -362,7 +362,7 @@
    "t_vs_always_long": 0.03,
    "long_net_eur": 156348.0,
    "short_net_eur": 40103.0,
-   "seconds": 74
+   "seconds": 75
   },
   {
    "key": "start_december",
@@ -381,7 +381,7 @@
    "t_vs_always_long": -0.41,
    "long_net_eur": 152507.0,
    "short_net_eur": -42723.0,
-   "seconds": 83
+   "seconds": 84
   },
   {
    "key": "single_0",
@@ -419,7 +419,7 @@
    "t_vs_always_long": -0.39,
    "long_net_eur": 148537.0,
    "short_net_eur": -20150.0,
-   "seconds": 17
+   "seconds": 16
   },
   {
    "key": "single_2",
@@ -514,14 +514,14 @@
    "t_vs_always_long": -0.14,
    "long_net_eur": 175668.0,
    "short_net_eur": -7445.0,
-   "seconds": 82
+   "seconds": 81
   }
  ],
  "provenance": {
-  "code_commit": "507c286f33a328e7e477fc8bbf8eeb4b8648b28f",
+  "code_commit": "cefbf05c158d89b9f4a75eafe8c54795c5e2ca03",
   "hf_dataset": "akderekaan/de-power-forecast-data",
   "hf_revisions": [
-   "9a35b39a5dba33f1cd504fb577ead891d63b6745"
+   "29163849cbd0bc94d5a06e2917e4c5ab3826382a"
   ],
   "store": {
    "da": {
