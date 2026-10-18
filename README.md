@@ -17,25 +17,25 @@ enthalten, die nach Kosten verwertbar ist.
 ## Ergebnis
 
 <!-- RESULTS:START -->
-Out-of-sample 2026-01-01 bis 2026-10-09 (282 Liefertage), Walk-forward mit monatlichem Refit, 10 MW je gehandelter Viertelstunde, Kosten 0,25 €/MWh je Leg plus 1,0 €/MWh Slippage gegen ID-AEP. Stand 2026-10-11.
+Out-of-sample 2026-01-01 bis 2026-10-16 (289 Liefertage), Walk-forward mit monatlichem Refit, 10 MW je gehandelter Viertelstunde, Kosten 0,25 €/MWh je Leg plus 1,0 €/MWh Slippage gegen ID-AEP. Stand 2026-10-18.
 
 | Kennzahl | Modell |
 |---|---:|
-| Netto-PnL | +133 794 € |
-| Netto je gehandelter MWh | +3,45 € |
-| Gehandeltes Volumen | 38 770 MWh |
-| t-Wert Tages-PnL (Newey-West) | 1,93 |
-| Sharpe p. a. (Tages-PnL) | 2,15 |
-| Max. Drawdown | -56 843 € |
-| Break-even-Slippage gegen ID-AEP | 4,5 €/MWh |
-| Netto-PnL, Spread auf ±200 €/MWh gekappt | +134 822 € (t 3,54) |
+| Netto-PnL | +83 973 € |
+| Netto je gehandelter MWh | +2,32 € |
+| Gehandeltes Volumen | 36 208 MWh |
+| t-Wert Tages-PnL (Newey-West) | 1,19 |
+| Sharpe p. a. (Tages-PnL) | 1,38 |
+| Max. Drawdown | -65 434 € |
+| Break-even-Slippage gegen ID-AEP | 3,3 €/MWh |
+| Netto-PnL, Spread auf ±200 €/MWh gekappt | +110 371 € (t 2,84) |
 
-**Vorab festgelegtes Kriterium** (Tages-PnL schlägt jede Baseline mit HAC-t > 2): **nicht erfüllt**. Signifikant besser als „Immer short“ (t 3,39); nicht signifikant gegen „Immer long“ (t -0,37), „Vorzeichen je Viertelstunde (28 T)“ (t 0,16), „Letztes bekanntes Vorzeichen“ (t 0,93).
+**Vorab festgelegtes Kriterium** (Tages-PnL schlägt jede Baseline mit HAC-t > 2): **nicht erfüllt**. Signifikant besser als „Immer short“ (t 3,23); nicht signifikant gegen „Immer long“ (t -0,76), „Vorzeichen je Viertelstunde (28 T)“ (t -0,29), „Letztes bekanntes Vorzeichen“ (t 0,42).
 
-- „Immer long“ liegt ungekappt bei +190 570 €, mit Spread-Cap ±200 €/MWh bei +2 295 €: überwiegend Spike-Prämie. Mit gekappten Spreads liegt das Modell vorn, aber nicht signifikant (t 1,35).
-- Der Edge kommt aus den NWP-Features: ohne sie -62 349 € (t -1,05).
-- Asymmetrisch und konzentriert: Long +162 371 €, Short -28 576 €; ohne die 10 besten Tage -699 €.
-- Die vor dem ersten Backtest fixierte Erstversion liegt bei +75 939 € (t 1,06); die Änderungen danach sind unten dokumentiert.
+- „Immer long“ liegt ungekappt bei +202 751 €, mit Spread-Cap ±200 €/MWh bei +14 476 €: überwiegend Spike-Prämie. Mit gekappten Spreads liegt das Modell vorn, aber nicht signifikant (t 0,93).
+- Der Edge kommt aus den NWP-Features: ohne sie -61 114 € (t -1,03).
+- Asymmetrisch und konzentriert: Long +121 018 €, Short -37 045 €; ohne die 10 besten Tage -26 711 €.
+- Die vor dem ersten Backtest fixierte Erstversion liegt bei +69 349 € (t 1,02); die Änderungen danach sind unten dokumentiert.
 
 **Einordnung:** Messbarer, aber schwacher Edge, statistisch nicht von einfachen Baselines zu trennen und abhängig von der Ausführungsqualität gegen den Index.
 
@@ -43,28 +43,28 @@ Out-of-sample 2026-01-01 bis 2026-10-09 (282 Liefertage), Walk-forward mit monat
 
 | Strategie | Netto € | €/MWh | t (HAC) | Max. DD € | Netto €, Spread ±200 gekappt |
 |---|---:|---:|---:|---:|---:|
-| **Modell** | +133 794 | +3,45 | 1,93 | -56 843 | +134 822 |
-| Immer long | +190 570 | +2,82 | 1,38 | -129 624 | +2 295 |
-| Immer short | -393 580 | -5,82 | -2,86 | -398 874 | -205 305 |
-| Vorzeichen je Viertelstunde (28 T) | +119 027 | +1,76 | 1,42 | -57 401 | +66 877 |
-| Letztes bekanntes Vorzeichen | +54 162 | +0,80 | 0,63 | -47 757 | -19 664 |
+| **Modell** | +83 973 | +2,32 | 1,19 | -65 434 | +110 371 |
+| Immer long | +202 751 | +2,92 | 1,47 | -129 624 | +14 476 |
+| Immer short | -410 801 | -5,92 | -2,97 | -411 027 | -222 526 |
+| Vorzeichen je Viertelstunde (28 T) | +110 081 | +1,59 | 1,31 | -57 401 | +57 931 |
+| Letztes bekanntes Vorzeichen | +43 822 | +0,63 | 0,51 | -58 097 | -30 005 |
 
 **Robustheit** (Auszug; gleiche Splits, gleiche Kosten):
 
 | Variante | Netto € | t (HAC) |
 |---|---:|---:|
-| Erstversion (vor dem ersten Backtest fixiert) | +75 939 | 1,06 |
-| **Hauptmodell** | +133 794 | 1,93 |
-| mit DA-Lastprognose als Feature | +133 994 | 1,71 |
-| ohne NWP-Features | -62 349 | -1,05 |
-| NWP nur im Vintage des Previous-Runs-Archivs | +118 407 | 1,80 |
-| fixe Schwelle 2 €/MWh statt Auswahl | +130 210 | 1,48 |
-| Teststart Dezember 2025 | +109 784 | 1,52 |
-| Einzel-Fit statt Seed-Mittel (Seeds 0–4) | +31 502 bis +143 659 | 0,51 bis 2,03 |
+| Erstversion (vor dem ersten Backtest fixiert) | +69 349 | 1,02 |
+| **Hauptmodell** | +83 973 | 1,19 |
+| mit DA-Lastprognose als Feature | +125 951 | 1,96 |
+| ohne NWP-Features | -61 114 | -1,03 |
+| NWP nur im Vintage des Previous-Runs-Archivs | +98 302 | 1,53 |
+| fixe Schwelle 2 €/MWh statt Auswahl | +14 535 | 0,15 |
+| Teststart Dezember 2025 | +61 576 | 0,85 |
+| Einzel-Fit statt Seed-Mittel (Seeds 0–4) | +48 780 bis +117 519 | 0,78 bis 1,85 |
 
 Alle 27 Varianten, Kostensensitivität, Long/Short, Monatswerte, Ex-post-Regression und Datenprüfung: [reports/REPORT.md](reports/REPORT.md).
 
-**Ex post:** 1 GW positiver Prognosefehler (Ist minus ÜNB-Day-Ahead-Prognose) verschiebt den Spread um -7,7 €/MWh Solar (t -13,0), -5,0 €/MWh Wind onshore (t -6,1), -4,4 €/MWh Wind offshore (t -3,6) (Spread auf ±200 €/MWh gekappt, Newey-West).
+**Ex post:** 1 GW positiver Prognosefehler (Ist minus ÜNB-Day-Ahead-Prognose) verschiebt den Spread um -7,7 €/MWh Solar (t -13,1), -4,9 €/MWh Wind onshore (t -6,1), -4,6 €/MWh Wind offshore (t -3,8) (Spread auf ±200 €/MWh gekappt, Newey-West).
 
 <!-- RESULTS:END -->
 

@@ -1,217 +1,217 @@
 {
- "generated_at": "2026-10-11T15:36:34.361843+00:00",
+ "generated_at": "2026-10-18T05:02:39.305436+00:00",
  "period": {
   "from": "2025-10-01",
-  "to": "2026-10-11"
+  "to": "2026-10-18"
  },
  "units": "EUR/MWh of spread (ID-AEP - day-ahead) per GW of forecast error (actual - TSO day-ahead)",
  "all": {
-  "n": 36000,
+  "n": 36672,
   "r2": 0.024,
   "coef": {
    "const": {
-    "eur_mwh_per_gw": 4.644,
-    "se": 1.417,
-    "t": 3.28
+    "eur_mwh_per_gw": 4.728,
+    "se": 1.424,
+    "t": 3.32
    },
    "err_solar": {
-    "eur_mwh_per_gw": -7.928,
-    "se": 1.304,
-    "t": -6.08
+    "eur_mwh_per_gw": -7.956,
+    "se": 1.297,
+    "t": -6.14
    },
    "err_wind_on": {
-    "eur_mwh_per_gw": -3.821,
-    "se": 2.24,
-    "t": -1.71
+    "eur_mwh_per_gw": -3.841,
+    "se": 2.221,
+    "t": -1.73
    },
    "err_wind_off": {
-    "eur_mwh_per_gw": -5.682,
-    "se": 2.684,
-    "t": -2.12
+    "eur_mwh_per_gw": -5.754,
+    "se": 2.695,
+    "t": -2.13
    },
    "err_load": {
-    "eur_mwh_per_gw": 0.716,
-    "se": 0.652,
-    "t": 1.1
+    "eur_mwh_per_gw": 0.718,
+    "se": 0.638,
+    "t": 1.13
    }
   }
  },
  "dayparts": {
   "00-06": {
-   "n": 9000,
-   "r2": 0.175,
+   "n": 9168,
+   "r2": 0.176,
    "coef": {
     "const": {
-     "eur_mwh_per_gw": 4.64,
-     "se": 0.775,
-     "t": 5.99
+     "eur_mwh_per_gw": 4.701,
+     "se": 0.768,
+     "t": 6.13
     },
     "err_wind_on": {
-     "eur_mwh_per_gw": -6.297,
-     "se": 0.548,
-     "t": -11.49
+     "eur_mwh_per_gw": -6.31,
+     "se": 0.545,
+     "t": -11.58
     },
     "err_wind_off": {
-     "eur_mwh_per_gw": -8.897,
-     "se": 1.145,
-     "t": -7.77
+     "eur_mwh_per_gw": -9.116,
+     "se": 1.108,
+     "t": -8.23
     },
     "err_load": {
-     "eur_mwh_per_gw": -0.499,
-     "se": 0.347,
-     "t": -1.44
+     "eur_mwh_per_gw": -0.438,
+     "se": 0.344,
+     "t": -1.27
     }
    }
   },
   "06-10": {
-   "n": 6000,
+   "n": 6112,
    "r2": 0.046,
    "coef": {
     "const": {
-     "eur_mwh_per_gw": 4.957,
-     "se": 1.741,
-     "t": 2.85
+     "eur_mwh_per_gw": 4.925,
+     "se": 1.694,
+     "t": 2.91
     },
     "err_solar": {
-     "eur_mwh_per_gw": -11.405,
-     "se": 1.217,
-     "t": -9.37
+     "eur_mwh_per_gw": -11.457,
+     "se": 1.214,
+     "t": -9.43
     },
     "err_wind_on": {
-     "eur_mwh_per_gw": -6.947,
-     "se": 1.622,
-     "t": -4.28
+     "eur_mwh_per_gw": -6.961,
+     "se": 1.605,
+     "t": -4.34
     },
     "err_wind_off": {
-     "eur_mwh_per_gw": -8.495,
-     "se": 2.953,
-     "t": -2.88
+     "eur_mwh_per_gw": -8.28,
+     "se": 2.783,
+     "t": -2.97
     },
     "err_load": {
-     "eur_mwh_per_gw": -0.912,
-     "se": 0.447,
-     "t": -2.04
+     "eur_mwh_per_gw": -0.916,
+     "se": 0.431,
+     "t": -2.12
     }
    }
   },
   "10-16": {
-   "n": 9000,
+   "n": 9168,
    "r2": 0.042,
    "coef": {
     "const": {
-     "eur_mwh_per_gw": 9.393,
-     "se": 2.438,
-     "t": 3.85
+     "eur_mwh_per_gw": 9.227,
+     "se": 2.331,
+     "t": 3.96
     },
     "err_solar": {
-     "eur_mwh_per_gw": -7.682,
-     "se": 1.404,
-     "t": -5.47
+     "eur_mwh_per_gw": -7.703,
+     "se": 1.398,
+     "t": -5.51
     },
     "err_wind_on": {
-     "eur_mwh_per_gw": 4.6,
-     "se": 5.264,
+     "eur_mwh_per_gw": 4.534,
+     "se": 5.215,
      "t": 0.87
     },
     "err_wind_off": {
-     "eur_mwh_per_gw": -2.789,
-     "se": 4.814,
+     "eur_mwh_per_gw": -2.811,
+     "se": 4.845,
      "t": -0.58
     },
     "err_load": {
-     "eur_mwh_per_gw": 1.639,
-     "se": 1.274,
-     "t": 1.29
+     "eur_mwh_per_gw": 1.551,
+     "se": 1.227,
+     "t": 1.26
     }
    }
   },
   "16-20": {
-   "n": 6000,
-   "r2": 0.04,
+   "n": 6112,
+   "r2": 0.041,
    "coef": {
     "const": {
-     "eur_mwh_per_gw": 1.862,
-     "se": 2.875,
-     "t": 0.65
+     "eur_mwh_per_gw": 2.181,
+     "se": 2.872,
+     "t": 0.76
     },
     "err_solar": {
-     "eur_mwh_per_gw": -7.662,
-     "se": 0.998,
-     "t": -7.68
+     "eur_mwh_per_gw": -7.733,
+     "se": 0.991,
+     "t": -7.8
     },
     "err_wind_on": {
-     "eur_mwh_per_gw": -7.143,
-     "se": 1.19,
-     "t": -6.0
+     "eur_mwh_per_gw": -7.15,
+     "se": 1.187,
+     "t": -6.03
     },
     "err_wind_off": {
-     "eur_mwh_per_gw": -10.224,
-     "se": 3.651,
-     "t": -2.8
+     "eur_mwh_per_gw": -10.607,
+     "se": 3.679,
+     "t": -2.88
     },
     "err_load": {
-     "eur_mwh_per_gw": 2.323,
-     "se": 1.12,
-     "t": 2.07
+     "eur_mwh_per_gw": 2.36,
+     "se": 1.115,
+     "t": 2.12
     }
    }
   },
   "20-24": {
-   "n": 6000,
+   "n": 6112,
    "r2": 0.03,
    "coef": {
     "const": {
-     "eur_mwh_per_gw": 9.532,
-     "se": 3.42,
-     "t": 2.79
+     "eur_mwh_per_gw": 9.703,
+     "se": 3.362,
+     "t": 2.89
     },
     "err_wind_on": {
-     "eur_mwh_per_gw": -11.235,
-     "se": 1.43,
-     "t": -7.86
+     "eur_mwh_per_gw": -11.184,
+     "se": 1.418,
+     "t": -7.89
     },
     "err_wind_off": {
-     "eur_mwh_per_gw": -8.077,
-     "se": 3.546,
-     "t": -2.28
+     "eur_mwh_per_gw": -8.028,
+     "se": 3.685,
+     "t": -2.18
     },
     "err_load": {
-     "eur_mwh_per_gw": -0.746,
-     "se": 1.011,
-     "t": -0.74
+     "eur_mwh_per_gw": -0.676,
+     "se": 1.007,
+     "t": -0.67
     }
    }
   }
  },
  "capped_eur_mwh": 200.0,
  "all_capped": {
-  "n": 36000,
+  "n": 36672,
   "r2": 0.117,
   "coef": {
    "const": {
-    "eur_mwh_per_gw": 1.963,
-    "se": 0.848,
-    "t": 2.32
+    "eur_mwh_per_gw": 2.122,
+    "se": 0.841,
+    "t": 2.52
    },
    "err_solar": {
-    "eur_mwh_per_gw": -7.668,
-    "se": 0.591,
-    "t": -12.99
+    "eur_mwh_per_gw": -7.692,
+    "se": 0.586,
+    "t": -13.13
    },
    "err_wind_on": {
-    "eur_mwh_per_gw": -4.953,
-    "se": 0.812,
-    "t": -6.1
+    "eur_mwh_per_gw": -4.941,
+    "se": 0.808,
+    "t": -6.11
    },
    "err_wind_off": {
-    "eur_mwh_per_gw": -4.355,
-    "se": 1.216,
-    "t": -3.58
+    "eur_mwh_per_gw": -4.598,
+    "se": 1.199,
+    "t": -3.83
    },
    "err_load": {
-    "eur_mwh_per_gw": -0.088,
-    "se": 0.293,
-    "t": -0.3
+    "eur_mwh_per_gw": -0.059,
+    "se": 0.289,
+    "t": -0.2
    }
   }
  }

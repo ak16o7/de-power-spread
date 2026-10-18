@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-11T16:10:51.582231+00:00",
+ "generated_at": "2026-10-18T05:56:31.270605+00:00",
  "weather": [
   {
    "model": "icon_eu",
@@ -33,7 +33,7 @@
     }
    },
    "live_publication_delay_h": {
-    "runs": 92,
+    "runs": 145,
     "min": 2.87,
     "max": 4.22,
     "assumed_for_archive": 4.5
@@ -42,43 +42,43 @@
   {
    "model": "ecmwf_ifs",
    "overlap": [
-    "2026-06-13 18:00:00+00:00",
+    "2025-10-01 00:00:00+00:00",
     "2026-09-30 23:00:00+00:00"
    ],
    "variables": 10,
    "lead_days": {
     "1": {
-     "pairs": 41952,
-     "identified": 41759,
-     "ambiguous": 1,
+     "pairs": 140160,
+     "identified": 111300,
+     "ambiguous": 787,
      "lead_h": {
       "min": 24,
       "median": 27,
-      "max": 41
+      "max": 71
      },
      "fresher_than_claimed": 0
     },
     "2": {
-     "pairs": 41952,
-     "identified": 41759,
-     "ambiguous": 1,
+     "pairs": 140160,
+     "identified": 107729,
+     "ambiguous": 5,
      "lead_h": {
-      "min": 48,
+      "min": 29,
       "median": 51,
-      "max": 65
+      "max": 71
      },
-     "fresher_than_claimed": 0
+     "fresher_than_claimed": 1
     }
    },
    "live_publication_delay_h": {
-    "runs": 48,
+    "runs": 74,
     "min": 6.12,
-    "max": 7.82,
+    "max": 8.16,
     "assumed_for_archive": 8.5
    }
   }
  ],
  "hf_revisions": [
-  "29163849cbd0bc94d5a06e2917e4c5ab3826382a"
+  "239f6ed212704c02bcf5d8eca00ebd8ec99e1291"
  ]
 }
