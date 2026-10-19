@@ -1,0 +1,23 @@
+{
+ "delivery_day": "2026-10-20",
+ "started_at": "2026-10-19T08:49:09.019209+00:00",
+ "as_of": "2026-10-19T08:49:09.019209+00:00",
+ "gate_closure": "2026-10-19T10:00:00+00:00",
+ "threshold_eur_mwh": 2.0,
+ "train_days": 363,
+ "features": 38,
+ "quarter_hours": 96,
+ "long": 96,
+ "short": 0,
+ "size_mw": 10.0,
+ "weather_age_h": {
+  "icon_eu": 2.9025053358333333,
+  "ecmwf_ifs": 1.9922275580555555
+ },
+ "spread_last_known_day": "2026-10-17",
+ "hf_revisions": [
+  "f41b9b7321ffbe0814cb7d0faecdf08b5938127d"
+ ],
+ "generated_at": "2026-10-19T08:50:35.580324+00:00",
+ "late": false
+}
