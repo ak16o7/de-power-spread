@@ -1,9 +1,9 @@
 {
- "generated_at": "2026-10-18T05:05:50.235575+00:00",
+ "generated_at": "2026-10-25T06:06:33.193229+00:00",
  "test_period": {
   "from": "2026-01-01",
-  "to": "2026-10-16",
-  "days": 289
+  "to": "2026-10-23",
+  "days": 296
  },
  "assumptions": {
   "size_mw": 10.0,
@@ -62,33 +62,33 @@
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": -24693.925000000003,
-     "mwh": 5925.0
+     "net_eur": -23728.700000000004,
+     "mwh": 6015.0
     },
     {
      "threshold": 5.0,
-     "net_eur": -21237.550000000003,
-     "mwh": 4875.0
+     "net_eur": -21978.4,
+     "mwh": 4882.5
     },
     {
      "threshold": 10.0,
-     "net_eur": -17940.075,
-     "mwh": 3292.5
+     "net_eur": -17427.975000000002,
+     "mwh": 3305.0
     },
     {
      "threshold": 15.0,
-     "net_eur": -15045.824999999999,
-     "mwh": 2140.0
+     "net_eur": -15661.800000000001,
+     "mwh": 2142.5
     },
     {
      "threshold": 20.0,
-     "net_eur": -11746.475,
-     "mwh": 1332.5
+     "net_eur": -13375.975,
+     "mwh": 1257.5
     },
     {
      "threshold": 30.0,
-     "net_eur": -8248.175000000001,
-     "mwh": 472.5
+     "net_eur": -8943.425,
+     "mwh": 492.5
     }
    ],
    "cutoff": "2025-12-31T10:00:00+00:00"
@@ -102,33 +102,33 @@
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": -24992.47499999999,
-     "mwh": 5605.0
+     "net_eur": -21580.124999999993,
+     "mwh": 5455.0
     },
     {
      "threshold": 5.0,
-     "net_eur": -25106.399999999998,
-     "mwh": 4082.5
+     "net_eur": -20589.675000000007,
+     "mwh": 4037.5
     },
     {
      "threshold": 10.0,
-     "net_eur": -22179.5,
-     "mwh": 1980.0
+     "net_eur": -13100.850000000002,
+     "mwh": 2145.0
     },
     {
      "threshold": 15.0,
-     "net_eur": -17795.749999999996,
-     "mwh": 900.0
+     "net_eur": -12170.799999999997,
+     "mwh": 972.5
     },
     {
      "threshold": 20.0,
-     "net_eur": -17485.049999999996,
-     "mwh": 437.5
+     "net_eur": -8875.774999999998,
+     "mwh": 450.0
     },
     {
      "threshold": 30.0,
-     "net_eur": -1820.5749999999985,
-     "mwh": 110.0
+     "net_eur": -2601.1500000000005,
+     "mwh": 107.5
     }
    ],
    "cutoff": "2026-01-31T10:00:00+00:00"
@@ -138,37 +138,37 @@
    "first_test_day": "2026-03-01",
    "train_days": 149,
    "train_last_day": "2026-02-26",
-   "threshold": 15.0,
+   "threshold": 20.0,
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": -2482.9000000000015,
-     "mwh": 5880.0
+     "net_eur": -5339.874999999998,
+     "mwh": 5775.0
     },
     {
      "threshold": 5.0,
-     "net_eur": -1977.375,
-     "mwh": 4507.5
+     "net_eur": -1129.7000000000044,
+     "mwh": 4467.5
     },
     {
      "threshold": 10.0,
-     "net_eur": -2571.8500000000004,
-     "mwh": 2622.5
+     "net_eur": -1161.0249999999978,
+     "mwh": 2585.0
     },
     {
      "threshold": 15.0,
-     "net_eur": 686.2249999999999,
-     "mwh": 1447.5
+     "net_eur": -952.2999999999993,
+     "mwh": 1422.5
     },
     {
      "threshold": 20.0,
-     "net_eur": -532.7499999999998,
-     "mwh": 735.0
+     "net_eur": 223.47500000000036,
+     "mwh": 710.0
     },
     {
      "threshold": 30.0,
-     "net_eur": -873.1250000000002,
-     "mwh": 117.5
+     "net_eur": -496.8249999999999,
+     "mwh": 90.0
     }
    ],
    "cutoff": "2026-02-28T10:00:00+00:00"
@@ -178,37 +178,37 @@
    "first_test_day": "2026-04-01",
    "train_days": 180,
    "train_last_day": "2026-03-29",
-   "threshold": 2.0,
+   "threshold": 10.0,
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": 16957.300000000003,
-     "mwh": 5985.0
+     "net_eur": 16650.275,
+     "mwh": 6092.5
     },
     {
      "threshold": 5.0,
-     "net_eur": 15686.724999999999,
-     "mwh": 4842.5
+     "net_eur": 18002.0,
+     "mwh": 4977.5
     },
     {
      "threshold": 10.0,
-     "net_eur": 14860.5,
-     "mwh": 3060.0
+     "net_eur": 20464.375,
+     "mwh": 3237.5
     },
     {
      "threshold": 15.0,
-     "net_eur": 16822.725,
-     "mwh": 1710.0
+     "net_eur": 12960.675,
+     "mwh": 1880.0
     },
     {
      "threshold": 20.0,
-     "net_eur": 10540.925,
-     "mwh": 882.5
+     "net_eur": 12873.025000000001,
+     "mwh": 972.5
     },
     {
      "threshold": 30.0,
-     "net_eur": 4461.75,
-     "mwh": 247.5
+     "net_eur": 5000.874999999998,
+     "mwh": 255.0
     }
    ],
    "cutoff": "2026-03-31T09:00:00+00:00"
@@ -218,37 +218,37 @@
    "first_test_day": "2026-05-01",
    "train_days": 210,
    "train_last_day": "2026-04-28",
-   "threshold": 2.0,
+   "threshold": 10.0,
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": 57929.05,
-     "mwh": 5767.5
+     "net_eur": -14550.224999999995,
+     "mwh": 5805.0
     },
     {
      "threshold": 5.0,
-     "net_eur": 31387.774999999998,
-     "mwh": 4455.0
+     "net_eur": -11870.600000000002,
+     "mwh": 4522.5
     },
     {
      "threshold": 10.0,
-     "net_eur": 15373.075,
-     "mwh": 2590.0
+     "net_eur": 15818.125,
+     "mwh": 2552.5
     },
     {
      "threshold": 15.0,
-     "net_eur": 12284.624999999998,
-     "mwh": 1400.0
+     "net_eur": 12641.574999999999,
+     "mwh": 1432.5
     },
     {
      "threshold": 20.0,
-     "net_eur": 6316.724999999999,
-     "mwh": 657.5
+     "net_eur": 7137.424999999999,
+     "mwh": 695.0
     },
     {
      "threshold": 30.0,
-     "net_eur": 1782.9,
-     "mwh": 90.0
+     "net_eur": 632.2999999999998,
+     "mwh": 67.5
     }
    ],
    "cutoff": "2026-04-30T09:00:00+00:00"
@@ -262,33 +262,33 @@
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": 20602.324999999997,
-     "mwh": 5987.5
+     "net_eur": 19872.85,
+     "mwh": 6105.0
     },
     {
      "threshold": 5.0,
-     "net_eur": 17476.35,
-     "mwh": 4977.5
+     "net_eur": 18672.500000000004,
+     "mwh": 5092.5
     },
     {
      "threshold": 10.0,
-     "net_eur": 13549.5,
-     "mwh": 3562.5
+     "net_eur": 11744.975,
+     "mwh": 3655.0
     },
     {
      "threshold": 15.0,
-     "net_eur": 8414.75,
-     "mwh": 2435.0
+     "net_eur": 11865.750000000002,
+     "mwh": 2547.5
     },
     {
      "threshold": 20.0,
-     "net_eur": 6172.624999999999,
-     "mwh": 1505.0
+     "net_eur": 11697.275,
+     "mwh": 1610.0
     },
     {
      "threshold": 30.0,
-     "net_eur": 2756.4250000000006,
-     "mwh": 480.0
+     "net_eur": 8597.65,
+     "mwh": 570.0
     }
    ],
    "cutoff": "2026-05-31T09:00:00+00:00"
@@ -298,37 +298,37 @@
    "first_test_day": "2026-07-01",
    "train_days": 271,
    "train_last_day": "2026-06-28",
-   "threshold": 10.0,
+   "threshold": 5.0,
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": 19526.399999999998,
-     "mwh": 6207.5
+     "net_eur": 38285.425,
+     "mwh": 6107.5
     },
     {
      "threshold": 5.0,
-     "net_eur": 16835.55,
-     "mwh": 5432.5
+     "net_eur": 38463.025,
+     "mwh": 5320.0
     },
     {
      "threshold": 10.0,
-     "net_eur": 25008.75,
-     "mwh": 4167.5
+     "net_eur": 25846.425000000003,
+     "mwh": 4122.5
     },
     {
      "threshold": 15.0,
-     "net_eur": 16671.1,
-     "mwh": 3047.5
+     "net_eur": 13918.499999999996,
+     "mwh": 3022.5
     },
     {
      "threshold": 20.0,
-     "net_eur": 6595.749999999998,
-     "mwh": 2037.5
+     "net_eur": 9417.274999999998,
+     "mwh": 2080.0
     },
     {
      "threshold": 30.0,
-     "net_eur": 137.87500000000045,
-     "mwh": 787.5
+     "net_eur": 2579.3999999999996,
+     "mwh": 682.5
     }
    ],
    "cutoff": "2026-06-30T09:00:00+00:00"
@@ -342,33 +342,33 @@
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": 29727.35,
-     "mwh": 5732.5
+     "net_eur": 20709.5,
+     "mwh": 5960.0
     },
     {
      "threshold": 5.0,
-     "net_eur": 29867.95,
-     "mwh": 4260.0
+     "net_eur": 22198.8,
+     "mwh": 4857.5
     },
     {
      "threshold": 10.0,
-     "net_eur": 26122.525,
-     "mwh": 2202.5
+     "net_eur": 17676.275,
+     "mwh": 3070.0
     },
     {
      "threshold": 15.0,
-     "net_eur": 13616.400000000001,
-     "mwh": 1095.0
+     "net_eur": 11457.274999999998,
+     "mwh": 1665.0
     },
     {
      "threshold": 20.0,
-     "net_eur": 4437.275,
-     "mwh": 460.0
+     "net_eur": 9605.925,
+     "mwh": 797.5
     },
     {
      "threshold": 30.0,
-     "net_eur": -1038.65,
-     "mwh": 80.0
+     "net_eur": 2129.5750000000003,
+     "mwh": 82.5
     }
    ],
    "cutoff": "2026-07-31T09:00:00+00:00"
@@ -378,37 +378,37 @@
    "first_test_day": "2026-09-01",
    "train_days": 333,
    "train_last_day": "2026-08-29",
-   "threshold": 10.0,
+   "threshold": 2.0,
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": 6640.249999999993,
-     "mwh": 6032.5
+     "net_eur": 21969.100000000002,
+     "mwh": 5880.0
     },
     {
      "threshold": 5.0,
-     "net_eur": 13332.025000000005,
-     "mwh": 4777.5
+     "net_eur": 12654.474999999999,
+     "mwh": 4847.5
     },
     {
      "threshold": 10.0,
-     "net_eur": 21275.199999999997,
-     "mwh": 2775.0
+     "net_eur": 2000.6000000000008,
+     "mwh": 3065.0
     },
     {
      "threshold": 15.0,
-     "net_eur": 16874.024999999998,
-     "mwh": 1470.0
+     "net_eur": 3937.124999999999,
+     "mwh": 1605.0
     },
     {
      "threshold": 20.0,
-     "net_eur": 11238.175000000001,
-     "mwh": 700.0
+     "net_eur": 4687.625000000002,
+     "mwh": 840.0
     },
     {
      "threshold": 30.0,
-     "net_eur": 6734.200000000001,
-     "mwh": 145.0
+     "net_eur": 4168.075000000001,
+     "mwh": 172.5
     }
    ],
    "cutoff": "2026-08-31T09:00:00+00:00"
@@ -422,33 +422,33 @@
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": 47222.975000000006,
-     "mwh": 5907.5
+     "net_eur": 60413.12500000001,
+     "mwh": 5755.0
     },
     {
      "threshold": 5.0,
-     "net_eur": 40790.275,
-     "mwh": 4670.0
+     "net_eur": 52366.974999999984,
+     "mwh": 4545.0
     },
     {
      "threshold": 10.0,
-     "net_eur": 35547.675,
-     "mwh": 2805.0
+     "net_eur": 42606.524999999994,
+     "mwh": 2680.0
     },
     {
      "threshold": 15.0,
-     "net_eur": -3283.5,
-     "mwh": 1555.0
+     "net_eur": 31583.149999999998,
+     "mwh": 1592.5
     },
     {
      "threshold": 20.0,
-     "net_eur": -11846.8,
-     "mwh": 930.0
+     "net_eur": 23225.0,
+     "mwh": 947.5
     },
     {
      "threshold": 30.0,
-     "net_eur": -16167.425000000001,
-     "mwh": 312.5
+     "net_eur": -4839.399999999998,
+     "mwh": 335.0
     }
    ],
    "cutoff": "2026-09-30T09:00:00+00:00"
@@ -457,17 +457,17 @@
  "days_not_traded_for_data": {},
  "strategies": {
   "always_long": {
-   "days": 289,
-   "days_traded": 289,
-   "quarter_hours_traded": 27740,
-   "mwh": 69350.0,
-   "net_eur": 202751.0,
-   "gross_eur": 306776.0,
-   "costs_eur": 104025.0,
-   "eur_per_mwh": 2.92,
+   "days": 296,
+   "days_traded": 296,
+   "quarter_hours_traded": 28412,
+   "mwh": 71030.0,
+   "net_eur": 202181.0,
+   "gross_eur": 308726.0,
+   "costs_eur": 106545.0,
+   "eur_per_mwh": 2.85,
    "hit_rate": 0.443,
-   "sharpe_daily_ann": 1.98,
-   "t_daily_hac": 1.47,
+   "sharpe_daily_ann": 1.95,
+   "t_daily_hac": 1.46,
    "max_drawdown_eur": -129624.0,
    "worst_day_eur": -48138.0,
    "best_day_eur": 30229.0,
@@ -475,71 +475,71 @@
    "missing_da_qh": 0
   },
   "always_short": {
-   "days": 289,
-   "days_traded": 289,
-   "quarter_hours_traded": 27740,
-   "mwh": 69350.0,
-   "net_eur": -410801.0,
-   "gross_eur": -306776.0,
-   "costs_eur": 104025.0,
-   "eur_per_mwh": -5.92,
+   "days": 296,
+   "days_traded": 296,
+   "quarter_hours_traded": 28412,
+   "mwh": 71030.0,
+   "net_eur": -415271.0,
+   "gross_eur": -308726.0,
+   "costs_eur": 106545.0,
+   "eur_per_mwh": -5.85,
    "hit_rate": 0.499,
-   "sharpe_daily_ann": -4.01,
-   "t_daily_hac": -2.97,
-   "max_drawdown_eur": -411027.0,
+   "sharpe_daily_ann": -4.0,
+   "t_daily_hac": -3.0,
+   "max_drawdown_eur": -419175.0,
    "worst_day_eur": -30949.0,
    "best_day_eur": 47418.0,
    "missing_exit_qh": 0,
    "missing_da_qh": 0
   },
   "last_known_sign": {
-   "days": 289,
-   "days_traded": 289,
-   "quarter_hours_traded": 27733,
-   "mwh": 69332.5,
-   "net_eur": 43822.0,
-   "gross_eur": 147820.0,
-   "costs_eur": 103999.0,
-   "eur_per_mwh": 0.63,
-   "hit_rate": 0.485,
-   "sharpe_daily_ann": 0.56,
-   "t_daily_hac": 0.51,
-   "max_drawdown_eur": -58097.0,
+   "days": 296,
+   "days_traded": 296,
+   "quarter_hours_traded": 28405,
+   "mwh": 71012.5,
+   "net_eur": 48899.0,
+   "gross_eur": 155418.0,
+   "costs_eur": 106519.0,
+   "eur_per_mwh": 0.69,
+   "hit_rate": 0.486,
+   "sharpe_daily_ann": 0.62,
+   "t_daily_hac": 0.56,
+   "max_drawdown_eur": -58793.0,
    "worst_day_eur": -27745.0,
    "best_day_eur": 47825.0,
    "missing_exit_qh": 0,
    "missing_da_qh": 0
   },
   "model": {
-   "days": 289,
-   "days_traded": 247,
-   "quarter_hours_traded": 14483,
-   "mwh": 36207.5,
-   "net_eur": 83973.0,
-   "gross_eur": 138284.0,
-   "costs_eur": 54311.0,
-   "eur_per_mwh": 2.32,
-   "hit_rate": 0.509,
-   "sharpe_daily_ann": 1.38,
-   "t_daily_hac": 1.19,
-   "max_drawdown_eur": -65434.0,
-   "worst_day_eur": -30759.0,
-   "best_day_eur": 20518.0,
+   "days": 296,
+   "days_traded": 250,
+   "quarter_hours_traded": 14491,
+   "mwh": 36227.5,
+   "net_eur": 132052.0,
+   "gross_eur": 186393.0,
+   "costs_eur": 54341.0,
+   "eur_per_mwh": 3.65,
+   "hit_rate": 0.506,
+   "sharpe_daily_ann": 1.94,
+   "t_daily_hac": 1.71,
+   "max_drawdown_eur": -67316.0,
+   "worst_day_eur": -30795.0,
+   "best_day_eur": 24976.0,
    "missing_exit_qh": 0,
    "missing_da_qh": 0
   },
   "slot_sign_28d": {
-   "days": 289,
-   "days_traded": 289,
-   "quarter_hours_traded": 27740,
-   "mwh": 69350.0,
-   "net_eur": 110081.0,
-   "gross_eur": 214106.0,
-   "costs_eur": 104025.0,
-   "eur_per_mwh": 1.59,
-   "hit_rate": 0.488,
-   "sharpe_daily_ann": 1.56,
-   "t_daily_hac": 1.31,
+   "days": 296,
+   "days_traded": 296,
+   "quarter_hours_traded": 28412,
+   "mwh": 71030.0,
+   "net_eur": 100081.0,
+   "gross_eur": 206626.0,
+   "costs_eur": 106545.0,
+   "eur_per_mwh": 1.41,
+   "hit_rate": 0.487,
+   "sharpe_daily_ann": 1.4,
+   "t_daily_hac": 1.18,
    "max_drawdown_eur": -57401.0,
    "worst_day_eur": -44370.0,
    "best_day_eur": 23048.0,
@@ -549,192 +549,192 @@
  },
  "model_vs": {
   "always_long": {
-   "mean_eur_per_day": -411.0,
-   "t_hac": -0.76
+   "mean_eur_per_day": -236.9,
+   "t_hac": -0.46
   },
   "always_short": {
-   "mean_eur_per_day": 1712.0,
-   "t_hac": 3.23
+   "mean_eur_per_day": 1849.1,
+   "t_hac": 3.31
   },
   "slot_sign_28d": {
-   "mean_eur_per_day": -90.3,
-   "t_hac": -0.29
+   "mean_eur_per_day": 108.0,
+   "t_hac": 0.38
   },
   "last_known_sign": {
-   "mean_eur_per_day": 138.9,
-   "t_hac": 0.42
+   "mean_eur_per_day": 280.9,
+   "t_hac": 0.81
   }
  },
  "slippage_sensitivity": {
   "always_long": {
-   "0.0": 272101.0,
-   "1.0": 202751.0,
-   "2.0": 133401.0,
-   "5.0": -74649.0
+   "0.0": 273211.0,
+   "1.0": 202181.0,
+   "2.0": 131151.0,
+   "5.0": -81939.0
   },
   "always_short": {
-   "0.0": -341451.0,
-   "1.0": -410801.0,
-   "2.0": -480151.0,
-   "5.0": -688201.0
+   "0.0": -344241.0,
+   "1.0": -415271.0,
+   "2.0": -486301.0,
+   "5.0": -699391.0
   },
   "last_known_sign": {
-   "0.0": 113154.0,
-   "1.0": 43822.0,
-   "2.0": -25511.0,
-   "5.0": -233508.0
+   "0.0": 119912.0,
+   "1.0": 48899.0,
+   "2.0": -22113.0,
+   "5.0": -235151.0
   },
   "model": {
-   "0.0": 120180.0,
-   "1.0": 83973.0,
-   "2.0": 47765.0,
-   "5.0": -60857.0
+   "0.0": 168279.0,
+   "1.0": 132052.0,
+   "2.0": 95824.0,
+   "5.0": -12858.0
   },
   "slot_sign_28d": {
-   "0.0": 179431.0,
-   "1.0": 110081.0,
-   "2.0": 40731.0,
-   "5.0": -167319.0
+   "0.0": 171111.0,
+   "1.0": 100081.0,
+   "2.0": 29051.0,
+   "5.0": -184039.0
   }
  },
  "break_even_slippage_eur_mwh": {
-  "always_long": 3.92,
-  "always_short": -4.92,
-  "last_known_sign": 1.63,
-  "model": 3.32,
-  "slot_sign_28d": 2.59
+  "always_long": 3.85,
+  "always_short": -4.85,
+  "last_known_sign": 1.69,
+  "model": 4.65,
+  "slot_sign_28d": 2.41
  },
  "spike_sensitivity": {
   "always_long": {
    "top10_qh_net_eur": 33512.0,
-   "without_best_10_days_eur": -20321.0,
+   "without_best_10_days_eur": -20890.0,
    "500": {
-    "net_eur": 100581.0,
-    "t_daily_hac": 0.96
+    "net_eur": 100012.0,
+    "t_daily_hac": 0.95
    },
    "200": {
-    "net_eur": 14476.0,
-    "t_daily_hac": 0.16
+    "net_eur": 13030.0,
+    "t_daily_hac": 0.14
    },
    "100": {
-    "net_eur": -69855.0,
-    "t_daily_hac": -0.91
+    "net_eur": -73636.0,
+    "t_daily_hac": -0.96
    }
   },
   "always_short": {
    "top10_qh_net_eur": -33587.0,
-   "without_best_10_days_eur": -539748.0,
+   "without_best_10_days_eur": -544219.0,
    "500": {
-    "net_eur": -308631.0,
-    "t_daily_hac": -2.93
+    "net_eur": -313102.0,
+    "t_daily_hac": -2.97
    },
    "200": {
-    "net_eur": -222526.0,
-    "t_daily_hac": -2.48
+    "net_eur": -226120.0,
+    "t_daily_hac": -2.51
    },
    "100": {
-    "net_eur": -138195.0,
-    "t_daily_hac": -1.8
+    "net_eur": -139454.0,
+    "t_daily_hac": -1.81
    }
   },
   "last_known_sign": {
    "top10_qh_net_eur": 44228.0,
-   "without_best_10_days_eur": -137130.0,
+   "without_best_10_days_eur": -132053.0,
    "500": {
-    "net_eur": -10887.0,
-    "t_daily_hac": -0.23
+    "net_eur": -5810.0,
+    "t_daily_hac": -0.12
    },
    "200": {
-    "net_eur": -30005.0,
-    "t_daily_hac": -0.76
+    "net_eur": -25804.0,
+    "t_daily_hac": -0.65
    },
    "100": {
-    "net_eur": -39951.0,
-    "t_daily_hac": -1.13
+    "net_eur": -36802.0,
+    "t_daily_hac": -1.04
    }
   },
   "model": {
-   "top10_qh_net_eur": -10615.0,
-   "without_best_10_days_eur": -26711.0,
+   "top10_qh_net_eur": -8519.0,
+   "without_best_10_days_eur": -12530.0,
    "500": {
-    "net_eur": 111685.0,
-    "t_daily_hac": 2.44
+    "net_eur": 140966.0,
+    "t_daily_hac": 2.7
    },
    "200": {
-    "net_eur": 110371.0,
-    "t_daily_hac": 2.84
+    "net_eur": 131153.0,
+    "t_daily_hac": 2.9
    },
    "100": {
-    "net_eur": 92809.0,
-    "t_daily_hac": 2.82
+    "net_eur": 101258.0,
+    "t_daily_hac": 2.69
    }
   },
   "slot_sign_28d": {
    "top10_qh_net_eur": 33512.0,
-   "without_best_10_days_eur": -34496.0,
+   "without_best_10_days_eur": -44496.0,
    "500": {
-    "net_eur": 64392.0,
-    "t_daily_hac": 1.28
+    "net_eur": 54391.0,
+    "t_daily_hac": 1.06
    },
    "200": {
-    "net_eur": 57931.0,
-    "t_daily_hac": 1.36
+    "net_eur": 47438.0,
+    "t_daily_hac": 1.08
    },
    "100": {
-    "net_eur": 37404.0,
-    "t_daily_hac": 0.97
+    "net_eur": 26348.0,
+    "t_daily_hac": 0.66
    }
   }
  },
  "model_vs_capped": {
   "cap_eur_mwh": 200.0,
   "always_long": {
-   "mean_eur_per_day": 331.8,
-   "t_hac": 0.93
+   "mean_eur_per_day": 399.1,
+   "t_hac": 1.11
   },
   "always_short": {
-   "mean_eur_per_day": 1151.9,
-   "t_hac": 3.6
+   "mean_eur_per_day": 1207.0,
+   "t_hac": 3.77
   },
   "slot_sign_28d": {
-   "mean_eur_per_day": 181.5,
-   "t_hac": 0.96
+   "mean_eur_per_day": 282.8,
+   "t_hac": 1.47
   },
   "last_known_sign": {
-   "mean_eur_per_day": 485.7,
-   "t_hac": 2.56
+   "mean_eur_per_day": 530.3,
+   "t_hac": 2.67
   }
  },
  "long_short": {
   "always_long": {
-   "long_net_eur": 202751.0,
-   "long_mwh": 69350.0,
+   "long_net_eur": 202181.0,
+   "long_mwh": 71030.0,
    "short_net_eur": 0.0,
    "short_mwh": 0.0
   },
   "always_short": {
    "long_net_eur": 0.0,
    "long_mwh": 0.0,
-   "short_net_eur": -410801.0,
-   "short_mwh": 69350.0
+   "short_net_eur": -415271.0,
+   "short_mwh": 71030.0
   },
   "last_known_sign": {
-   "long_net_eur": 178731.0,
-   "long_mwh": 32497.5,
-   "short_net_eur": -134909.0,
-   "short_mwh": 36835.0
+   "long_net_eur": 182098.0,
+   "long_mwh": 33435.0,
+   "short_net_eur": -133199.0,
+   "short_mwh": 37577.5
   },
   "model": {
-   "long_net_eur": 121018.0,
-   "long_mwh": 22802.5,
-   "short_net_eur": -37045.0,
-   "short_mwh": 13405.0
+   "long_net_eur": 146486.0,
+   "long_mwh": 23682.5,
+   "short_net_eur": -14434.0,
+   "short_mwh": 12545.0
   },
   "slot_sign_28d": {
-   "long_net_eur": 197520.0,
-   "long_mwh": 41947.5,
-   "short_net_eur": -87439.0,
-   "short_mwh": 27402.5
+   "long_net_eur": 193071.0,
+   "long_mwh": 43070.0,
+   "short_net_eur": -92990.0,
+   "short_mwh": 27960.0
   }
  },
  "verdict": {
@@ -749,67 +749,67 @@
  },
  "model_monthly": {
   "2026-01": {
-   "net_eur": -3222.0,
-   "mwh": 140.0
+   "net_eur": -6817.0,
+   "mwh": 182.5
   },
   "2026-02": {
-   "net_eur": -963.0,
-   "mwh": 107.5
+   "net_eur": -569.0,
+   "mwh": 82.5
   },
   "2026-03": {
-   "net_eur": 12105.0,
-   "mwh": 1862.5
+   "net_eur": 12086.0,
+   "mwh": 1022.5
   },
   "2026-04": {
-   "net_eur": 2254.0,
-   "mwh": 6242.5
+   "net_eur": -2106.0,
+   "mwh": 2852.5
   },
   "2026-05": {
-   "net_eur": 5462.0,
-   "mwh": 6797.5
+   "net_eur": 16954.0,
+   "mwh": 3920.0
   },
   "2026-06": {
-   "net_eur": 11478.0,
-   "mwh": 6457.5
+   "net_eur": 28564.0,
+   "mwh": 6465.0
   },
   "2026-07": {
-   "net_eur": 34271.0,
-   "mwh": 3072.5
+   "net_eur": 33696.0,
+   "mwh": 5462.5
   },
   "2026-08": {
-   "net_eur": 16523.0,
-   "mwh": 5200.0
+   "net_eur": 16966.0,
+   "mwh": 5055.0
   },
   "2026-09": {
-   "net_eur": 28674.0,
-   "mwh": 2995.0
+   "net_eur": 64514.0,
+   "mwh": 6165.0
   },
   "2026-10": {
-   "net_eur": -22609.0,
-   "mwh": 3332.5
+   "net_eur": -31236.0,
+   "mwh": 5020.0
   }
  },
  "provenance": {
-  "code_commit": "3acd22d8c7c01104b1859a6c0fd9d09249176097",
+  "code_commit": "12342120fccb73252cd090483783512cf9903779",
   "hf_dataset": "akderekaan/de-power-forecast-data",
   "hf_revisions": [
-   "239f6ed212704c02bcf5d8eca00ebd8ec99e1291"
+   "4e0139354ca1960853d2e981879ab4e61ffa30bf"
   ],
   "store": {
    "da": {
-    "rows": 36768,
+    "rows": 37444,
     "first_ts": "2025-09-30 22:00:00+00:00",
-    "last_ts": "2026-10-18 21:45:00+00:00"
+    "last_ts": "2026-10-25 22:45:00+00:00"
    },
    "load": {
-    "rows": 36768,
+    "rows": 37444,
     "first_ts": "2025-09-30 22:00:00+00:00",
-    "last_ts": "2026-10-18 21:45:00+00:00"
+    "last_ts": "2026-10-25 22:45:00+00:00"
    },
    "id_aep": {
-    "rows": 36672,
+    "rows": 37344,
     "first_ts": "2025-09-30 22:00:00+00:00",
-    "last_ts": "2026-10-17 21:45:00+00:00"
+    "last_ts": "2026-10-24 21:45:00+00:00"
    }
   },
   "use_load_forecast": false

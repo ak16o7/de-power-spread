@@ -1,18 +1,18 @@
 {
- "generated_at": "2026-10-18T05:56:31.270605+00:00",
+ "generated_at": "2026-10-25T06:47:30.590903+00:00",
  "weather": [
   {
    "model": "icon_eu",
    "overlap": [
-    "2026-06-14 09:00:00+00:00",
+    "2026-04-05 00:00:00+00:00",
     "2026-09-30 23:00:00+00:00"
    ],
    "variables": 10,
    "lead_days": {
     "1": {
-     "pairs": 41712,
-     "identified": 41709,
-     "ambiguous": 3,
+     "pairs": 68736,
+     "identified": 67692,
+     "ambiguous": 11,
      "lead_h": {
       "min": 24,
       "median": 27,
@@ -21,21 +21,21 @@
      "fresher_than_claimed": 0
     },
     "2": {
-     "pairs": 41712,
-     "identified": 41712,
-     "ambiguous": 0,
+     "pairs": 68736,
+     "identified": 66137,
+     "ambiguous": 7,
      "lead_h": {
       "min": 48,
-      "median": 51,
+      "median": 50,
       "max": 53
      },
      "fresher_than_claimed": 0
     }
    },
    "live_publication_delay_h": {
-    "runs": 145,
+    "runs": 200,
     "min": 2.87,
-    "max": 4.22,
+    "max": 4.27,
     "assumed_for_archive": 4.5
    }
   },
@@ -71,14 +71,14 @@
     }
    },
    "live_publication_delay_h": {
-    "runs": 74,
-    "min": 6.12,
+    "runs": 102,
+    "min": 6.01,
     "max": 8.16,
     "assumed_for_archive": 8.5
    }
   }
  ],
  "hf_revisions": [
-  "239f6ed212704c02bcf5d8eca00ebd8ec99e1291"
+  "4e0139354ca1960853d2e981879ab4e61ffa30bf"
  ]
 }
