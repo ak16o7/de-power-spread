@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-10-25T06:47:30.590903+00:00",
+ "generated_at": "2026-11-01T06:55:51.525448+00:00",
  "weather": [
   {
    "model": "icon_eu",
@@ -33,8 +33,8 @@
     }
    },
    "live_publication_delay_h": {
-    "runs": 200,
-    "min": 2.87,
+    "runs": 256,
+    "min": 2.86,
     "max": 4.27,
     "assumed_for_archive": 4.5
    }
@@ -71,14 +71,14 @@
     }
    },
    "live_publication_delay_h": {
-    "runs": 102,
-    "min": 6.01,
+    "runs": 130,
+    "min": 5.99,
     "max": 8.16,
     "assumed_for_archive": 8.5
    }
   }
  ],
  "hf_revisions": [
-  "4e0139354ca1960853d2e981879ab4e61ffa30bf"
+  "eaa63f837e83661f437a2012d3c44e9b4da5c9d8"
  ]
 }
