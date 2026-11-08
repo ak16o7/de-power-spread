@@ -1,39 +1,39 @@
 {
- "generated_at": "2026-11-01T06:55:51.525448+00:00",
+ "generated_at": "2026-11-08T06:58:53.922805+00:00",
  "weather": [
   {
    "model": "icon_eu",
    "overlap": [
     "2026-04-05 00:00:00+00:00",
-    "2026-09-30 23:00:00+00:00"
+    "2026-10-31 23:00:00+00:00"
    ],
    "variables": 10,
    "lead_days": {
     "1": {
-     "pairs": 68736,
-     "identified": 67692,
-     "ambiguous": 11,
+     "pairs": 80640,
+     "identified": 79272,
+     "ambiguous": 53,
      "lead_h": {
       "min": 24,
       "median": 27,
-      "max": 29
+      "max": 33
      },
      "fresher_than_claimed": 0
     },
     "2": {
-     "pairs": 68736,
-     "identified": 66137,
-     "ambiguous": 7,
+     "pairs": 80640,
+     "identified": 66706,
+     "ambiguous": 11342,
      "lead_h": {
-      "min": 48,
+      "min": 45,
       "median": 50,
       "max": 53
      },
-     "fresher_than_claimed": 0
+     "fresher_than_claimed": 140
     }
    },
    "live_publication_delay_h": {
-    "runs": 256,
+    "runs": 312,
     "min": 2.86,
     "max": 4.27,
     "assumed_for_archive": 4.5
@@ -43,42 +43,42 @@
    "model": "ecmwf_ifs",
    "overlap": [
     "2025-10-01 00:00:00+00:00",
-    "2026-09-30 23:00:00+00:00"
+    "2026-10-31 23:00:00+00:00"
    ],
    "variables": 10,
    "lead_days": {
     "1": {
-     "pairs": 140160,
-     "identified": 111300,
-     "ambiguous": 787,
+     "pairs": 152064,
+     "identified": 120739,
+     "ambiguous": 812,
      "lead_h": {
-      "min": 24,
+      "min": 18,
       "median": 27,
       "max": 71
      },
-     "fresher_than_claimed": 0
+     "fresher_than_claimed": 6
     },
     "2": {
-     "pairs": 140160,
-     "identified": 107729,
-     "ambiguous": 5,
+     "pairs": 152064,
+     "identified": 117259,
+     "ambiguous": 16,
      "lead_h": {
       "min": 29,
       "median": 51,
       "max": 71
      },
-     "fresher_than_claimed": 1
+     "fresher_than_claimed": 7
     }
    },
    "live_publication_delay_h": {
-    "runs": 130,
-    "min": 5.99,
+    "runs": 158,
+    "min": 5.95,
     "max": 8.16,
     "assumed_for_archive": 8.5
    }
   }
  ],
  "hf_revisions": [
-  "eaa63f837e83661f437a2012d3c44e9b4da5c9d8"
+  "b29c2ac8afd575516f91384b8d6e5c3447f907d8"
  ]
 }
