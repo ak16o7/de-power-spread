@@ -1,10 +1,9 @@
 # Live-Track-Record
 
-29 Tage abgerechnet (2026-10-10 bis 2026-11-09): netto +5 000 € auf 4 660 MWh (+1,07 €/MWh). Tage im Plus: 14 von 29. t (HAC): 0,35. Max. Drawdown: -13 816 €.
+30 Tage abgerechnet (2026-10-10 bis 2026-11-10): netto +4 365 € auf 4 740 MWh (+0,92 €/MWh). Tage im Plus: 14 von 30. t (HAC): 0,31. Max. Drawdown: -13 816 €.
 
 | Liefertag | Signal fertig (UTC) | Viertelstunden | MWh | Netto € | kumuliert € |
 |---|---|---:|---:|---:|---:|
-| 2026-10-27 | 2026-10-26 09:50 | 81 | 202,5 | +10 341 | +8 745 |
 | 2026-10-28 | 2026-10-27 09:50 | 84 | 210,0 | -2 688 | +6 057 |
 | 2026-10-29 | 2026-10-28 09:49 | 91 | 227,5 | -4 626 | +1 431 |
 | 2026-10-30 | 2026-10-29 09:50 | 77 | 192,5 | +662 | +2 093 |
@@ -18,7 +17,8 @@
 | 2026-11-07 | 2026-11-06 09:49 | 5 | 12,5 | +329 | +4 916 |
 | 2026-11-08 | 2026-11-07 09:50 | 2 | 5,0 | -234 | +4 682 |
 | 2026-11-09 | 2026-11-08 09:50 | 9 | 22,5 | +318 | +5 000 |
+| 2026-11-10 | 2026-11-09 09:50 | 32 | 80,0 | -635 | +4 365 |
 
 Kein Signal (kein Lauf rechtzeitig gestartet oder Data Guard, Grund im Actions-Log): 2026-10-11, 2026-10-12
 
-Warten auf ID-AEP: 2026-11-10, 2026-11-11
+Warten auf ID-AEP: 2026-11-11, 2026-11-12
