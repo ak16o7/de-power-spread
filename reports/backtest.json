@@ -1,9 +1,9 @@
 {
- "generated_at": "2026-11-15T06:04:22.772779+00:00",
+ "generated_at": "2026-11-22T06:06:10.492430+00:00",
  "test_period": {
   "from": "2026-01-01",
-  "to": "2026-11-13",
-  "days": 317
+  "to": "2026-11-20",
+  "days": 324
  },
  "assumptions": {
   "size_mw": 10.0,
@@ -62,33 +62,33 @@
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": -23899.100000000002,
-     "mwh": 5942.5
+     "net_eur": -22463.800000000003,
+     "mwh": 5975.0
     },
     {
      "threshold": 5.0,
-     "net_eur": -22849.175000000003,
-     "mwh": 4885.0
+     "net_eur": -19949.399999999998,
+     "mwh": 4890.0
     },
     {
      "threshold": 10.0,
-     "net_eur": -18203.699999999997,
-     "mwh": 3275.0
+     "net_eur": -16854.250000000004,
+     "mwh": 3307.5
     },
     {
      "threshold": 15.0,
-     "net_eur": -16218.050000000001,
-     "mwh": 2097.5
+     "net_eur": -15767.125000000004,
+     "mwh": 2105.0
     },
     {
      "threshold": 20.0,
-     "net_eur": -13289.225,
-     "mwh": 1217.5
+     "net_eur": -13330.875,
+     "mwh": 1297.5
     },
     {
      "threshold": 30.0,
-     "net_eur": -8737.975,
-     "mwh": 427.5
+     "net_eur": -8495.875000000002,
+     "mwh": 460.0
     }
    ],
    "cutoff": "2025-12-31T10:00:00+00:00"
@@ -102,33 +102,33 @@
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": -29334.75,
-     "mwh": 5697.5
+     "net_eur": -16732.324999999993,
+     "mwh": 5555.0
     },
     {
      "threshold": 5.0,
-     "net_eur": -23351.124999999993,
-     "mwh": 4077.5
+     "net_eur": -22078.224999999995,
+     "mwh": 4105.0
     },
     {
      "threshold": 10.0,
-     "net_eur": -23178.850000000002,
-     "mwh": 2117.5
+     "net_eur": -23506.475,
+     "mwh": 2302.5
     },
     {
      "threshold": 15.0,
-     "net_eur": -17581.375,
-     "mwh": 1007.5
+     "net_eur": -21007.174999999996,
+     "mwh": 1065.0
     },
     {
      "threshold": 20.0,
-     "net_eur": -11292.725,
-     "mwh": 445.0
+     "net_eur": -12159.150000000001,
+     "mwh": 465.0
     },
     {
      "threshold": 30.0,
-     "net_eur": -2761.7500000000005,
-     "mwh": 92.5
+     "net_eur": -2511.1250000000005,
+     "mwh": 107.5
     }
    ],
    "cutoff": "2026-01-31T10:00:00+00:00"
@@ -142,33 +142,33 @@
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": -5326.250000000002,
-     "mwh": 5805.0
+     "net_eur": -5628.624999999998,
+     "mwh": 5815.0
     },
     {
      "threshold": 5.0,
-     "net_eur": -2241.975000000002,
-     "mwh": 4502.5
+     "net_eur": -1602.9249999999993,
+     "mwh": 4515.0
     },
     {
      "threshold": 10.0,
-     "net_eur": -136.375,
-     "mwh": 2680.0
+     "net_eur": 123.37499999999818,
+     "mwh": 2662.5
     },
     {
      "threshold": 15.0,
-     "net_eur": 257.27500000000055,
-     "mwh": 1472.5
+     "net_eur": -131.65000000000055,
+     "mwh": 1455.0
     },
     {
      "threshold": 20.0,
-     "net_eur": 583.3749999999995,
-     "mwh": 760.0
+     "net_eur": 313.69999999999936,
+     "mwh": 782.5
     },
     {
      "threshold": 30.0,
-     "net_eur": -879.0500000000002,
-     "mwh": 130.0
+     "net_eur": -733.4999999999999,
+     "mwh": 92.5
     }
    ],
    "cutoff": "2026-02-28T10:00:00+00:00"
@@ -182,33 +182,33 @@
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": 14750.124999999998,
-     "mwh": 6090.0
+     "net_eur": 16214.749999999996,
+     "mwh": 6050.0
     },
     {
      "threshold": 5.0,
-     "net_eur": 17882.950000000004,
-     "mwh": 4977.5
+     "net_eur": 17159.549999999996,
+     "mwh": 4960.0
     },
     {
      "threshold": 10.0,
-     "net_eur": 20034.275,
-     "mwh": 3292.5
+     "net_eur": 17521.9,
+     "mwh": 3197.5
     },
     {
      "threshold": 15.0,
-     "net_eur": 11686.35,
-     "mwh": 1852.5
+     "net_eur": 11841.95,
+     "mwh": 1780.0
     },
     {
      "threshold": 20.0,
-     "net_eur": 12388.0,
-     "mwh": 955.0
+     "net_eur": 13508.599999999999,
+     "mwh": 940.0
     },
     {
      "threshold": 30.0,
-     "net_eur": 4422.524999999999,
-     "mwh": 247.5
+     "net_eur": 3241.8249999999994,
+     "mwh": 237.5
     }
    ],
    "cutoff": "2026-03-31T09:00:00+00:00"
@@ -222,32 +222,32 @@
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": -7732.624999999996,
-     "mwh": 5812.5
+     "net_eur": -20584.624999999996,
+     "mwh": 5735.0
     },
     {
      "threshold": 5.0,
-     "net_eur": 11903.824999999997,
-     "mwh": 4525.0
+     "net_eur": -14542.225000000002,
+     "mwh": 4422.5
     },
     {
      "threshold": 10.0,
-     "net_eur": 17037.175,
-     "mwh": 2535.0
+     "net_eur": 14847.749999999998,
+     "mwh": 2480.0
     },
     {
      "threshold": 15.0,
-     "net_eur": 10027.625000000002,
-     "mwh": 1397.5
+     "net_eur": 11407.275000000001,
+     "mwh": 1412.5
     },
     {
      "threshold": 20.0,
-     "net_eur": 6512.2,
-     "mwh": 680.0
+     "net_eur": 6884.4,
+     "mwh": 667.5
     },
     {
      "threshold": 30.0,
-     "net_eur": 678.0749999999999,
+     "net_eur": 270.37499999999994,
      "mwh": 55.0
     }
    ],
@@ -258,37 +258,37 @@
    "first_test_day": "2026-06-01",
    "train_days": 241,
    "train_last_day": "2026-05-29",
-   "threshold": 2.0,
+   "threshold": 5.0,
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": 17194.850000000002,
-     "mwh": 6065.0
+     "net_eur": 14392.375,
+     "mwh": 6085.0
     },
     {
      "threshold": 5.0,
-     "net_eur": 16792.625,
-     "mwh": 5115.0
+     "net_eur": 15465.050000000001,
+     "mwh": 5120.0
     },
     {
      "threshold": 10.0,
-     "net_eur": 12701.374999999998,
-     "mwh": 3670.0
+     "net_eur": 11790.025000000001,
+     "mwh": 3637.5
     },
     {
      "threshold": 15.0,
-     "net_eur": 9677.650000000001,
-     "mwh": 2630.0
+     "net_eur": 11405.350000000002,
+     "mwh": 2590.0
     },
     {
      "threshold": 20.0,
-     "net_eur": 10699.000000000002,
-     "mwh": 1697.5
+     "net_eur": 12485.7,
+     "mwh": 1680.0
     },
     {
      "threshold": 30.0,
-     "net_eur": 9275.475,
-     "mwh": 595.0
+     "net_eur": 8801.800000000001,
+     "mwh": 572.5
     }
    ],
    "cutoff": "2026-05-31T09:00:00+00:00"
@@ -302,33 +302,33 @@
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": 39262.025,
-     "mwh": 6177.5
+     "net_eur": 41267.625,
+     "mwh": 6210.0
     },
     {
      "threshold": 5.0,
-     "net_eur": 36270.55,
-     "mwh": 5365.0
+     "net_eur": 36334.350000000006,
+     "mwh": 5352.5
     },
     {
      "threshold": 10.0,
-     "net_eur": 24874.975,
-     "mwh": 4175.0
+     "net_eur": 21595.75,
+     "mwh": 4122.5
     },
     {
      "threshold": 15.0,
-     "net_eur": 16802.95,
-     "mwh": 3010.0
+     "net_eur": 14853.824999999997,
+     "mwh": 2967.5
     },
     {
      "threshold": 20.0,
-     "net_eur": 9394.275,
-     "mwh": 2067.5
+     "net_eur": 6033.699999999997,
+     "mwh": 2005.0
     },
     {
      "threshold": 30.0,
-     "net_eur": -119.99999999999955,
-     "mwh": 660.0
+     "net_eur": 1428.0250000000005,
+     "mwh": 662.5
     }
    ],
    "cutoff": "2026-06-30T09:00:00+00:00"
@@ -338,37 +338,37 @@
    "first_test_day": "2026-08-01",
    "train_days": 302,
    "train_last_day": "2026-07-29",
-   "threshold": 5.0,
+   "threshold": 2.0,
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": 20641.949999999997,
-     "mwh": 5912.5
+     "net_eur": 20810.4,
+     "mwh": 5997.5
     },
     {
      "threshold": 5.0,
-     "net_eur": 21772.525,
-     "mwh": 4825.0
+     "net_eur": 19181.2,
+     "mwh": 4770.0
     },
     {
      "threshold": 10.0,
-     "net_eur": 18835.95,
-     "mwh": 3025.0
+     "net_eur": 18632.375,
+     "mwh": 3070.0
     },
     {
      "threshold": 15.0,
-     "net_eur": 11069.6,
-     "mwh": 1705.0
+     "net_eur": 10759.099999999999,
+     "mwh": 1747.5
     },
     {
      "threshold": 20.0,
-     "net_eur": 10480.95,
-     "mwh": 822.5
+     "net_eur": 9408.775000000001,
+     "mwh": 852.5
     },
     {
      "threshold": 30.0,
-     "net_eur": 3640.5749999999994,
-     "mwh": 102.5
+     "net_eur": 4526.4,
+     "mwh": 127.5
     }
    ],
    "cutoff": "2026-07-31T09:00:00+00:00"
@@ -378,37 +378,37 @@
    "first_test_day": "2026-09-01",
    "train_days": 333,
    "train_last_day": "2026-08-29",
-   "threshold": 15.0,
+   "threshold": 5.0,
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": 401.54999999999836,
-     "mwh": 5885.0
+     "net_eur": 14415.349999999999,
+     "mwh": 5872.5
     },
     {
      "threshold": 5.0,
-     "net_eur": -3613.1249999999964,
-     "mwh": 4775.0
+     "net_eur": 18600.449999999997,
+     "mwh": 4702.5
     },
     {
      "threshold": 10.0,
-     "net_eur": 3005.625,
-     "mwh": 3015.0
+     "net_eur": 8770.725,
+     "mwh": 2927.5
     },
     {
      "threshold": 15.0,
-     "net_eur": 9178.975,
-     "mwh": 1582.5
+     "net_eur": 5202.050000000001,
+     "mwh": 1490.0
     },
     {
      "threshold": 20.0,
-     "net_eur": 4379.074999999999,
-     "mwh": 775.0
+     "net_eur": 4830.35,
+     "mwh": 725.0
     },
     {
      "threshold": 30.0,
-     "net_eur": 4247.825000000001,
-     "mwh": 162.5
+     "net_eur": 3600.3750000000005,
+     "mwh": 152.5
     }
    ],
    "cutoff": "2026-08-31T09:00:00+00:00"
@@ -422,33 +422,33 @@
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": 60552.625,
-     "mwh": 5875.0
+     "net_eur": 58801.625,
+     "mwh": 5825.0
     },
     {
      "threshold": 5.0,
-     "net_eur": 54240.000000000015,
-     "mwh": 4710.0
+     "net_eur": 55803.674999999996,
+     "mwh": 4700.0
     },
     {
      "threshold": 10.0,
-     "net_eur": 36297.350000000006,
-     "mwh": 2727.5
+     "net_eur": 43480.45000000001,
+     "mwh": 2822.5
     },
     {
      "threshold": 15.0,
-     "net_eur": 33219.55,
-     "mwh": 1710.0
+     "net_eur": 30980.05000000001,
+     "mwh": 1675.0
     },
     {
      "threshold": 20.0,
-     "net_eur": 26792.55,
-     "mwh": 955.0
+     "net_eur": 25877.725000000006,
+     "mwh": 952.5
     },
     {
      "threshold": 30.0,
-     "net_eur": -14250.824999999999,
-     "mwh": 285.0
+     "net_eur": -10858.524999999998,
+     "mwh": 302.5
     }
    ],
    "cutoff": "2026-09-30T09:00:00+00:00"
@@ -462,33 +462,33 @@
    "validation": [
     {
      "threshold": 2.0,
-     "net_eur": -10426.349999999999,
-     "mwh": 5967.5
+     "net_eur": -13730.975,
+     "mwh": 6025.0
     },
     {
      "threshold": 5.0,
-     "net_eur": -11327.099999999999,
-     "mwh": 5017.5
+     "net_eur": -9640.724999999999,
+     "mwh": 5015.0
     },
     {
      "threshold": 10.0,
-     "net_eur": 1154.7250000000013,
-     "mwh": 3875.0
+     "net_eur": 4745.000000000002,
+     "mwh": 3792.5
     },
     {
      "threshold": 15.0,
-     "net_eur": 279.59999999999854,
-     "mwh": 2897.5
+     "net_eur": 935.0500000000025,
+     "mwh": 2810.0
     },
     {
      "threshold": 20.0,
-     "net_eur": 8525.550000000001,
-     "mwh": 2052.5
+     "net_eur": 7462.525,
+     "mwh": 1950.0
     },
     {
      "threshold": 30.0,
-     "net_eur": 11060.125,
-     "mwh": 510.0
+     "net_eur": 10430.949999999999,
+     "mwh": 477.5
     }
    ],
    "cutoff": "2026-10-31T10:00:00+00:00"
@@ -497,17 +497,17 @@
  "days_not_traded_for_data": {},
  "strategies": {
   "always_long": {
-   "days": 317,
-   "days_traded": 317,
-   "quarter_hours_traded": 30432,
-   "mwh": 76080.0,
-   "net_eur": 260590.0,
-   "gross_eur": 374710.0,
-   "costs_eur": 114120.0,
-   "eur_per_mwh": 3.43,
-   "hit_rate": 0.448,
-   "sharpe_daily_ann": 2.33,
-   "t_daily_hac": 1.85,
+   "days": 324,
+   "days_traded": 324,
+   "quarter_hours_traded": 31104,
+   "mwh": 77760.0,
+   "net_eur": 224318.0,
+   "gross_eur": 340958.0,
+   "costs_eur": 116640.0,
+   "eur_per_mwh": 2.88,
+   "hit_rate": 0.445,
+   "sharpe_daily_ann": 1.96,
+   "t_daily_hac": 1.55,
    "max_drawdown_eur": -129624.0,
    "worst_day_eur": -48138.0,
    "best_day_eur": 30229.0,
@@ -515,17 +515,17 @@
    "missing_da_qh": 0
   },
   "always_short": {
-   "days": 317,
-   "days_traded": 317,
-   "quarter_hours_traded": 30432,
-   "mwh": 76080.0,
-   "net_eur": -488830.0,
-   "gross_eur": -374710.0,
-   "costs_eur": 114120.0,
-   "eur_per_mwh": -6.43,
-   "hit_rate": 0.495,
-   "sharpe_daily_ann": -4.37,
-   "t_daily_hac": -3.47,
+   "days": 324,
+   "days_traded": 324,
+   "quarter_hours_traded": 31104,
+   "mwh": 77760.0,
+   "net_eur": -457598.0,
+   "gross_eur": -340958.0,
+   "costs_eur": 116640.0,
+   "eur_per_mwh": -5.88,
+   "hit_rate": 0.498,
+   "sharpe_daily_ann": -3.99,
+   "t_daily_hac": -3.16,
    "max_drawdown_eur": -490198.0,
    "worst_day_eur": -30949.0,
    "best_day_eur": 47418.0,
@@ -533,17 +533,17 @@
    "missing_da_qh": 0
   },
   "last_known_sign": {
-   "days": 317,
-   "days_traded": 317,
-   "quarter_hours_traded": 30425,
-   "mwh": 76062.5,
-   "net_eur": 59331.0,
-   "gross_eur": 173425.0,
-   "costs_eur": 114094.0,
-   "eur_per_mwh": 0.78,
-   "hit_rate": 0.487,
-   "sharpe_daily_ann": 0.71,
-   "t_daily_hac": 0.67,
+   "days": 324,
+   "days_traded": 324,
+   "quarter_hours_traded": 31097,
+   "mwh": 77742.5,
+   "net_eur": 64100.0,
+   "gross_eur": 180714.0,
+   "costs_eur": 116614.0,
+   "eur_per_mwh": 0.82,
+   "hit_rate": 0.488,
+   "sharpe_daily_ann": 0.75,
+   "t_daily_hac": 0.72,
    "max_drawdown_eur": -66427.0,
    "worst_day_eur": -27745.0,
    "best_day_eur": 47825.0,
@@ -551,35 +551,35 @@
    "missing_da_qh": 0
   },
   "model": {
-   "days": 317,
+   "days": 324,
    "days_traded": 268,
-   "quarter_hours_traded": 13886,
-   "mwh": 34715.0,
-   "net_eur": 121450.0,
-   "gross_eur": 173522.0,
-   "costs_eur": 52072.0,
-   "eur_per_mwh": 3.5,
-   "hit_rate": 0.503,
-   "sharpe_daily_ann": 1.77,
-   "t_daily_hac": 1.61,
-   "max_drawdown_eur": -72617.0,
-   "worst_day_eur": -30602.0,
-   "best_day_eur": 23894.0,
+   "quarter_hours_traded": 15329,
+   "mwh": 38322.5,
+   "net_eur": 152275.0,
+   "gross_eur": 209759.0,
+   "costs_eur": 57484.0,
+   "eur_per_mwh": 3.97,
+   "hit_rate": 0.505,
+   "sharpe_daily_ann": 2.02,
+   "t_daily_hac": 1.95,
+   "max_drawdown_eur": -67736.0,
+   "worst_day_eur": -31934.0,
+   "best_day_eur": 25872.0,
    "missing_exit_qh": 0,
    "missing_da_qh": 0
   },
   "slot_sign_28d": {
-   "days": 317,
-   "days_traded": 317,
-   "quarter_hours_traded": 30432,
-   "mwh": 76080.0,
-   "net_eur": 118103.0,
-   "gross_eur": 232223.0,
-   "costs_eur": 114120.0,
-   "eur_per_mwh": 1.55,
-   "hit_rate": 0.487,
-   "sharpe_daily_ann": 1.56,
-   "t_daily_hac": 1.39,
+   "days": 324,
+   "days_traded": 324,
+   "quarter_hours_traded": 31104,
+   "mwh": 77760.0,
+   "net_eur": 91190.0,
+   "gross_eur": 207830.0,
+   "costs_eur": 116640.0,
+   "eur_per_mwh": 1.17,
+   "hit_rate": 0.484,
+   "sharpe_daily_ann": 1.17,
+   "t_daily_hac": 1.03,
    "max_drawdown_eur": -57401.0,
    "worst_day_eur": -44370.0,
    "best_day_eur": 23048.0,
@@ -589,192 +589,192 @@
  },
  "model_vs": {
   "always_long": {
-   "mean_eur_per_day": -438.9,
-   "t_hac": -0.9
+   "mean_eur_per_day": -222.4,
+   "t_hac": -0.47
   },
   "always_short": {
-   "mean_eur_per_day": 1925.2,
-   "t_hac": 3.68
+   "mean_eur_per_day": 1882.3,
+   "t_hac": 3.46
   },
   "slot_sign_28d": {
-   "mean_eur_per_day": 10.6,
-   "t_hac": 0.04
+   "mean_eur_per_day": 188.5,
+   "t_hac": 0.71
   },
   "last_known_sign": {
-   "mean_eur_per_day": 196.0,
-   "t_hac": 0.62
+   "mean_eur_per_day": 272.1,
+   "t_hac": 0.83
   }
  },
  "slippage_sensitivity": {
   "always_long": {
-   "0.0": 336670.0,
-   "1.0": 260590.0,
-   "2.0": 184510.0,
-   "5.0": -43730.0
+   "0.0": 302078.0,
+   "1.0": 224318.0,
+   "2.0": 146558.0,
+   "5.0": -86722.0
   },
   "always_short": {
-   "0.0": -412750.0,
-   "1.0": -488830.0,
-   "2.0": -564910.0,
-   "5.0": -793150.0
+   "0.0": -379838.0,
+   "1.0": -457598.0,
+   "2.0": -535358.0,
+   "5.0": -768638.0
   },
   "last_known_sign": {
-   "0.0": 135393.0,
-   "1.0": 59331.0,
-   "2.0": -16732.0,
-   "5.0": -244919.0
+   "0.0": 141842.0,
+   "1.0": 64100.0,
+   "2.0": -13643.0,
+   "5.0": -246870.0
   },
   "model": {
-   "0.0": 156165.0,
-   "1.0": 121450.0,
-   "2.0": 86735.0,
-   "5.0": -17410.0
+   "0.0": 190597.0,
+   "1.0": 152275.0,
+   "2.0": 113952.0,
+   "5.0": -1015.0
   },
   "slot_sign_28d": {
-   "0.0": 194183.0,
-   "1.0": 118103.0,
-   "2.0": 42023.0,
-   "5.0": -186217.0
+   "0.0": 168950.0,
+   "1.0": 91190.0,
+   "2.0": 13430.0,
+   "5.0": -219850.0
   }
  },
  "break_even_slippage_eur_mwh": {
-  "always_long": 4.43,
-  "always_short": -5.43,
-  "last_known_sign": 1.78,
-  "model": 4.5,
-  "slot_sign_28d": 2.55
+  "always_long": 3.88,
+  "always_short": -4.88,
+  "last_known_sign": 1.82,
+  "model": 4.97,
+  "slot_sign_28d": 2.17
  },
  "spike_sensitivity": {
   "always_long": {
    "top10_qh_net_eur": 33512.0,
-   "without_best_10_days_eur": 37519.0,
+   "without_best_10_days_eur": 1247.0,
    "500": {
-    "net_eur": 158421.0,
-    "t_daily_hac": 1.45
+    "net_eur": 122149.0,
+    "t_daily_hac": 1.07
    },
    "200": {
-    "net_eur": 66250.0,
-    "t_daily_hac": 0.7
+    "net_eur": 29952.0,
+    "t_daily_hac": 0.3
    },
    "100": {
-    "net_eur": -32620.0,
-    "t_daily_hac": -0.4
+    "net_eur": -67571.0,
+    "t_daily_hac": -0.79
    }
   },
   "always_short": {
    "top10_qh_net_eur": -33587.0,
-   "without_best_10_days_eur": -619342.0,
+   "without_best_10_days_eur": -593023.0,
    "500": {
-    "net_eur": -386661.0,
-    "t_daily_hac": -3.54
+    "net_eur": -355429.0,
+    "t_daily_hac": -3.12
    },
    "200": {
-    "net_eur": -294490.0,
-    "t_daily_hac": -3.1
+    "net_eur": -263232.0,
+    "t_daily_hac": -2.64
    },
    "100": {
-    "net_eur": -195620.0,
-    "t_daily_hac": -2.4
+    "net_eur": -165709.0,
+    "t_daily_hac": -1.93
    }
   },
   "last_known_sign": {
    "top10_qh_net_eur": 44228.0,
-   "without_best_10_days_eur": -127495.0,
+   "without_best_10_days_eur": -122726.0,
    "500": {
-    "net_eur": 4622.0,
-    "t_daily_hac": 0.09
+    "net_eur": 9391.0,
+    "t_daily_hac": 0.18
    },
    "200": {
-    "net_eur": -17637.0,
-    "t_daily_hac": -0.41
+    "net_eur": -12842.0,
+    "t_daily_hac": -0.3
    },
    "100": {
-    "net_eur": -31568.0,
-    "t_daily_hac": -0.83
+    "net_eur": -26019.0,
+    "t_daily_hac": -0.68
    }
   },
   "model": {
    "top10_qh_net_eur": -8519.0,
-   "without_best_10_days_eur": -15232.0,
+   "without_best_10_days_eur": -8630.0,
    "500": {
-    "net_eur": 129670.0,
-    "t_daily_hac": 2.66
+    "net_eur": 152247.0,
+    "t_daily_hac": 2.93
    },
    "200": {
-    "net_eur": 119939.0,
-    "t_daily_hac": 2.85
+    "net_eur": 137765.0,
+    "t_daily_hac": 3.05
    },
    "100": {
-    "net_eur": 95250.0,
-    "t_daily_hac": 2.63
+    "net_eur": 106126.0,
+    "t_daily_hac": 2.77
    }
   },
   "slot_sign_28d": {
    "top10_qh_net_eur": 33512.0,
-   "without_best_10_days_eur": -29716.0,
+   "without_best_10_days_eur": -56629.0,
    "500": {
-    "net_eur": 72413.0,
-    "t_daily_hac": 1.39
+    "net_eur": 45501.0,
+    "t_daily_hac": 0.8
    },
    "200": {
-    "net_eur": 61727.0,
-    "t_daily_hac": 1.39
+    "net_eur": 34789.0,
+    "t_daily_hac": 0.69
    },
    "100": {
-    "net_eur": 35986.0,
-    "t_daily_hac": 0.89
+    "net_eur": 10345.0,
+    "t_daily_hac": 0.22
    }
   }
  },
  "model_vs_capped": {
   "cap_eur_mwh": 200.0,
   "always_long": {
-   "mean_eur_per_day": 169.4,
-   "t_hac": 0.51
+   "mean_eur_per_day": 332.8,
+   "t_hac": 0.97
   },
   "always_short": {
-   "mean_eur_per_day": 1307.3,
-   "t_hac": 4.08
+   "mean_eur_per_day": 1237.6,
+   "t_hac": 3.72
   },
   "slot_sign_28d": {
-   "mean_eur_per_day": 183.6,
-   "t_hac": 1.02
+   "mean_eur_per_day": 317.8,
+   "t_hac": 1.66
   },
   "last_known_sign": {
-   "mean_eur_per_day": 434.0,
-   "t_hac": 2.32
+   "mean_eur_per_day": 464.8,
+   "t_hac": 2.43
   }
  },
  "long_short": {
   "always_long": {
-   "long_net_eur": 260590.0,
-   "long_mwh": 76080.0,
+   "long_net_eur": 224318.0,
+   "long_mwh": 77760.0,
    "short_net_eur": 0.0,
    "short_mwh": 0.0
   },
   "always_short": {
    "long_net_eur": 0.0,
    "long_mwh": 0.0,
-   "short_net_eur": -488830.0,
-   "short_mwh": 76080.0
+   "short_net_eur": -457598.0,
+   "short_mwh": 77760.0
   },
   "last_known_sign": {
-   "long_net_eur": 220096.0,
-   "long_mwh": 36100.0,
-   "short_net_eur": -160765.0,
-   "short_mwh": 39962.5
+   "long_net_eur": 205792.0,
+   "long_mwh": 36815.0,
+   "short_net_eur": -141692.0,
+   "short_mwh": 40927.5
   },
   "model": {
-   "long_net_eur": 152236.0,
-   "long_mwh": 23197.5,
-   "short_net_eur": -30786.0,
-   "short_mwh": 11517.5
+   "long_net_eur": 181537.0,
+   "long_mwh": 25100.0,
+   "short_net_eur": -29262.0,
+   "short_mwh": 13222.5
   },
   "slot_sign_28d": {
-   "long_net_eur": 233128.0,
-   "long_mwh": 46892.5,
-   "short_net_eur": -115025.0,
-   "short_mwh": 29187.5
+   "long_net_eur": 201843.0,
+   "long_mwh": 48367.5,
+   "short_net_eur": -110653.0,
+   "short_mwh": 29392.5
   }
  },
  "verdict": {
@@ -789,71 +789,71 @@
  },
  "model_monthly": {
   "2026-01": {
-   "net_eur": -4988.0,
-   "mwh": 127.5
+   "net_eur": -5366.0,
+   "mwh": 137.5
   },
   "2026-02": {
-   "net_eur": -970.0,
-   "mwh": 125.0
+   "net_eur": -796.0,
+   "mwh": 90.0
   },
   "2026-03": {
-   "net_eur": 8782.0,
-   "mwh": 1077.5
+   "net_eur": 9533.0,
+   "mwh": 1075.0
   },
   "2026-04": {
-   "net_eur": -178.0,
-   "mwh": 2797.5
+   "net_eur": -1510.0,
+   "mwh": 2860.0
   },
   "2026-05": {
-   "net_eur": 15152.0,
-   "mwh": 3820.0
+   "net_eur": 13802.0,
+   "mwh": 3945.0
   },
   "2026-06": {
-   "net_eur": 35062.0,
-   "mwh": 6442.5
+   "net_eur": 29684.0,
+   "mwh": 5355.0
   },
   "2026-07": {
-   "net_eur": 36212.0,
-   "mwh": 6585.0
+   "net_eur": 34996.0,
+   "mwh": 6550.0
   },
   "2026-08": {
-   "net_eur": 19435.0,
-   "mwh": 5170.0
+   "net_eur": 22776.0,
+   "mwh": 6440.0
   },
   "2026-09": {
-   "net_eur": 28018.0,
-   "mwh": 1577.5
+   "net_eur": 63897.0,
+   "mwh": 4797.5
   },
   "2026-10": {
-   "net_eur": -13780.0,
-   "mwh": 6742.5
+   "net_eur": -11099.0,
+   "mwh": 6757.5
   },
   "2026-11": {
-   "net_eur": -1296.0,
-   "mwh": 250.0
+   "net_eur": -3644.0,
+   "mwh": 315.0
   }
  },
  "provenance": {
-  "code_commit": "21c133be2b9b49167f09a550b899b714e89bd8f2",
+  "code_commit": "904176c2d510b52f23ca248512c0d84864a91858",
   "hf_dataset": "akderekaan/de-power-forecast-data",
   "hf_revisions": [
-   "d08143f0485ed5eceed34242d07d704d1fea7bed"
+   "bb411f9fe9866652afae6cfa4e9987c4e40c141a"
   ],
   "store": {
    "da": {
-    "rows": 39460,
+    "rows": 40132,
     "first_ts": "2025-09-30 22:00:00+00:00",
-    "last_ts": "2026-11-15 22:45:00+00:00"
+    "last_ts": "2026-11-22 22:45:00+00:00"
    },
    "load": {
-    "rows": 39460,
+    "rows": 40132,
     "first_ts": "2025-09-30 22:00:00+00:00",
-    "last_ts": "2026-11-15 22:45:00+00:00"
+    "last_ts": "2026-11-22 22:45:00+00:00"
    },
    "id_aep": {
-    "rows": 39364,
+    "rows": 40036,
     "first_ts": "2025-09-30 22:00:00+00:00",
-    "last_ts": "2026-11-14 22:45:00+00:00"
+    "last_ts": "2026-11-21 22:45:00+00:00"
    }
   },
   "use_load_forecast": false
