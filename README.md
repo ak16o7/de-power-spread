@@ -224,7 +224,7 @@ entscheidet der Live-Track-Record.
   niemand kannte.
 - **Lücken:** Ein Liefertag ohne Signal wird unten aufgeführt und fehlt nicht stillschweigend.
   Für den 11. und 12.10.2026 gibt es keins, weil der Workflow damals noch allein am GitHub-Cron
-  hing.
+  hing (was zu Fehlern geführt hat).
 - **Regelstand:** Das erste Signal (Liefertag 10.10.2026) entstand noch mit Schwelle 0 und
   handelt alle 96 Viertelstunden; es zählt nach der Regel, die bei seiner Erzeugung galt. Ab
   dem nächsten Signal gilt die Kostenuntergrenze.
