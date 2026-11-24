@@ -100,6 +100,52 @@ def test_live_uses_the_backtest_procedure(planted, monkeypatch):
     assert (live_side.to_numpy() == bt.reindex(live_side.index).to_numpy()).all()
 
 
+def test_live_freezes_one_model_per_month(planted, monkeypatch, tmp_path):
+    """The month's first signal fits and stores the model; later signals of the month load
+    it (no refit), and still equal the backtest; a new month fits a new one; a changed
+    scikit-learn forces a visible refit."""
+    root, start, end = planted
+    backtest.run(start, end)
+    res = pd.read_parquet(root / "reports" / "backtest.parquet")
+    monkeypatch.setattr("dps.config.SIGNALS_DIR", str(tmp_path / "signals"))
+    monkeypatch.setattr("dps.config.LIVE_DIR", str(tmp_path / "live"))
+    fits = []
+    real_fit = live.fit_for_day
+    monkeypatch.setattr("dps.live.fit_for_day", lambda *a, **k: fits.append(a[2]) or real_fit(*a, **k))
+    d1, d2 = end - timedelta(days=14), end - timedelta(days=9)
+    assert d1.month == d2.month
+    first_of_month = d1.replace(day=1)
+
+    def run(day):
+        monkeypatch.setenv("DPS_NOW", issue_time(day).isoformat())
+        out = live.signal(day)
+        assert out["status"] == "written"
+        sig = pd.read_csv(tmp_path / "signals" / f"{day}.csv")
+        bt = res[(res["strategy"] == "model") & (res["day"] == str(day))].set_index("ts")["side"]
+        idx = pd.to_datetime(sig["ts_utc"], utc=True)
+        assert (sig["side"].to_numpy(dtype=float) == bt.reindex(idx).to_numpy()).all()
+        return out
+
+    o1 = run(d1)
+    assert fits == [d1] and o1["model"]["loaded"] is False
+    pkl, js = live.model_paths(d1)
+    info = json.loads(js.read_text())
+    assert pkl.is_file() and info["trained_for_day"] == str(d1)
+    assert info["train_cutoff"] == issue_time(first_of_month).isoformat()
+    o2 = run(d2)
+    assert fits == [d1] and o2["model"]["loaded"] is True               # loaded, not refit
+    assert o2["threshold_eur_mwh"] == o1["threshold_eur_mwh"] and o2["model"]["trained_for_day"] == str(d1)
+    prev = first_of_month - timedelta(days=3)                          # the month before: its own model
+    run(prev)
+    assert fits == [d1, prev] and live.model_paths(prev)[0].is_file()
+    info["sklearn"] = "0.0"                                            # e.g. a runner with another version
+    js.write_text(json.dumps(info))
+    d3 = d2 + timedelta(days=1)
+    o3 = run(d3)
+    assert fits[-1] == d3 and o3["model"]["refit_reason"].startswith("scikit-learn 0.0 ->")
+    assert json.loads(js.read_text())["refit_reason"].startswith("scikit-learn 0.0 ->")
+
+
 def test_signal_finished_after_the_window_is_not_counted(planted, monkeypatch):
     root, start, end = planted
     day = end - timedelta(days=6)

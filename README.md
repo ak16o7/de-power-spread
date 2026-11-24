@@ -123,7 +123,9 @@ Alle 27 Varianten, Kostensensitivität, Long/Short, Monatswerte, Ex-post-Regress
   Modell, das diese Tage nicht gesehen hat.
 - **Walk-forward:** monatlicher Refit; Labels nur, soweit sie zur Entscheidung für den ersten
   Liefertag des Monats veröffentlicht waren. Erster Testmonat mit mindestens 60 gelabelten
-  Tagen ist Januar 2026.
+  Tagen ist Januar 2026. Live genauso: Das erste Signal eines Liefermonats fittet Modell und
+  Schwelle und legt beides in `live/models/JJJJ-MM.pkl.gz` ab (mit Datenstand, Code-Commit und
+  Schwelle in der `.json` daneben); alle weiteren Signale des Monats laden genau dieses Objekt.
 - **Data Guard:** Kein Handel ohne DA-Preise von D-1, Spread-Historie und beide NWP-Modelle
   oder wenn die jüngste Prognose älter als 30 h ist. Im Backtest und live identisch.
 
@@ -167,9 +169,19 @@ Alle 27 Varianten, Kostensensitivität, Long/Short, Monatswerte, Ex-post-Regress
    höhere Marge je MWh, PnL praktisch unverändert.
 4. **Bugfix:** Die installierte Leistung wurde nach UTC-Monat statt nach lokalem Liefermonat
    nachgeschlagen.
+5. **Live ein Modell je Monat** (ab Liefermonat Dezember 2026). Bis 30.11.2026 hat jedes
+   Live-Signal Modell und Schwelle neu gefittet: mit dem Trainingsfenster des Monats, aber auf
+   dem jeweils neuesten Datenstand. Datenrevisionen allein konnten sie so mitten im Monat
+   verschieben; am 03.11.2026 sprang die Schwelle bei unveränderten 394 Trainingstagen von 20
+   auf 30 €/MWh. Das widersprach der dokumentierten Regel. Backtest und Regel bleiben
+   unverändert, nur die Umsetzung folgt ihr jetzt. Ein einmaliger Vergleich auf einem fixierten
+   Datenstand (`c91a7e43`, 01.01.–22.11.2026) zeigt, dass der Takt den PnL nicht bestimmt:
+   monatlicher Refit +134,6k €, wöchentlich +99,8k €, täglich mit jeweils allen bekannten
+   Labels +134,2k € (täglich minus monatlich −1 € je Tag, t = −0,01). Die Schwelle reagiert
+   dabei empfindlich: Beim täglichen Refit wechselt sie an 144 von 326 Tagen.
 
-Aufgefallen ist all das bei der Prüfung der Testergebnisse; begründet ist es unabhängig von der
-Höhe des PnL. Alle drei Modelländerungen haben den Test-PnL erhöht oder unverändert gelassen.
+Punkte 1–4 sind bei der Prüfung der Testergebnisse aufgefallen, Punkt 5 im Live-Betrieb; begründet
+ist alles unabhängig von der Höhe des PnL. Alle drei Modelländerungen haben den Test-PnL erhöht oder unverändert gelassen.
 Die Erstversion ist deshalb im Ergebnis und in der Robustheitstabelle ausgewiesen, die alte
 Schwellenregel als eigene Variante. Weitere Änderungen am Modell sind nicht vorgesehen; ab hier
 entscheidet der Live-Track-Record.
@@ -203,7 +215,9 @@ entscheidet der Live-Track-Record.
   Gate Closure existierte. GitHubs eigener Cron ist nur Fallback: Er startet geplante Läufe
   nach bestem Bemühen und hat vom 9. bis 11.10.2026 im Fenster keinen einzigen gestartet.
 - **Gleiches Verfahren wie im Backtest:** gleiches Monatsmodell, gleiche Schwellenregel, gleicher
-  Verfügbarkeitsfilter, gleicher Data Guard; ein Test prüft die Gleichheit. Ein Signal, das
+  Verfügbarkeitsfilter, gleicher Data Guard; ein Test prüft die Gleichheit. Seit Dezember 2026
+  ist das Monatsmodell auch live ein einziges, abgelegtes Objekt (Änderung 5); davor wurde es
+  für jedes Signal neu gefittet. Ein Signal, das
   erst nach 11:50 fertig ist, wird markiert und nicht gezählt.
 - **Abrechnung:** nach Veröffentlichung des ID-AEP mit derselben PnL-Funktion
   (`live/ledger.csv`). Das ist der einzige Test auf Daten, die beim Festlegen des Modells
@@ -259,7 +273,7 @@ python -m dps run --robustness    # zusätzlich alle Varianten und die Datenprü
   gestartet: `Live` (Signal 10:47, Reserve 11:15, Abrechnung 18:30; Live-Block im README
   täglich neu), `Backtest` (sonntags 07:00 alles neu, Ergebnisblock im README); dazu `CI`. Optionale Secrets `ENTSOE_API_KEY`, `NTP_CLIENT_ID` und
   `NTP_CLIENT_SECRET` für die offiziellen APIs.
-- **Code:** alle Annahmen in `dps/config.py`; Features streng nach Verfügbarkeit in
+- **Code:** alle Annahmen in `dps/config.py`; die Monatsmodelle des Live-Betriebs in `live/models/`; Features streng nach Verfügbarkeit in
   `features.py`; PnL-Funktion für Backtest und Live in `trading.py`; dazu `model.py`,
   `backtest.py`, `robustness.py`, `checks.py`, `live.py` und `report.py`.
 

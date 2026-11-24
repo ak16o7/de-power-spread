@@ -5,8 +5,12 @@ signal: runs between 10:45 and 11:50 local (GitHub Actions, started by an extern
         window writes the file). Same procedure as the backtest: the model of the
         delivery month (labels known at the decision time of the month's first day,
         threshold from the same validation rule), features from data available at
-        min(now, 11:00 D-1). No signal on a day the data guard blocks (model.data_problem,
-        same rule as the backtest). A signal finished after 11:50 is marked late and never
+        min(now, 11:00 D-1). One model per month, as in the backtest: the month's first
+        signal fits model and threshold and stores them in live/models/YYYY-MM.pkl.gz
+        (+ .json); every later signal of the month loads that object. Until 30 Nov 2026
+        each signal refit it on the newest dataset revision, so a data revision alone could
+        move it. No signal on a day the data guard blocks (model.data_problem, same rule
+        as the backtest). A signal finished after 11:50 is marked late and never
         counted. The push to GitHub and the Actions run log are the public proof that it
         existed before the 12:00 auction.
 settle: books every counted signal whose ID-AEP is known, with the same PnL function as
@@ -15,8 +19,10 @@ settle: books every counted signal whose ID-AEP is known, with the same PnL func
 """
 from __future__ import annotations
 
+import gzip
 import json
 import logging
+import pickle
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -24,8 +30,8 @@ import numpy as np
 import pandas as pd
 
 from . import config, hf, metrics, report, store, trading
-from .backtest import dataset, fit_for_day
-from .model import data_problem, decide
+from .backtest import _git_commit, dataset, fit_for_day
+from .model import SpreadModel, data_problem, decide
 from .util import BERLIN, gate_closure, issue_time, now, qh_index, spread_known_at
 
 LOG = logging.getLogger(__name__)
@@ -36,6 +42,54 @@ WINDOW_CLOSES_MIN_BEFORE_GATE = 10     # 11:50 local
 def _paths(day: date) -> tuple[Path, Path]:
     base = Path(config.SIGNALS_DIR) / f"{day:%Y-%m-%d}"
     return base.with_suffix(".csv"), base.with_suffix(".json")
+
+
+def model_paths(day: date) -> tuple[Path, Path]:
+    """The frozen model of `day`'s delivery month: pickle and its description."""
+    base = Path(config.LIVE_DIR) / "models" / f"{day:%Y-%m}"
+    return base.with_suffix(".pkl.gz"), base.with_suffix(".json")
+
+
+def _sklearn_version() -> str:
+    import sklearn
+    return sklearn.__version__
+
+
+def load_month_model(day: date, cols: list[str]) -> tuple[SpreadModel | None, dict, str | None]:
+    """(model, description, None) if the month's frozen model can be used for `cols`,
+    else (None, {}, reason). The pickle is written only by this repository's own workflow."""
+    pkl, js = model_paths(day)
+    if not (pkl.is_file() and js.is_file()):
+        return None, {}, None
+    info = json.loads(js.read_text())
+    if info.get("sklearn") != _sklearn_version():
+        return None, info, f"scikit-learn {info.get('sklearn')} -> {_sklearn_version()}"
+    if info.get("columns") != list(cols):
+        return None, info, "feature columns changed"
+    with gzip.open(pkl, "rb") as fh:
+        model = pickle.load(fh)
+    return model, info, None
+
+
+def fit_month_model(day: date, t: pd.Timestamp, refit_reason: str | None = None) -> tuple[SpreadModel, dict]:
+    """Fit the delivery month's model exactly as the backtest does and store it."""
+    hist, cols = dataset(config.START, day)
+    model, threshold, labelled_days = fit_for_day(hist, cols, day)
+    info = {
+        "month": f"{day:%Y-%m}", "trained_at": t.isoformat(), "trained_for_day": str(day),
+        "train_cutoff": issue_time(max(date(day.year, day.month, 1), config.START)).isoformat(),
+        "threshold_eur_mwh": threshold, "train_days": labelled_days, "columns": list(cols),
+        "seeds": list(model.seeds), "sklearn": _sklearn_version(), "hf_revisions": hf.revisions_used(),
+        "code_commit": _git_commit(), "refit_reason": refit_reason,
+    }
+    pkl, js = model_paths(day)
+    pkl.parent.mkdir(parents=True, exist_ok=True)
+    with gzip.open(pkl, "wb") as fh:          # ~2.5 MB a month (5 seeds x 300 trees)
+        pickle.dump(model, fh, protocol=pickle.HIGHEST_PROTOCOL)
+    js.write_text(json.dumps(info, indent=1))
+    LOG.info("month model %s fitted: threshold %.1f EUR/MWh, %d labelled days%s", info["month"], threshold,
+             labelled_days, f" (refit: {refit_reason})" if refit_reason else "")
+    return model, info
 
 
 def window(day: date) -> tuple[pd.Timestamp, pd.Timestamp]:
@@ -67,12 +121,16 @@ def signal(day: date | None = None, force: bool = False) -> dict:
     if st["status"] != "due" and not force:
         return st
     as_of = min(t, issue_time(day))
-    hist, cols = dataset(config.START, day)
-    try:
-        model, threshold, labelled_days = fit_for_day(hist, cols, day)
-    except ValueError as exc:
-        return {"status": str(exc), "day": str(day)}
-    target, _ = dataset(day, day + timedelta(days=1), as_of=as_of)
+    target, cols = dataset(day, day + timedelta(days=1), as_of=as_of)
+    model, info, refit_reason = load_month_model(day, cols)
+    loaded = model is not None
+    if not loaded:
+        try:
+            model, info = fit_month_model(day, t, refit_reason)
+        except ValueError as exc:
+            return {"status": str(exc), "day": str(day)}
+    cols = info["columns"]
+    threshold, labelled_days = info["threshold_eur_mwh"], info["train_days"]
     # no blind trades (same rule as the backtest): write nothing, a later slot retries
     why = data_problem(target)
     if why:
@@ -96,6 +154,9 @@ def signal(day: date | None = None, force: bool = False) -> dict:
         "size_mw": config.SIZE_MW, "weather_age_h": wx_age,
         "spread_last_known_day": str(target["diag_spread_last_known_day"].iloc[0]),
         "hf_revisions": hf.revisions_used(),
+        "model": {"file": f"models/{day:%Y-%m}.pkl.gz", "loaded": loaded, "trained_at": info["trained_at"],
+                  "trained_for_day": info["trained_for_day"], "hf_revisions": info["hf_revisions"],
+                  "refit_reason": info.get("refit_reason")},
     }
     csv_path.parent.mkdir(parents=True, exist_ok=True)
     out.to_csv(csv_path, index=False)

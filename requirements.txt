@@ -3,7 +3,7 @@ pandas>=2.2,<4
 numpy>=1.26,<3
 pyarrow>=15
 requests>=2.31
-scikit-learn>=1.4
+scikit-learn==1.9.1   # pinned: live loads a pickled model fitted earlier in the month
 matplotlib>=3.8
 huggingface_hub>=0.24
 holidays>=0.50
