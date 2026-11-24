@@ -209,7 +209,7 @@ entscheidet der Live-Track-Record.
 
 ## Live-Track-Record
 
-- **Ablauf:** Täglich um 10:47 startet ein externer Scheduler die GitHub Action über die API
+- **Ablauf:** Täglich um 10:47 startet ein externer Scheduler (über cron-job.org) die GitHub Action über die API
   (11:15 als Reserve, 18:30 für die Abrechnung). Sie erzeugt die Positionen für D+1 und
   committet sie nach `signals/`. Push-Zeitpunkt und Lauf-Protokoll belegen, dass das Signal vor
   Gate Closure existierte. GitHubs eigener Cron ist nur Fallback: Er startet geplante Läufe
