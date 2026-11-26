@@ -1,0 +1,33 @@
+{
+ "delivery_day": "2026-11-27",
+ "started_at": "2026-11-26T09:49:07.031520+00:00",
+ "as_of": "2026-11-26T09:49:07.031520+00:00",
+ "gate_closure": "2026-11-26T11:00:00+00:00",
+ "threshold_eur_mwh": 30.0,
+ "train_days": 394,
+ "features": 38,
+ "quarter_hours": 96,
+ "long": 0,
+ "short": 0,
+ "size_mw": 10.0,
+ "weather_age_h": {
+  "icon_eu": 3.9200087555555556,
+  "ecmwf_ifs": 3.1236198666666666
+ },
+ "spread_last_known_day": "2026-11-24",
+ "hf_revisions": [
+  "9dda166e8b8c3c71eec81e4be67e1d5646c287f2"
+ ],
+ "model": {
+  "file": "models/2026-11.pkl.gz",
+  "loaded": true,
+  "trained_at": "2026-11-25T09:49:02.426057+00:00",
+  "trained_for_day": "2026-11-26",
+  "hf_revisions": [
+   "05d21c7cb3ecb6828d2350350a73a178ec522ec6"
+  ],
+  "refit_reason": null
+ },
+ "generated_at": "2026-11-26T09:49:12.101763+00:00",
+ "late": false
+}
